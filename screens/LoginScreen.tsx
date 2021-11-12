@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import * as React from "react";
 import {
   StyleSheet,
@@ -7,21 +8,22 @@ import {
   Touchable,
   TouchableOpacity
 } from "react-native";
-import { useStore } from "../state/userState";
 import { RootStackParamList, RootStackScreenProps } from "../types";
 
 export default function WelcomeScreen({
   navigation
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
-  const { setLoggedIn } = useStore();
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <TouchableOpacity
         style={{ marginTop: 30 }}
-        onPress={() => {
-          setLoggedIn(true);
+        onPress={async () => {
+          await signInWithEmailAndPassword(
+            getAuth(),
+            "peppe.luzzi@gmail.com",
+            "ciaociao"
+          );
         }}
       >
         <View
