@@ -1,6 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as React from 'react';
 import { StyleSheet, View, Text, Touchable, TouchableOpacity } from 'react-native';
+import tailwind from 'tailwind-rn';
 import { RootStackParamList, RootStackScreenProps } from '../types';
 
 export default function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
@@ -10,12 +11,14 @@ export default function WelcomeScreen({ navigation }: NativeStackScreenProps<Roo
       <TouchableOpacity style={{marginTop: 30}} onPress={() => {
           navigation.navigate('Login');
       }}>
-        <View style={{backgroundColor: "red", paddingVertical: 15, paddingHorizontal: 25, borderRadius: 1000}}>
+        <View style={tailwind("flex-row items-center justify-between px-6 py-4 bg-yellow-400 rounded-full")}>
           <Text style={{color: "white", textTransform: "uppercase", fontWeight: "bold"}}>Login</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={{marginTop: 10}}>
-        <View style={{backgroundColor: "red", paddingVertical: 15, paddingHorizontal: 25, borderRadius: 1000}}>
+      <TouchableOpacity style={{marginTop: 10}} onPress={() => {
+          navigation.navigate('SignUp');
+      }}> 
+        <View style={tailwind("flex-row items-center justify-between px-6 py-4 bg-yellow-400 rounded-full")}>
           <Text style={{color: "white", textTransform: "uppercase", fontWeight: "bold"}}>Sign up</Text>
         </View>
       </TouchableOpacity>

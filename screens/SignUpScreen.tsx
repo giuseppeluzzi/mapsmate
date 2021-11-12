@@ -9,10 +9,10 @@ import {
   Button,
   TextInput
 } from "react-native";
-import { SocialIcon } from "react-native-elements";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Path, SvgUri, Use } from "react-native-svg";
 import tailwind from "tailwind-rn";
+import { SocialIcon } from 'react-native-elements'
 import { Text } from "../components/Themed";
 import { RootStackParamList, RootStackScreenProps } from "../types";
 
@@ -24,12 +24,13 @@ export default function WelcomeScreen({
       <View style={tailwind("px-8 ")}>
         <View style={tailwind("items-end")}>
           <TouchableOpacity 
-              onPress={()=>{navigation.navigate("SignUp")}}>
-            <Text style={tailwind("font-medium")}>Sign Up</Text>
+              onPress={() => {navigation.navigate('Login'); }}>
+            <Text style={tailwind("font-medium") }>Login</Text>
           </TouchableOpacity>
         </View>
-        <Text style={tailwind("pt-16 font-medium text-4xl")}>Login</Text>
-        <Text style={tailwind("pt-2 font-light")}>Welcome to Splits!</Text>
+      
+        <Text style={tailwind("pt-16 font-medium text-4xl")}>Sign Up</Text>
+        <Text style={tailwind("pt-2 font-light")}>Welcome back!</Text>
 
         <View style={tailwind("pt-10")}>
           <Text style={tailwind("uppercase font-medium text-sm")}>Email</Text>
@@ -68,7 +69,7 @@ export default function WelcomeScreen({
             "flex-row items-center justify-between px-6 py-4 bg-yellow-400 rounded-tl-lg rounded-bl-lg"
           )}
         >
-          <Text style={tailwind("font-medium text-lg")}>Log In</Text>
+          <Text style={tailwind("font-medium text-lg")}>Join Splits!</Text>
           <Svg
             style={tailwind("h-6 w-6 text-black")}
             fill="none"
@@ -86,18 +87,28 @@ export default function WelcomeScreen({
       </TouchableOpacity>
 
       <View>
-        <Text style={tailwind("text-center p-8 ")}>or login with social account</Text>
+        <Text style={tailwind("text-center p-8 ")}>or sign up with social account</Text>
       </View>
 
       <TouchableOpacity style={tailwind("items-center px-10 py-3")}>
       <SocialIcon
-        title='Facebook'
+        title='Sign In With Facebook'
         button
         type='facebook'
         style={tailwind("items-center px-10 py-3 rounded-lg bg-blue-800 items-center font-bold py-3.5 w-3/4 text-white")}
       />
-      </TouchableOpacity>   
-    
+      </TouchableOpacity>
+      
+      <View>
+        <Text style={tailwind("text-center p-8 -bottom-full")}>
+          <Text>By clicking Join Splits, you are agreeing to the </Text>
+          <Text style={tailwind("underline")}>Terms of Use</Text>
+          <Text> and the </Text>
+          <Text style={tailwind("underline")}>Privacy Policy</Text>
+        </Text>
+      </View>
+
     </SafeAreaView>
+    
   );
 }

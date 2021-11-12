@@ -32,6 +32,7 @@ import {
 import LinkingConfiguration from "./LinkingConfiguration";
 
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import SignUpScreen from "../screens/SignUpScreen";
 
 export default function Navigation({
   colorScheme
@@ -69,6 +70,11 @@ function RootNavigator() {
           <Stack.Screen
             name="Login"
             component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUpScreen}
             options={{ headerShown: false }}
           />
         </>
