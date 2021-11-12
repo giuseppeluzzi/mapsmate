@@ -92,7 +92,7 @@ export default function WelcomeScreen({
 
       <TouchableOpacity style={tailwind("items-center px-10 py-3")}>
       <SocialIcon
-        title='Sign In With Facebook'
+        title='Facebook'
         button
         type='facebook'
         style={tailwind("items-center px-10 py-3 rounded-lg bg-blue-800 items-center font-bold py-3.5 w-3/4 text-white")}
