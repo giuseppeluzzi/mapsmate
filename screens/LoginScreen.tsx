@@ -1,23 +1,48 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import * as React from 'react';
-import { StyleSheet, View, Text, Touchable, TouchableOpacity } from 'react-native';
-import { useStore } from '../state/userState';
-import { RootStackParamList, RootStackScreenProps } from '../types';
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import * as React from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Touchable,
+  TouchableOpacity
+} from "react-native";
+import { useStore } from "../state/userState";
+import { RootStackParamList, RootStackScreenProps } from "../types";
 
-export default function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
-      const { setLoggedIn } = useStore();
+export default function WelcomeScreen({
+  navigation
+}: NativeStackScreenProps<RootStackParamList, "Welcome">) {
+  const { setLoggedIn } = useStore();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      <TouchableOpacity style={{marginTop: 30}} onPress={() => {
+      <TouchableOpacity
+        style={{ marginTop: 30 }}
+        onPress={() => {
           setLoggedIn(true);
-      }}>
-        <View style={{backgroundColor: "red", paddingVertical: 15, paddingHorizontal: 25, borderRadius: 1000}}>
-          <Text style={{color: "white", textTransform: "uppercase", fontWeight: "bold"}}>Login</Text>
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: "red",
+            paddingVertical: 15,
+            paddingHorizontal: 25,
+            borderRadius: 1000
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+              textTransform: "uppercase",
+              fontWeight: "bold"
+            }}
+          >
+            Login
+          </Text>
         </View>
       </TouchableOpacity>
-   
     </View>
   );
 }
@@ -25,16 +50,16 @@ export default function WelcomeScreen({ navigation }: NativeStackScreenProps<Roo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center"
   },
   title: {
     fontSize: 40,
-    fontWeight: 'bold',
+    fontWeight: "bold"
   },
   separator: {
     marginVertical: 30,
     height: 1,
-    width: '80%',
-  },
+    width: "80%"
+  }
 });
