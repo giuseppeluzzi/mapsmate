@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { StyleSheet, TextInput } from "react-native";
+import tailwind from "tailwind-rn";
 
-import EditScreenInfo from "../components/EditScreenInfo";
 import { Text, View } from "../components/Themed";
 import { RootTabScreenProps } from "../types";
 
@@ -21,10 +21,7 @@ export default function TabOneScreen({
       <TextInput
         value={name}
         onChangeText={text => setName(text)}
-        style={{
-          backgroundColor: "red",
-          width: 300
-        }}
+        style={tailwind("bg-red-100 w-3/4")}
       ></TextInput>
     </View>
   );
