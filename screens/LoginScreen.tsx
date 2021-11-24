@@ -9,7 +9,6 @@ import {
   Button,
   TextInput
 } from "react-native";
-import { SocialIcon } from "react-native-elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
@@ -23,8 +22,11 @@ export default function WelcomeScreen({
     <SafeAreaView style={tailwind("bg-gray-100 pt-6")}>
       <View style={tailwind("px-8 ")}>
         <View style={tailwind("items-end")}>
-          <TouchableOpacity 
-              onPress={()=>{navigation.navigate("SignUp")}}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("SignUp");
+            }}
+          >
             <Text style={tailwind("font-medium")}>Sign Up</Text>
           </TouchableOpacity>
         </View>
@@ -86,18 +88,29 @@ export default function WelcomeScreen({
       </TouchableOpacity>
 
       <View>
-        <Text style={tailwind("text-center p-8 ")}>or login with social account</Text>
+        <Text style={tailwind("text-center p-8 ")}>
+          or login with social account
+        </Text>
       </View>
 
-      <TouchableOpacity style={tailwind("items-center px-10 py-3")}>
-      <SocialIcon
-        title='Facebook'
-        button
-        type='facebook'
-        style={tailwind("items-center px-10 py-3 rounded-lg bg-blue-800 items-center font-bold py-3.5 w-3/4 text-white")}
-      />
-      </TouchableOpacity>   
-    
+      <TouchableOpacity style={tailwind("items-center")}>
+        <View
+          style={tailwind(
+            "flex-row items-center px-10 py-3 rounded-lg bg-blue-700 items-center font-bold py-3.5 w-52"
+          )}
+        >
+          <Svg
+            viewBox="0 0 30 30"
+            fill="currentColor"
+            style={tailwind("h-8 w-8 text-white mr-3")}
+          >
+            <Path d="M15 3C8.373 3 3 8.373 3 15s5.373 12 12 12 12-5.373 12-12S21.627 3 15 3zm4.181 8h-1.729C16.376 11 16 11.568 16 12.718V14h3.154l-.428 3H16v7.95a10.057 10.057 0 0 1-3-.151V17h-3v-3h3v-1.611C13 9.339 14.486 8 17.021 8c1.214 0 1.856.09 2.16.131V11z" />
+          </Svg>
+          <Text style={tailwind("text-white font-semibold text-lg")}>
+            Facebook
+          </Text>
+        </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
