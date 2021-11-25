@@ -1,6 +1,11 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword
+} from "firebase/auth";
 import * as React from "react";
+import { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -9,6 +14,7 @@ import {
   Button,
   TextInput
 } from "react-native";
+import { showMessage } from "react-native-flash-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path, SvgUri, Use } from "react-native-svg";
 import tailwind from "tailwind-rn";
@@ -18,6 +24,12 @@ import { RootStackParamList, RootStackScreenProps } from "../types";
 export default function WelcomeScreen({
   navigation
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [mail, setMail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [passwordConfirm, setPasswordConfirm] = useState<string>("");
+
   return (
     <SafeAreaView style={tailwind("bg-gray-100 pt-6")}>
       <View style={tailwind("px-8 ")}>
@@ -40,7 +52,13 @@ export default function WelcomeScreen({
             style={tailwind(
               "mt-2 py-4 px-6 font-medium text-black bg-white rounded-lg"
             )}
-            value="peppe.luzzi@gmail.com"
+            editable={!loading}
+            keyboardType={"email-address"}
+            autoCapitalize={"none"}
+            autoCompleteType={"email"}
+            placeholder="Enter your email address"
+            value={mail}
+            onChangeText={text => setMail(text)}
           />
         </View>
         <View style={tailwind("pt-6")}>
@@ -52,19 +70,66 @@ export default function WelcomeScreen({
             style={tailwind(
               "mt-2 py-4 px-6 font-medium text-black bg-white rounded-lg"
             )}
-            value="password"
+            placeholder="Enter your password"
+            editable={!loading}
+            value={password}
+            onChangeText={text => setPassword(text)}
+          />
+        </View>
+        <View style={tailwind("pt-6")}>
+          <Text style={tailwind("uppercase font-medium text-sm")}>
+            Repeat password
+          </Text>
+          <TextInput
+            secureTextEntry={true}
+            style={tailwind(
+              "mt-2 py-4 px-6 font-medium text-black bg-white rounded-lg"
+            )}
+            placeholder="Repeat your password"
+            editable={!loading}
+            value={passwordConfirm}
+            onChangeText={text => setPasswordConfirm(text)}
           />
         </View>
       </View>
       <TouchableOpacity
         style={tailwind("self-end w-3/4 pt-10")}
-        /*onPress={async () => {
-          await signInWithEmailAndPassword(
-            getAuth(),
-            "peppe.luzzi@gmail.com",
-            "ciaociao"
-          );
-        }}*/
+        onPress={() => {
+          if (
+            mail.trim().length === 0 ||
+            password.trim().length === 0 ||
+            passwordConfirm.trim().length === 0
+          ) {
+            showMessage({
+              message: "Insert username and password",
+              type: "danger"
+            });
+            return;
+          }
+
+          if (password !== passwordConfirm) {
+            showMessage({
+              message: "Passwords do not match",
+              type: "danger"
+            });
+            return;
+          }
+
+          setLoading(true);
+          createUserWithEmailAndPassword(getAuth(), mail, password)
+            .then(() => {
+              setLoading(false);
+            })
+            .catch(e => {
+              showMessage({
+                message: e.message
+                  .replace("Firebase: ", "")
+                  .replace(/\(.*\)\./g, ""),
+                type: "danger"
+              });
+              setLoading(false);
+            });
+        }}
       >
         <View
           style={tailwind(
@@ -97,7 +162,7 @@ export default function WelcomeScreen({
       <TouchableOpacity style={tailwind("items-center")}>
         <View
           style={tailwind(
-            "flex-row items-center px-10 py-3 rounded-lg bg-blue-700 items-center font-bold py-3.5 w-52"
+            "flex-row items-center px-10 py-3 rounded-lg bg-blue-700 items-center font-bold w-52"
           )}
         >
           <Svg
