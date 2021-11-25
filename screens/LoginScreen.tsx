@@ -8,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
 import { Text } from "../components/Themed";
-import { RootStackParamList, RootStackScreenProps } from "../types";
+import { RootStackParamList } from "../types";
 
 export default function WelcomeScreen({
   navigation
