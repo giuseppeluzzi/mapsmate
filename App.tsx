@@ -7,8 +7,10 @@ import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 
 import "./firebase";
-import { getAuth, onAuthStateChanged } from "@firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "@firebase/auth";
 import { useStore } from "./state/userState";
+
+import FlashMessage from "react-native-flash-message";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -43,6 +45,12 @@ export default function App() {
       <SafeAreaProvider>
         <Navigation colorScheme={colorScheme} />
         <StatusBar />
+        <FlashMessage
+          position="top"
+          style={{
+            paddingHorizontal: 32
+          }}
+        />
       </SafeAreaProvider>
     );
   }
