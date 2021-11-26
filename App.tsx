@@ -11,6 +11,7 @@ import { getAuth, onAuthStateChanged, signOut } from "@firebase/auth";
 import { useStore } from "./state/userState";
 
 import FlashMessage from "react-native-flash-message";
+import tailwind from "tailwind-rn";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
