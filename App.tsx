@@ -12,6 +12,7 @@ import { useStore } from "./state/userState";
 
 import FlashMessage from "react-native-flash-message";
 import tailwind from "tailwind-rn";
+import { NativeBaseProvider } from "native-base";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -43,16 +44,18 @@ export default function App() {
     return null;
   } else {
     return (
-      <SafeAreaProvider>
-        <Navigation colorScheme={colorScheme} />
-        <StatusBar />
-        <FlashMessage
-          position="top"
-          style={{
-            paddingHorizontal: 32
-          }}
-        />
-      </SafeAreaProvider>
+      <NativeBaseProvider>
+        <SafeAreaProvider>
+          <Navigation colorScheme={colorScheme} />
+          <StatusBar />
+          <FlashMessage
+            position="top"
+            style={{
+              paddingHorizontal: 32
+            }}
+          />
+        </SafeAreaProvider>
+      </NativeBaseProvider>
     );
   }
 }

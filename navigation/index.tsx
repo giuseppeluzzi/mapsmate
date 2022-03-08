@@ -59,7 +59,7 @@ function RootNavigator() {
 
   return (
     <Stack.Navigator>
-      {!user ? (
+      {false && !user ? (
         <>
           <Stack.Screen
             name="Welcome"
