@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
 import { Text } from "../components/Themed";
+import { supabase } from "../lib/supabase";
 import { RootStackParamList } from "../types";
 
 export default function WelcomeScreen({
@@ -67,7 +68,7 @@ export default function WelcomeScreen({
       <TouchableOpacity
         disabled={loading}
         style={tailwind("self-end w-3/4 pt-10")}
-        onPress={() => {
+        onPress={async () => {
           if (mail.trim().length === 0 || password.trim().length === 0) {
             showMessage({
               message: "Insert username and password",
@@ -76,17 +77,17 @@ export default function WelcomeScreen({
             return;
           }
           setLoading(true);
-          signInWithEmailAndPassword(getAuth(), mail, password)
-            .then(() => {
-              setLoading(false);
-            })
-            .catch(() => {
-              showMessage({
-                message: "Invalid username or password, please retry again!",
-                type: "danger"
-              });
-              setLoading(false);
+          const { user, session, error } = await supabase.auth.signIn({
+            email: mail,
+            password: password
+          });
+          setLoading(false);
+          if (error) {
+            showMessage({
+              message: "Invalid username or password, please retry again!",
+              type: "danger"
             });
+          }
         }}
       >
         <View

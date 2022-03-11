@@ -13,6 +13,10 @@ import { useStore } from "./state/userState";
 import FlashMessage from "react-native-flash-message";
 import tailwind from "tailwind-rn";
 import { NativeBaseProvider } from "native-base";
+import { supabase } from "./lib/supabase";
+import { Session } from "@supabase/supabase-js";
+import { View } from "./components/Themed";
+import LoginScreen from "./screens/LoginScreen";
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -59,3 +63,19 @@ export default function App() {
     );
   }
 }
+
+
+/*export default function App(){
+  const [session, setSession] = useState<Session | null>(null)
+
+  useEffect( ()=> {
+    setSession(supabase.auth.session())
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+  }, [])
+
+  return null
+}
+*/

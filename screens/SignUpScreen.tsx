@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path, SvgUri, Use } from "react-native-svg";
 import tailwind from "tailwind-rn";
 import { Text } from "../components/Themed";
+import { supabase } from "../lib/supabase";
 import { RootStackParamList, RootStackScreenProps } from "../types";
 
 export default function WelcomeScreen({
@@ -94,7 +95,7 @@ export default function WelcomeScreen({
       </View>
       <TouchableOpacity
         style={tailwind("self-end w-3/4 pt-10")}
-        onPress={() => {
+        onPress={async () => {
           if (
             mail.trim().length === 0 ||
             password.trim().length === 0 ||
@@ -116,19 +117,10 @@ export default function WelcomeScreen({
           }
 
           setLoading(true);
-          createUserWithEmailAndPassword(getAuth(), mail, password)
-            .then(() => {
-              setLoading(false);
-            })
-            .catch(e => {
-              showMessage({
-                message: e.message
-                  .replace("Firebase: ", "")
-                  .replace(/\(.*\)\./g, ""),
-                type: "danger"
-              });
-              setLoading(false);
-            });
+          const {user, error} = await supabase.auth.signUp({
+            email: mail,
+            password: password
+          })
         }}
       >
         <View
