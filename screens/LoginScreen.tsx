@@ -1,5 +1,4 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import * as React from "react";
 import { useState } from "react";
 import { View, TouchableOpacity, TextInput } from "react-native";
@@ -76,15 +75,17 @@ export default function WelcomeScreen({
             });
             return;
           }
+
           setLoading(true);
           const { user, session, error } = await supabase.auth.signIn({
             email: mail,
             password: password
           });
           setLoading(false);
+
           if (error) {
             showMessage({
-              message: "Invalid username or password, please retry again!",
+              message: error.message,
               type: "danger"
             });
           }

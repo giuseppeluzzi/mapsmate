@@ -1,30 +1,21 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  signInWithEmailAndPassword
-} from "firebase/auth";
 import * as React from "react";
 import { useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Touchable,
-  TouchableOpacity,
-  Button,
-  TextInput
-} from "react-native";
+import { View, TouchableOpacity, TextInput } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Path, SvgUri, Use } from "react-native-svg";
+import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
 import { Text } from "../components/Themed";
 import { supabase } from "../lib/supabase";
-import { RootStackParamList, RootStackScreenProps } from "../types";
+import { useStore } from "../state/userState";
+import { RootStackParamList } from "../types";
 
 export default function WelcomeScreen({
   navigation
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
+  const { setUser } = useStore();
+
   const [loading, setLoading] = useState<boolean>(false);
 
   const [mail, setMail] = useState<string>("");
@@ -77,6 +68,8 @@ export default function WelcomeScreen({
             onChangeText={text => setPassword(text)}
           />
         </View>
+        {/* temp workaround for ios */}
+        <TextInput style={{ height: 0.01 }} />
         <View style={tailwind("pt-6")}>
           <Text style={tailwind("uppercase font-medium text-sm")}>
             Repeat password
@@ -117,10 +110,30 @@ export default function WelcomeScreen({
           }
 
           setLoading(true);
-          const {user, error} = await supabase.auth.signUp({
+          const { user, error } = await supabase.auth.signUp({
             email: mail,
             password: password
-          })
+          });
+
+          if (error) {
+            setLoading(false);
+            showMessage({
+              message: error.message,
+              type: "danger"
+            });
+            return;
+          }
+
+          if (user) {
+            setUser(user);
+            return;
+          }
+
+          showMessage({
+            message: "Unexpected error, please try again",
+            type: "danger"
+          });
+          setLoading(false);
         }}
       >
         <View
