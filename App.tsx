@@ -12,11 +12,13 @@ import { useStore } from "./state/userState";
 import FlashMessage from "react-native-flash-message";
 import { NativeBaseProvider } from "native-base";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
-  // const [authCheckCompleted, setAuthCheckCompleted] = useState<boolean>(true);
+  const [authCheckCompleted, setAuthCheckCompleted] = useState<boolean>(false);
 
   const { setUser } = useStore();
 
@@ -29,16 +31,24 @@ export default function App() {
         } else if (event == "SIGNED_OUT") {
           setUser(null);
         }
-        // setAuthCheckCompleted(true);
+        setAuthCheckCompleted(true);
       }
     );
+
+    AsyncStorage.getItem("auth/refresh_token").then(value => {
+      if (value) {
+        supabase.auth.setSession(value);
+      } else {
+        setAuthCheckCompleted(true);
+      }
+    });
 
     return () => {
       listener?.unsubscribe();
     };
   }, []);
 
-  if (!isLoadingComplete /*|| !authCheckCompleted*/) {
+  if (!isLoadingComplete || !authCheckCompleted) {
     return null;
   } else {
     return (

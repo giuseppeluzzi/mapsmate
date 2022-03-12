@@ -1,17 +1,7 @@
-import { FontAwesome5 } from "@expo/vector-icons";
-import {
-  HStack,
-  Icon,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-  VStack
-} from "native-base";
+import { HStack, Icon, ScrollView, Text, VStack } from "native-base";
 import * as React from "react";
 import { TouchableOpacity } from "react-native";
-import Svg, { Path } from "react-native-svg";
-import tailwind from "tailwind-rn";
+import { Path } from "react-native-svg";
 
 import { RootTabScreenProps } from "../types";
 
@@ -77,18 +67,26 @@ export default function GroupsTabScreen({
   return (
     <ScrollView paddingX={6} _contentContainerStyle={{ paddingTop: 3 }}>
       <VStack space={6}>
-        <Pressable>
+        <TouchableOpacity
+          onPress={() => {
+            console.log("ciao");
+          }}
+        >
           <GroupCard
             title="Avenger: Endgame Cinema"
             friends={8}
             expenses={1}
             total={-43.8}
           />
-        </Pressable>
+        </TouchableOpacity>
 
-        <Pressable>
+        <TouchableOpacity
+          onPress={() => {
+            console.log("ciao");
+          }}
+        >
           <GroupCard title="Disney's Land" friends={4} expenses={3} total={0} />
-        </Pressable>
+        </TouchableOpacity>
       </VStack>
     </ScrollView>
   );

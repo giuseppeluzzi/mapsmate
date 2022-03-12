@@ -10,6 +10,8 @@ import { Text } from "../components/Themed";
 import { supabase } from "../lib/supabase";
 import { RootStackParamList } from "../types";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default function WelcomeScreen({
   navigation
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
@@ -88,6 +90,10 @@ export default function WelcomeScreen({
               message: error.message,
               type: "danger"
             });
+          }
+
+          if (session && session.refresh_token) {
+            AsyncStorage.setItem("auth/refresh_token", session.refresh_token);
           }
         }}
       >
