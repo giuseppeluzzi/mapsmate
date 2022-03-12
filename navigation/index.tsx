@@ -212,7 +212,7 @@ function GroupBottomTabNavigator() {
         headerTitleStyle: {
           fontWeight: "bold",
           fontSize: 38,
-          paddingHorizontal: 16
+          paddingHorizontal: 12
         },
         headerTitleAlign: "left",
         tabBarStyle: tailwind("pt-4 bg-gray-100"),

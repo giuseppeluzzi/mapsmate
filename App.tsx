@@ -26,7 +26,7 @@ export default function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log(event);
-        if ((event == "SIGNED_IN" || event == "USER_UPDATED") && session) {
+        if (session && session.user) {
           setUser(session.user);
         } else if (event == "SIGNED_OUT") {
           setUser(null);
@@ -35,9 +35,17 @@ export default function App() {
       }
     );
 
-    AsyncStorage.getItem("auth/refresh_token").then(value => {
+    AsyncStorage.getItem("auth/refresh_token").then(async value => {
       if (value) {
-        supabase.auth.setSession(value);
+        const { session, error } = await supabase.auth.setSession(value);
+        if (error) {
+          AsyncStorage.removeItem("auth/refresh_token");
+          setAuthCheckCompleted(true);
+        }
+
+        if (session && session.refresh_token) {
+          AsyncStorage.setItem("auth/refresh_token", session.refresh_token);
+        }
       } else {
         setAuthCheckCompleted(true);
       }
