@@ -1,33 +1,42 @@
-import { FontAwesome } from '@expo/vector-icons';
-import * as Font from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import * as React from 'react';
+import React from 'react';
+
+import {
+  useFonts,
+  NunitoSans_200ExtraLight,
+  NunitoSans_200ExtraLight_Italic,
+  NunitoSans_300Light,
+  NunitoSans_300Light_Italic,
+  NunitoSans_400Regular,
+  NunitoSans_400Regular_Italic,
+  NunitoSans_600SemiBold,
+  NunitoSans_600SemiBold_Italic,
+  NunitoSans_700Bold,
+  NunitoSans_700Bold_Italic,
+  NunitoSans_800ExtraBold,
+  NunitoSans_800ExtraBold_Italic,
+  NunitoSans_900Black,
+  NunitoSans_900Black_Italic,
+} from '@expo-google-fonts/nunito-sans';
 
 export default function useCachedResources() {
-  const [isLoadingComplete, setLoadingComplete] = React.useState(false);
 
-  // Load any resources or data that we need prior to rendering the app
-  React.useEffect(() => {
-    async function loadResourcesAndDataAsync() {
-      try {
-        SplashScreen.preventAutoHideAsync();
+  // Load fonts
+  let [fontsLoaded] = useFonts({
+    NunitoSans_200ExtraLight,
+    NunitoSans_200ExtraLight_Italic,
+    NunitoSans_300Light,
+    NunitoSans_300Light_Italic,
+    NunitoSans_400Regular,
+    NunitoSans_400Regular_Italic,
+    NunitoSans_600SemiBold,
+    NunitoSans_600SemiBold_Italic,
+    NunitoSans_700Bold,
+    NunitoSans_700Bold_Italic,
+    NunitoSans_800ExtraBold,
+    NunitoSans_800ExtraBold_Italic,
+    NunitoSans_900Black,
+    NunitoSans_900Black_Italic,
+  });
 
-        // Load fonts
-        await Font.loadAsync({
-          ...FontAwesome.font,
-          'space-mono': require('../assets/fonts/SpaceMono-Regular.ttf'),
-        });
-      } catch (e) {
-        // We might want to provide this error information to an error reporting service
-        console.warn(e);
-      } finally {
-        setLoadingComplete(true);
-        SplashScreen.hideAsync();
-      }
-    }
-
-    loadResourcesAndDataAsync();
-  }, []);
-
-  return isLoadingComplete;
+  return fontsLoaded;
 }
