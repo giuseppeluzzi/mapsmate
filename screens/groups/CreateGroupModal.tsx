@@ -3,6 +3,8 @@ import { useState } from "react";
 
 import {
   Avatar,
+  Box,
+  Button,
   Card,
   Heading,
   HStack,
@@ -10,6 +12,7 @@ import {
   IconButton,
   Input,
   Text,
+  useColorModeValue,
   VStack
 } from "native-base";
 
@@ -30,10 +33,10 @@ const PartecipantCard = ({
   onRemove
 }: {
   partecipant: Partecipant;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) => {
   return (
-    <Card bg={"white"}>
+    <Card bg={"white"} _dark={{ bg: "black" }}>
       <HStack justifyContent={"space-between"} alignItems={"center"} space={6}>
         <Avatar>{partecipant.name}</Avatar>
         <VStack
