@@ -21,10 +21,11 @@ import { RootStackScreenProps } from "../../types";
 import { User } from "@supabase/supabase-js";
 import { useStore } from "../../state/userState";
 import { Path } from "react-native-svg";
+import { TouchableOpacity } from "react-native";
 
 type Partecipant = {
   name: string;
-  user: User | null | undefined;
+  user?: User | undefined;
   self?: boolean;
 };
 
@@ -101,6 +102,34 @@ export default function CreateGroupModal({
         {partecipants.map((partecipant, idx) => (
           <PartecipantCard key={idx} partecipant={partecipant} />
         ))}
+
+        <TouchableOpacity onPress={() => {}}>
+          <Card bg={"white"} _dark={{ bg: "black" }}>
+            <HStack
+              justifyContent={"space-between"}
+              alignItems={"center"}
+              space={6}
+            >
+              <Box bgColor={"primary.300"} rounded={"full"} p={2}>
+                <Icon viewBox="0 0 24 24">
+                  <Path
+                    fill="#1E1F20"
+                    fill-rule="evenodd"
+                    d="m13 4 .0006 6.9995L20 11c.5523 0 1 .4477 1 1s-.4477 1-1 1l-6.9994.0006L13 20c0 .5523-.4477 1-1 1s-1-.4477-1-1l-.0006-6.9994L4 13c-.55228 0-1-.4477-1-1s.44772-1 1-1l6.9994-.0005L11 4c0-.55228.4477-1 1-1s1 .44772 1 1Z"
+                    clip-rule="evenodd"
+                  />
+                </Icon>
+              </Box>
+              <VStack
+                flexGrow={1}
+                justifyContent={"center"}
+                alignItems={"flex-start"}
+              >
+                <Text fontWeight={"bold"}>Add a partecipant</Text>
+              </VStack>
+            </HStack>
+          </Card>
+        </TouchableOpacity>
       </VStack>
     </VStack>
   );

@@ -11,6 +11,8 @@ import { supabase } from "../lib/supabase";
 import { RootStackParamList } from "../types";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { makeRedirectUri, startAsync } from "expo-auth-session";
+import { openAuthSessionAsync } from "expo-web-browser";
 
 export default function WelcomeScreen({
   navigation
@@ -125,7 +127,36 @@ export default function WelcomeScreen({
         </Text>
       </View>
 
-      <TouchableOpacity style={tailwind("items-center")}>
+      <TouchableOpacity
+        style={tailwind("items-center")}
+        onPress={async () => {
+          const returnUrl = makeRedirectUri({
+            path: "/", // This were missing if you use react-navigation linking
+            useProxy: false
+          });
+
+          const authUrl =
+            "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/callback";
+
+          const result = await openAuthSessionAsync(authUrl, returnUrl, {});
+          console.log(result);
+
+          /*startAsync({
+            authUrl: authUrl,
+            returnUrl: returnUrl
+          }).then(async res => {
+            if (!res) {
+              return;
+            }
+
+            const { user, session, error } = await supabase.auth.signIn({
+              refreshToken: res.params?.refresh_token
+            });
+
+            console.log(user, session, error);
+          });*/
+        }}
+      >
         <View
           style={tailwind(
             "flex-row items-center px-10 py-3 rounded-lg bg-blue-700 items-center font-bold w-52"
