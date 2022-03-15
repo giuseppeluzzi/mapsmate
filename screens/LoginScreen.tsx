@@ -130,31 +130,42 @@ export default function WelcomeScreen({
       <TouchableOpacity
         style={tailwind("items-center")}
         onPress={async () => {
-          const returnUrl = makeRedirectUri({
-            path: "/", // This were missing if you use react-navigation linking
+          const proxyRedirectUri = makeRedirectUri({
+            useProxy: true
+          });
+          const redirectUri = makeRedirectUri({
+            path: "/",
             useProxy: false
           });
 
-          const authUrl =
-            "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/callback";
+          startAsync({
+            authUrl:
+              "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=" +
+              proxyRedirectUri,
+            returnUrl: redirectUri
+          }).then(async result => {
+            if (!result) return;
 
-          const result = await openAuthSessionAsync(authUrl, returnUrl, {});
-          console.log(result);
+            if (result.type === "error" && result.error) {
+              showMessage({
+                message: result.error?.message,
+                type: "danger"
+              });
 
-          /*startAsync({
-            authUrl: authUrl,
-            returnUrl: returnUrl
-          }).then(async res => {
-            if (!res) {
               return;
             }
 
-            const { user, session, error } = await supabase.auth.signIn({
-              refreshToken: res.params?.refresh_token
-            });
-
-            console.log(user, session, error);
-          });*/
+            if (result.type === "success" && result.params) {
+              const { user, session, error } = await supabase.auth.signIn({
+                refreshToken: result.params.refresh_token
+              });
+            } else {
+              showMessage({
+                message: "Unexpected error, please try again",
+                type: "danger"
+              });
+            }
+          });
         }}
       >
         <View
