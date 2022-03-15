@@ -7,7 +7,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   NavigationContainer,
   DefaultTheme,
-  DarkTheme
+  DarkTheme,
+  useNavigation
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
@@ -29,7 +30,8 @@ import SignUpScreen from "../screens/SignUpScreen";
 import Svg, { Path, Rect } from "react-native-svg";
 import ProfileTabScreen from "../screens/ProfileTabScreen";
 import GroupsTabScreens from "../screens/GroupsTabScreens";
-import { Heading, useTheme } from "native-base";
+import { Heading, HStack, Icon, IconButton, Text, useTheme } from "native-base";
+import CreateGroupModal from "../screens/groups/CreateGroupModal";
 
 export default function Navigation({
   colorScheme
@@ -54,6 +56,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const { user } = useStore();
+  const navigation = useNavigation();
+  const theme = useTheme();
 
   return (
     <Stack.Navigator>
@@ -87,8 +91,47 @@ function RootNavigator() {
             component={NotFoundScreen}
             options={{ title: "Oops!" }}
           />
-          <Stack.Group screenOptions={{ presentation: "modal" }}>
+          <Stack.Group
+            screenOptions={{
+              presentation: "modal",
+              header: ({ options }) => (
+                <HStack
+                  alignItems={"center"}
+                  justifyContent={"space-between"}
+                  bg={"gray.100"}
+                  px={6}
+                  pt={6}
+                  pb={12}
+                >
+                  <IconButton
+                    colorScheme={"white"}
+                    onPress={() => {
+                      navigation.goBack();
+                    }}
+                  >
+                    <Icon viewBox="0 0 24 24">
+                      <Path fill="#000" d="M0 0h24v24H0z" opacity=".01" />
+                      <Path
+                        fill="#1E1F20"
+                        fill-rule="evenodd"
+                        d="M6.34309 4.92888 12 10.585l5.6568-5.65612c.3905-.39052 1.0237-.39052 1.4142 0 .3905.39052.3905 1.02369 0 1.41421L13.415 12l5.656 5.6568c.3905.3905.3905 1.0237 0 1.4142-.3905.3905-1.0237.3905-1.4142 0L12 13.415l-5.65691 5.656c-.39052.3905-1.02369.3905-1.41421 0s-.39052-1.0237 0-1.4142L10.585 12 4.92888 6.34309c-.39052-.39052-.39052-1.02369 0-1.41421s1.02369-.39052 1.41421 0Z"
+                        clip-rule="evenodd"
+                      />
+                    </Icon>
+                  </IconButton>
+                  {options.headerRight}
+                </HStack>
+              ),
+              contentStyle: {
+                paddingHorizontal: theme.space[6]
+              }
+            }}
+          >
             <Stack.Screen name="Modal" component={ModalScreen} />
+            <Stack.Screen
+              name="CreateGroupModal"
+              component={CreateGroupModal}
+            />
           </Stack.Group>
         </>
       )}
@@ -110,7 +153,7 @@ function HomeBottomTabNavigator() {
       initialRouteName="GroupsTab"
       screenOptions={{
         headerTitle: ({ children }) => (
-          <Heading size={"2xl"} paddingX={2} color={"black"} fontWeight={700}>
+          <Heading size={"2xl"} color={"black"} fontWeight={700}>
             {children}
           </Heading>
         ),
@@ -119,6 +162,12 @@ function HomeBottomTabNavigator() {
           shadowOpacity: 0,
           height: 116,
           backgroundColor: theme.colors.gray[100]
+        },
+        headerLeftContainerStyle: {
+          paddingLeft: theme.space[2]
+        },
+        headerRightContainerStyle: {
+          paddingRight: 22
         },
         headerTitleAlign: "left",
         tabBarStyle: {
@@ -151,22 +200,6 @@ function HomeBottomTabNavigator() {
               />
             </Svg>
           )
-
-          /*headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate("Modal")}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1
-              })}
-            >
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          )*/
         })}
       />
       <BottomTab.Screen

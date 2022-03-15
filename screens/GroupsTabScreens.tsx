@@ -1,5 +1,13 @@
-import { HStack, Icon, ScrollView, Text, VStack } from "native-base";
+import {
+  HStack,
+  Icon,
+  IconButton,
+  ScrollView,
+  Text,
+  VStack
+} from "native-base";
 import * as React from "react";
+import { useLayoutEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import { Path } from "react-native-svg";
 
@@ -52,7 +60,12 @@ const GroupCard = ({
               </Text>
             </HStack>
           </VStack>
-          <Text fontWeight={"semibold"}>
+          <Text
+            fontWeight={"semibold"}
+            color={
+              total === 0 ? "gray.600" : total > 0 ? "green.600" : "red.600"
+            }
+          >
             {total === 0 ? "Settled!" : `${total}€`}
           </Text>
         </HStack>
@@ -64,6 +77,26 @@ const GroupCard = ({
 export default function GroupsTabScreen({
   navigation
 }: RootTabScreenProps<"GroupsTab">) {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <IconButton
+          variant={"primary"}
+          onPress={() => navigation.navigate("CreateGroupModal")}
+        >
+          <Icon viewBox="0 0 24 24">
+            <Path
+              fill="#1E1F20"
+              fill-rule="evenodd"
+              d="m13 4 .0006 6.9995L20 11c.5523 0 1 .4477 1 1s-.4477 1-1 1l-6.9994.0006L13 20c0 .5523-.4477 1-1 1s-1-.4477-1-1l-.0006-6.9994L4 13c-.55228 0-1-.4477-1-1s.44772-1 1-1l6.9994-.0005L11 4c0-.55228.4477-1 1-1s1 .44772 1 1Z"
+              clip-rule="evenodd"
+            />
+          </Icon>
+        </IconButton>
+      )
+    });
+  }, [navigation]);
+
   return (
     <ScrollView paddingX={6} _contentContainerStyle={{ paddingTop: 3 }}>
       <VStack space={6}>

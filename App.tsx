@@ -26,7 +26,7 @@ export default function App() {
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log(event);
+        console.log({ event, session });
         if (session && session.user) {
           setUser(session.user);
         } else if (event == "SIGNED_OUT") {
@@ -59,8 +59,21 @@ export default function App() {
 
   const theme = extendTheme({
     colors: {
-      // Primary yellow
+      // Primary custom
       primary: {
+        50: "#fff6db",
+        100: "#ffe5af",
+        200: "#ffd47f",
+        300: "#ffc34d",
+        400: "#ffb21d",
+        500: "#e69805",
+        600: "#b37600",
+        700: "#805400",
+        800: "#4e3300",
+        900: "#1e1000"
+      }
+      // Primary yellow
+      /*primary: {
         50: "#fefce8",
         100: "#fef9c3",
         200: "#fef08a",
@@ -71,7 +84,7 @@ export default function App() {
         700: "#a16207",
         800: "#854d0e",
         900: "#713f12"
-      }
+      }*/
       // Primary amber
       /*primary: {
         50: "#fffbeb",
@@ -96,6 +109,37 @@ export default function App() {
             paddingX: 3.5,
             paddingY: 0.5,
             fontWeight: "bold"
+          },
+          bg: "primary.300",
+          _hover: {
+            bg: "primary.500"
+          },
+          _pressed: {
+            bg: "primary.500"
+          }
+        }
+      },
+      IconButton: {
+        baseStyle: {
+          rounded: "16",
+          color: "black"
+        },
+        variants: {
+          primary: (props: any) => {
+            const styleObject = {
+              _web: {
+                outlineWidth: 0
+              },
+              bg: "primary.300",
+              _hover: {
+                bg: "primary.500"
+              },
+              _pressed: {
+                bg: "primary.500"
+              }
+            };
+
+            return styleObject;
           }
         }
       }
