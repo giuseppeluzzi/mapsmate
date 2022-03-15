@@ -156,9 +156,16 @@ export default function WelcomeScreen({
             }
 
             if (result.type === "success" && result.params) {
-              const { user, session, error } = await supabase.auth.signIn({
+              const { error } = await supabase.auth.signIn({
                 refreshToken: result.params.refresh_token
               });
+
+              if (error) {
+                showMessage({
+                  message: "Unexpected error, please try again",
+                  type: "danger"
+                });
+              }
             } else {
               showMessage({
                 message: "Unexpected error, please try again",

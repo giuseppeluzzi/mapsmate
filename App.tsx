@@ -38,7 +38,9 @@ export default function App() {
 
     AsyncStorage.getItem("auth/refresh_token").then(async value => {
       if (value) {
-        const { session, error } = await supabase.auth.setSession(value);
+        const { session, error } = await supabase.auth.signIn({
+          refreshToken: value
+        });
         if (error) {
           AsyncStorage.removeItem("auth/refresh_token");
           setAuthCheckCompleted(true);
