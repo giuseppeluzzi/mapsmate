@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { makeRedirectUri, startAsync } from "expo-auth-session";
+import { showMessage } from "react-native-flash-message";
 
 const supabaseUrl = "https://qfjavyudshdwnuoedalk.supabase.co";
 const supabaseAnonKey =
@@ -9,3 +11,53 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   localStorage: AsyncStorage,
   detectSessionInUrl: false
 });
+
+export const onFacebookLogin = () => {
+  const proxyRedirectUri = makeRedirectUri({
+    useProxy: true
+  });
+  const redirectUri = makeRedirectUri({
+    path: "/",
+    useProxy: false
+  });
+
+  startAsync({
+    authUrl:
+      "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=" +
+      proxyRedirectUri,
+    returnUrl: redirectUri
+  }).then(async result => {
+    if (!result) return;
+
+    if (result.type === "error" && result.error) {
+      showMessage({
+        message: result.error?.message,
+        type: "danger"
+      });
+
+      return;
+    }
+
+    if (result.type === "success" && result.params) {
+      const { session, error } = await supabase.auth.signIn({
+        refreshToken: result.params.refresh_token
+      });
+
+      if (error) {
+        showMessage({
+          message: "Unexpected error, please try again",
+          type: "danger"
+        });
+      }
+
+      if (session && session.refresh_token) {
+        AsyncStorage.setItem("auth/refresh_token", session.refresh_token);
+      }
+    } else {
+      showMessage({
+        message: "Unexpected error, please try again",
+        type: "danger"
+      });
+    }
+  });
+};

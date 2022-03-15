@@ -26,7 +26,7 @@ export default function App() {
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log({ event, session });
+        console.log({ event });
         if (session && session.user) {
           setUser(session.user);
         } else if (event == "SIGNED_OUT") {

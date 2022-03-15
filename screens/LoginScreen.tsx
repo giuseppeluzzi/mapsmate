@@ -7,12 +7,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
 import { Text } from "../components/Themed";
-import { supabase } from "../lib/supabase";
+import { onFacebookLogin, supabase } from "../lib/supabase";
 import { RootStackParamList } from "../types";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { makeRedirectUri, startAsync } from "expo-auth-session";
-import { openAuthSessionAsync } from "expo-web-browser";
 
 export default function WelcomeScreen({
   navigation
@@ -129,51 +127,7 @@ export default function WelcomeScreen({
 
       <TouchableOpacity
         style={tailwind("items-center")}
-        onPress={async () => {
-          const proxyRedirectUri = makeRedirectUri({
-            useProxy: true
-          });
-          const redirectUri = makeRedirectUri({
-            path: "/",
-            useProxy: false
-          });
-
-          startAsync({
-            authUrl:
-              "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=" +
-              proxyRedirectUri,
-            returnUrl: redirectUri
-          }).then(async result => {
-            if (!result) return;
-
-            if (result.type === "error" && result.error) {
-              showMessage({
-                message: result.error?.message,
-                type: "danger"
-              });
-
-              return;
-            }
-
-            if (result.type === "success" && result.params) {
-              const { error } = await supabase.auth.signIn({
-                refreshToken: result.params.refresh_token
-              });
-
-              if (error) {
-                showMessage({
-                  message: "Unexpected error, please try again",
-                  type: "danger"
-                });
-              }
-            } else {
-              showMessage({
-                message: "Unexpected error, please try again",
-                type: "danger"
-              });
-            }
-          });
-        }}
+        onPress={onFacebookLogin}
       >
         <View
           style={tailwind(

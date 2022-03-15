@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
 import { Text } from "../components/Themed";
-import { supabase } from "../lib/supabase";
+import { onFacebookLogin, supabase } from "../lib/supabase";
 import { useStore } from "../state/userState";
 import { RootStackParamList } from "../types";
 
@@ -164,7 +164,10 @@ export default function WelcomeScreen({
         </Text>
       </View>
 
-      <TouchableOpacity style={tailwind("items-center")}>
+      <TouchableOpacity
+        style={tailwind("items-center")}
+        onPress={onFacebookLogin}
+      >
         <View
           style={tailwind(
             "flex-row items-center px-10 py-3 rounded-lg bg-blue-700 items-center font-bold w-52"
