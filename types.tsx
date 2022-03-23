@@ -9,6 +9,7 @@ import {
   NavigatorScreenParams
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { User } from "@supabase/supabase-js";
 
 declare global {
   namespace ReactNavigation {
@@ -23,7 +24,12 @@ export type RootStackParamList = {
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Group: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
-  CreateGroupModal: undefined;
+
+  CreateGroupModal: {
+    partecipants?: GroupPartecipant[];
+  };
+  AddPartecipantModal: undefined;
+
   NotFound: undefined;
 };
 
@@ -40,3 +46,14 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
     BottomTabScreenProps<RootTabParamList, Screen>,
     NativeStackScreenProps<RootStackParamList>
   >;
+
+export type UserProfile = {
+  name: string;
+  user: User;
+};
+
+export type GroupPartecipant = {
+  name: string;
+  user?: User | undefined;
+  self?: boolean;
+};

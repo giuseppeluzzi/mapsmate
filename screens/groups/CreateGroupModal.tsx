@@ -1,43 +1,35 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import {
   Avatar,
   Box,
   Button,
-  Card,
   Heading,
   HStack,
   Icon,
   IconButton,
   Input,
   Text,
-  useColorModeValue,
   VStack
 } from "native-base";
 
-import { RootStackScreenProps } from "../../types";
+import { GroupPartecipant, RootStackScreenProps } from "../../types";
 
-import { User } from "@supabase/supabase-js";
 import { useStore } from "../../state/userState";
 import { Path } from "react-native-svg";
 import { TouchableOpacity } from "react-native";
-
-type Partecipant = {
-  name: string;
-  user?: User | undefined;
-  self?: boolean;
-};
+import { Card } from "components/Card";
 
 const PartecipantCard = ({
   partecipant,
   onRemove
 }: {
-  partecipant: Partecipant;
+  partecipant: GroupPartecipant;
   onRemove?: () => void;
 }) => {
   return (
-    <Card bg={"white"} _dark={{ bg: "black" }}>
+    <Card>
       <HStack justifyContent={"space-between"} alignItems={"center"} space={6}>
         <Avatar>{partecipant.name}</Avatar>
         <VStack
@@ -73,17 +65,34 @@ const PartecipantCard = ({
 };
 
 export default function CreateGroupModal({
-  navigation
+  navigation,
+  route
 }: RootStackScreenProps<"CreateGroupModal">) {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button variant={"primary"} bg={"gray.100"}>
+          Done
+        </Button>
+      )
+    });
+  }, [navigation]);
+
   const { user } = useStore();
 
-  const [partecipants, setPartecipants] = useState<Partecipant[]>([
+  const [partecipants, setPartecipants] = useState<GroupPartecipant[]>([
     {
       name: "You",
-      user: user,
-      self: true
+      self: true,
+      ...(user ? user : {})
     }
   ]);
+
+  useEffect(() => {
+    if (route.params?.partecipants) {
+      setPartecipants([...partecipants, ...route.params?.partecipants]);
+    }
+  }, [route.params?.partecipants]);
 
   return (
     <VStack>
@@ -94,17 +103,30 @@ export default function CreateGroupModal({
         placeholder="Enter Group Name"
         fontWeight={"bold"}
         fontSize={"3xl"}
+        bg={"transparent"}
       />
       <Heading mt={10} mb={6} size={"md"}>
         Add partecipants
       </Heading>
-      <VStack space={6}>
-        {partecipants.map((partecipant, idx) => (
-          <PartecipantCard key={idx} partecipant={partecipant} />
+      <VStack space={3}>
+        {partecipants.map((partecipant, partecipantIdx) => (
+          <PartecipantCard
+            key={partecipantIdx}
+            partecipant={partecipant}
+            onRemove={() => {
+              setPartecipants(
+                partecipants.filter((_, index) => partecipantIdx !== index)
+              );
+            }}
+          />
         ))}
 
-        <TouchableOpacity onPress={() => {}}>
-          <Card bg={"white"} _dark={{ bg: "black" }}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("AddPartecipantModal");
+          }}
+        >
+          <Card>
             <HStack
               justifyContent={"space-between"}
               alignItems={"center"}

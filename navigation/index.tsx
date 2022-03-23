@@ -40,6 +40,7 @@ import {
   useTheme
 } from "native-base";
 import CreateGroupModal from "../screens/groups/CreateGroupModal";
+import AddPartecipantModal from "../screens/groups/AddPartecipantModal";
 
 export default function Navigation({
   colorScheme
@@ -132,12 +133,12 @@ function RootNavigator() {
                 >
                   <IconButton
                     colorScheme={"white"}
+                    bg={"#ffffff"}
                     onPress={() => {
                       navigation.goBack();
                     }}
                   >
                     <Icon viewBox="0 0 24 24">
-                      <Path fill="#000" d="M0 0h24v24H0z" opacity=".01" />
                       <Path
                         fill="#1E1F20"
                         fill-rule="evenodd"
@@ -146,7 +147,7 @@ function RootNavigator() {
                       />
                     </Icon>
                   </IconButton>
-                  {options.headerRight}
+                  {options.headerRight && options.headerRight({})}
                 </HStack>
               ),
               contentStyle: {
@@ -158,6 +159,10 @@ function RootNavigator() {
             <Stack.Screen
               name="CreateGroupModal"
               component={CreateGroupModal}
+            />
+            <Stack.Screen
+              name="AddPartecipantModal"
+              component={AddPartecipantModal}
             />
           </Stack.Group>
         </>
@@ -193,10 +198,7 @@ function HomeBottomTabNavigator() {
           borderBottomWidth: 0,
           shadowOpacity: 0,
           height: 116,
-          backgroundColor: useColorModeValue(
-            theme.colors.gray[100],
-            theme.colors.gray[900]
-          )
+          backgroundColor: useColorModeValue("#f9f9f9", theme.colors.gray[900])
         },
         headerLeftContainerStyle: {
           paddingLeft: theme.space[2]

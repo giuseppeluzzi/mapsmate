@@ -61,6 +61,9 @@ export default function App() {
 
   const theme = extendTheme({
     colors: {
+      gray: {
+        100: "#f9f9f9"
+      },
       // Primary custom
       primary: {
         50: "#fff6db",
@@ -106,18 +109,28 @@ export default function App() {
         baseStyle: {
           rounded: "full"
         },
+        variants: {
+          primary: (props: any) => {
+            const styleObject = {
+              bg: "primary.300",
+              _hover: {
+                bg: "primary.500"
+              },
+              _pressed: {
+                bg: "primary.500"
+              }
+            };
+
+            return styleObject;
+          }
+        },
         defaultProps: {
+          variant: "primary",
           _text: {
+            fontWeight: "bold",
             paddingX: 3.5,
             paddingY: 0.5,
-            fontWeight: "bold"
-          },
-          bg: "primary.300",
-          _hover: {
-            bg: "primary.500"
-          },
-          _pressed: {
-            bg: "primary.500"
+            color: "black"
           }
         }
       },
@@ -143,6 +156,12 @@ export default function App() {
 
             return styleObject;
           }
+        }
+      },
+      Input: {
+        defaultProps: {
+          borderWidth: 0,
+          bg: "white"
         }
       }
     },

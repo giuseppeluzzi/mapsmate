@@ -82,7 +82,7 @@ export default function GroupsTabScreen({
       headerRight: () => (
         <IconButton
           variant={"primary"}
-          onPress={() => navigation.navigate("CreateGroupModal")}
+          onPress={() => navigation.navigate("CreateGroupModal", {})}
         >
           <Icon viewBox="0 0 24 24">
             <Path
