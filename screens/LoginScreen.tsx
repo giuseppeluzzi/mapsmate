@@ -90,6 +90,7 @@ export default function WelcomeScreen({
               message: error.message,
               type: "danger"
             });
+            return;
           }
 
           if (session && session.refresh_token) {

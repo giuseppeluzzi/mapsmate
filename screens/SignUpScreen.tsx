@@ -7,7 +7,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
 import { Text } from "../components/Themed";
-import { onFacebookLogin, supabase } from "../lib/supabase";
+import {
+  initializeUserProfile,
+  onFacebookLogin,
+  supabase
+} from "../lib/supabase";
 import { useStore } from "../state/userState";
 import { RootStackParamList } from "../types";
 
@@ -18,6 +22,7 @@ export default function WelcomeScreen({
 
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [name, setName] = useState<string>("");
   const [mail, setMail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
@@ -37,6 +42,19 @@ export default function WelcomeScreen({
 
         <Text style={tailwind("pt-16 font-medium text-4xl")}>Sign Up</Text>
         <Text style={tailwind("pt-2 font-light")}>Welcome back!</Text>
+
+        <View style={tailwind("pt-10")}>
+          <Text style={tailwind("uppercase font-medium text-sm")}>Name</Text>
+          <TextInput
+            style={tailwind(
+              "mt-2 py-4 px-6 font-medium text-black bg-white rounded-lg"
+            )}
+            editable={!loading}
+            placeholder="Enter your name"
+            value={name}
+            onChangeText={text => setName(text)}
+          />
+        </View>
 
         <View style={tailwind("pt-10")}>
           <Text style={tailwind("uppercase font-medium text-sm")}>Email</Text>
@@ -125,6 +143,8 @@ export default function WelcomeScreen({
           }
 
           if (user) {
+            initializeUserProfile(user.id, name);
+
             setUser(user);
             return;
           }

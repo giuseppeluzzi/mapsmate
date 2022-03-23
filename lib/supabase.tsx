@@ -61,3 +61,43 @@ export const onFacebookLogin = () => {
     }
   });
 };
+
+export const initializeUserProfile = (id: string, name: string) => {
+  const emojis = [
+    "🤪",
+    "😃",
+    "😈",
+    "💩",
+    "🐷",
+    "🐥",
+    "🐙",
+    "❤️",
+    "🧡",
+    "💛",
+    "💚",
+    "💙",
+    "💜",
+    "🖤",
+    "🤍",
+    "🤎",
+    "❤️‍🔥",
+    "🥐",
+    "🍓"
+  ];
+
+  supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", id)
+    .then(value => {
+      if (!value.data || value.data.length === 0) {
+        supabase.from("profiles").insert([
+          {
+            id: id,
+            name: name,
+            emoji: emojis[Math.floor(Math.random() * (emojis.length + 1))]
+          }
+        ]);
+      }
+    });
+};
