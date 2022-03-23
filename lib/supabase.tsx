@@ -91,13 +91,18 @@ export const initializeUserProfile = (id: string, name: string) => {
     .eq("id", id)
     .then(value => {
       if (!value.data || value.data.length === 0) {
-        supabase.from("profiles").insert([
-          {
-            id: id,
-            name: name,
-            emoji: emojis[Math.floor(Math.random() * (emojis.length + 1))]
-          }
-        ]);
+        supabase
+          .from("profiles")
+          .insert([
+            {
+              id: id,
+              name: name,
+              emoji: emojis[Math.floor(Math.random() * (emojis.length + 1))]
+            }
+          ])
+          .then(() => {
+            // console.log(data);
+          });
       }
     });
 };

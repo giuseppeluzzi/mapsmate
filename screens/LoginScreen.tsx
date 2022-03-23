@@ -11,10 +11,13 @@ import { onFacebookLogin, supabase } from "../lib/supabase";
 import { RootStackParamList } from "../types";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useStore } from "state/userState";
 
 export default function WelcomeScreen({
   navigation
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
+  const { setUser } = useStore();
+
   const [loading, setLoading] = useState<boolean>(false);
 
   const [mail, setMail] = useState<string>("");
@@ -83,14 +86,18 @@ export default function WelcomeScreen({
             email: mail,
             password: password
           });
-          setLoading(false);
 
           if (error) {
+            setLoading(false);
             showMessage({
               message: error.message,
               type: "danger"
             });
             return;
+          }
+
+          if (user) {
+            setUser(user);
           }
 
           if (session && session.refresh_token) {

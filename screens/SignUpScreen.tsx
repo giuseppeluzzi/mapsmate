@@ -142,9 +142,11 @@ export default function WelcomeScreen({
             return;
           }
 
+          console.log("ciao1");
           if (user) {
+            console.log("ciao2");
             initializeUserProfile(user.id, name);
-
+            console.log("ciao3");
             setUser(user);
             return;
           }
