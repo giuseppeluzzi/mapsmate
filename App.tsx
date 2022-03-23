@@ -15,6 +15,8 @@ import { extendTheme, NativeBaseProvider, useTheme } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppLoading from "expo-app-loading";
 
+import "react-native-url-polyfill/auto";
+
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();

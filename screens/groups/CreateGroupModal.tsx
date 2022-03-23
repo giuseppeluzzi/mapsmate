@@ -20,49 +20,7 @@ import { useStore } from "../../state/userState";
 import { Path } from "react-native-svg";
 import { TouchableOpacity } from "react-native";
 import { Card } from "components/Card";
-
-const PartecipantCard = ({
-  partecipant,
-  onRemove
-}: {
-  partecipant: GroupPartecipant;
-  onRemove?: () => void;
-}) => {
-  return (
-    <Card>
-      <HStack justifyContent={"space-between"} alignItems={"center"} space={6}>
-        <Avatar>{partecipant.name}</Avatar>
-        <VStack
-          flexGrow={1}
-          justifyContent={"center"}
-          alignItems={"flex-start"}
-        >
-          <Text fontWeight={"bold"}>{partecipant.name}</Text>
-          {partecipant.user && <Text>{partecipant.user.email}</Text>}
-        </VStack>
-
-        {!partecipant.self && (
-          <IconButton
-            variant={"ghost"}
-            onPress={onRemove}
-            height={10}
-            width={10}
-          >
-            <Icon height={10} width={10}>
-              <Path fill="#000" d="M0 0h24v24H0z" opacity=".01" />
-              <Path
-                fill="#1E1F20"
-                fill-rule="evenodd"
-                d="M6.34309 4.92888 12 10.585l5.6568-5.65612c.3905-.39052 1.0237-.39052 1.4142 0 .3905.39052.3905 1.02369 0 1.41421L13.415 12l5.656 5.6568c.3905.3905.3905 1.0237 0 1.4142-.3905.3905-1.0237.3905-1.4142 0L12 13.415l-5.65691 5.656c-.39052.3905-1.02369.3905-1.41421 0s-.39052-1.0237 0-1.4142L10.585 12 4.92888 6.34309c-.39052-.39052-.39052-1.02369 0-1.41421s1.02369-.39052 1.41421 0Z"
-                clip-rule="evenodd"
-              />
-            </Icon>
-          </IconButton>
-        )}
-      </HStack>
-    </Card>
-  );
-};
+import { UserCard } from "components/UserCard";
 
 export default function CreateGroupModal({
   navigation,
@@ -110,20 +68,35 @@ export default function CreateGroupModal({
       </Heading>
       <VStack space={3}>
         {partecipants.map((partecipant, partecipantIdx) => (
-          <PartecipantCard
+          <UserCard
             key={partecipantIdx}
-            partecipant={partecipant}
-            onRemove={() => {
-              setPartecipants(
-                partecipants.filter((_, index) => partecipantIdx !== index)
-              );
-            }}
+            name={partecipant.name}
+            email={partecipant.user ? partecipant.user.email : undefined}
+            emoji={partecipant.user ? partecipant.user.emoji : undefined}
+            onRemove={
+              !partecipant.self
+                ? () => {
+                    setPartecipants(
+                      partecipants.filter(
+                        (_, index) => partecipantIdx !== index
+                      )
+                    );
+                  }
+                : undefined
+            }
           />
         ))}
 
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate("AddPartecipantModal");
+            navigation.navigate({
+              name: "AddPartecipantModal",
+              params: {
+                excludedIds: partecipants
+                  .filter(partecipant => partecipant.user)
+                  .map(partecipant => partecipant.user?.id || "")
+              }
+            });
           }}
         >
           <Card>

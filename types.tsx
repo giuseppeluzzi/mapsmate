@@ -28,7 +28,9 @@ export type RootStackParamList = {
   CreateGroupModal: {
     partecipants?: GroupPartecipant[];
   };
-  AddPartecipantModal: undefined;
+  AddPartecipantModal: {
+    excludedIds?: string[];
+  };
 
   NotFound: undefined;
 };
@@ -48,12 +50,14 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
   >;
 
 export type UserProfile = {
+  id: string;
   name: string;
-  user: User;
+  email: string;
+  emoji: string;
 };
 
 export type GroupPartecipant = {
   name: string;
-  user?: User | undefined;
+  user?: UserProfile;
   self?: boolean;
 };

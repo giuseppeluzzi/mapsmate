@@ -1,27 +1,47 @@
 import React, { useState } from "react";
-import { Button, Heading, HStack, Input, Text, VStack } from "native-base";
+import {
+  Button,
+  FlatList,
+  Heading,
+  HStack,
+  Input,
+  Text,
+  VStack
+} from "native-base";
 
 import { RootStackScreenProps, UserProfile } from "../../types";
 import { supabase } from "lib/supabase";
 import { useEffect } from "react";
+import { UserCard } from "components/UserCard";
 
 export default function AddPartecipantModal({
-  navigation
+  navigation,
+  route
 }: RootStackScreenProps<"AddPartecipantModal">) {
   const [search, setSearch] = useState<string>("");
   const [searchResult, setSearchResult] = useState<UserProfile[]>([]);
 
   useEffect(() => {
+    if (search.length == 0) return;
+
     supabase
-      .from("profiles")
+      .from("users")
       .select()
-      .textSearch("name", `'${search}'`)
+      .or(`email.eq.${search.toLowerCase()},name.ilike.*${search}*`)
+      .filter("id", "not.in", `(${route.params.excludedIds ?? []})`)
       .then(result => {
-        /*setSearchResult(result.data?.map((value) => {
-        return {
-        name: value
-        };
-      }))*/
+        console.log(result.data);
+        setSearchResult(
+          result.data?.map(value => {
+            console.log(value);
+            return {
+              id: value.id,
+              name: value.name,
+              email: value.email,
+              emoji: value.emoji
+            };
+          }) ?? []
+        );
       });
   }, [search]);
 
@@ -37,27 +57,39 @@ export default function AddPartecipantModal({
         placeholder="Enter name, email"
         value={search}
         onChangeText={setSearch}
+        autoCapitalize={"none"}
+        autoCorrect={false}
       />
 
-      <VStack space={3}></VStack>
+      {search.length > 0 && searchResult.length === 0 && (
+        <Text>No users found matching this criteria</Text>
+      )}
 
-      <Button
-        onPress={() => {
-          navigation.navigate({
-            name: "CreateGroupModal",
-            params: {
-              partecipants: [
-                {
-                  name: "suca"
-                }
-              ]
-            },
-            merge: true
-          });
-        }}
-      >
-        ciao
-      </Button>
+      <FlatList
+        data={searchResult}
+        renderItem={({ item }) => (
+          <UserCard
+            name={item.name}
+            email={item.email}
+            emoji={item.emoji}
+            onPress={() => {
+              navigation.navigate({
+                name: "CreateGroupModal",
+                params: {
+                  partecipants: [
+                    {
+                      name: item.name,
+                      user: item,
+                      self: false
+                    }
+                  ]
+                },
+                merge: true
+              });
+            }}
+          />
+        )}
+      />
     </VStack>
   );
 }

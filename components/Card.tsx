@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, IBoxProps } from "native-base";
+import { Box, IBoxProps, Pressable } from "native-base";
 
 export function Card(props: IBoxProps) {
   return (
