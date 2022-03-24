@@ -51,6 +51,7 @@
     "react-native-url-polyfill": "^1.3.0",
     "react-native-vector-icons": "^9.0.0",
     "react-native-web": "0.17.1",
+    "rn-emoji-keyboard": "^0.7.1",
     "tailwind-rn": "^3.0.1",
     "zustand": "^3.6.5"
   },

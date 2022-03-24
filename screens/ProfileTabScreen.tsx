@@ -2,6 +2,7 @@ import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import {
   Avatar,
   Box,
+  Button,
   Container,
   HStack,
   Icon,
@@ -10,13 +11,25 @@ import {
   ScrollView,
   VStack,
 } from "native-base";
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import { supabase } from "../lib/supabase";
 
+import EmojiPicker, { EmojiKeyboard } from "rn-emoji-keyboard";
+import { EmojiType } from "rn-emoji-keyboard/lib/typescript/types";
+
 export default function ProfileTabScreens() {
+  const [result, setResult] = React.useState<string>();
+  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+
+  const handlePick = (emoji: EmojiType) => {
+    console.log(emoji);
+    setResult(emoji.emoji);
+    setIsModalOpen((prev) => !prev);
+  };
+
   return (
     <ScrollView paddingX={6} _contentContainerStyle={{ paddingTop: 3 }}>
       <VStack space={12}>
@@ -39,7 +52,15 @@ export default function ProfileTabScreens() {
             rounded="lg"
             alignItems={"center"}
             variant={"primary"}
+            onPress={() => {
+              setIsModalOpen(true);
+            }}
           >
+            <EmojiPicker
+              onEmojiSelected={handlePick}
+              open={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
             <Icon h={"6"} w={"6"}>
               <Path
                 fill-rule="evenodd"
