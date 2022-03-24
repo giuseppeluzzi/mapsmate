@@ -60,6 +60,9 @@ export default function ProfileTabScreens() {
               onEmojiSelected={handlePick}
               open={isModalOpen}
               onClose={() => setIsModalOpen(false)}
+              enableSearchBar
+              categoryPosition="top"
+              enableRecentlyUsed
             />
             <Icon h={"6"} w={"6"}>
               <Path
