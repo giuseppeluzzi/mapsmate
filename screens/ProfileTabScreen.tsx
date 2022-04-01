@@ -20,7 +20,7 @@ import { supabase } from "../lib/supabase";
 import EmojiPicker, { EmojiKeyboard } from "rn-emoji-keyboard";
 import { EmojiType } from "rn-emoji-keyboard/lib/typescript/types";
 import { useStore } from "state/userState";
-import Conversion from "components/CurrencyConverter";
+import Converter from "components/Currency";
 
 export default function ProfileTabScreens() {
   const { user } = useStore();
@@ -89,7 +89,15 @@ export default function ProfileTabScreens() {
           </IconButton>
         </Box>
 
-        <Box></Box>
+        <Box>
+          <Button
+            onPress={() => {
+              console.log("ciao");
+            }}
+          >
+            <Converter></Converter>
+          </Button>
+        </Box>
 
         <Input
           size={"2xl"}
