@@ -23,12 +23,12 @@ export type RootStackParamList = {
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
 
-  CreateGroupModal: {
+  /*CreateGroupModal: {
     partecipants?: GroupPartecipant[];
   };
   AddPartecipantModal: {
     excludedIds?: string[];
-  };
+  };*/
 
   NotFound: undefined;
 };

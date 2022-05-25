@@ -157,14 +157,14 @@ function RootNavigator() {
             }}
           >
             <Stack.Screen name="Modal" component={ModalScreen} />
-            <Stack.Screen
+            {/*<Stack.Screen
               name="CreateGroupModal"
               component={CreateGroupModal}
             />
             <Stack.Screen
               name="AddPartecipantModal"
               component={AddPartecipantModal}
-            />
+          />*/}
           </Stack.Group>
         </>
       )}
@@ -183,7 +183,7 @@ function HomeBottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="GroupsTab"
+      initialRouteName="MapTab"
       screenOptions={{
         headerTitle: ({ children }) => (
           <Heading
