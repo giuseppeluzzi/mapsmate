@@ -11,7 +11,7 @@ import {
   ScrollView,
   VStack,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
@@ -20,36 +20,41 @@ import { supabase } from "../lib/supabase";
 import EmojiPicker, { EmojiKeyboard } from "rn-emoji-keyboard";
 import { EmojiType } from "rn-emoji-keyboard/lib/typescript/types";
 import { useStore } from "state/userState";
+import Converter from "components/Currency";
 
-export default async function ProfileTabScreens() {
+export default function ProfileTabScreens() {
   const { user } = useStore();
 
   const [userEmoji, setUserEmoji] = useState<string>();
 
-  const [result, setResult] = React.useState<string>();
-  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const [result, setResult] = useState<string>();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const handlePick = (emoji: EmojiType) => {
-    console.log(emoji);
-    setResult(emoji.emoji);
+  useEffect(() => {
+    supabase
+      .from("profiles")
+      .select("emoji")
+      .eq("id", user?.id)
+      .then((result) => {
+        if (!result.data || !result.data[0]) return;
+        setUserEmoji(result.data[0].emoji);
+      });
+  }, []);
+
+  const handlePick = async (emoji: EmojiType) => {
+    setUserEmoji(emoji.emoji);
     setIsModalOpen((prev) => !prev);
+    await supabase
+      .from("profiles")
+      .update({ emoji: emoji.emoji })
+      .match({ id: user?.id });
   };
-
-  supabase
-    .from("profiles")
-    .select("emoji")
-    .eq("id", user?.id)
-    .then((result) => {
-      if (!result.data || !result.data[0]) return;
-
-      setUserEmoji(result.data[0].emoji);
-    });
 
   return (
     <ScrollView paddingX={6} _contentContainerStyle={{ paddingTop: 3 }}>
       <VStack space={12}>
         <Box>
-          <Avatar mt={"24"} alignSelf="center" size="2xl" bg="green.500">
+          <Avatar mt={"24"} alignSelf="center" size="2xl" bg="gray.100">
             {userEmoji}
           </Avatar>
           <IconButton
@@ -83,6 +88,17 @@ export default async function ProfileTabScreens() {
             </Icon>
           </IconButton>
         </Box>
+
+        <Box>
+          <Button
+            onPress={() => {
+              console.log("ciao");
+            }}
+          >
+            <Converter></Converter>
+          </Button>
+        </Box>
+
         <Input
           size={"2xl"}
           py="3"
