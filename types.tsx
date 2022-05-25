@@ -6,7 +6,7 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import {
   CompositeScreenProps,
-  NavigatorScreenParams
+  NavigatorScreenParams,
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -22,6 +22,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
+  Settings: undefined;
 
   /*CreateGroupModal: {
     partecipants?: GroupPartecipant[];
@@ -40,6 +41,7 @@ export type RootTabParamList = {
   ExploreTab: undefined;
   MapTab: undefined;
   ProfileTab: undefined;
+  SettingsTab: undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
