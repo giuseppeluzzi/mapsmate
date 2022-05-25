@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "splits",
-    "slug": "splits",
-    "scheme": "splits",
+    "name": "mapsmate",
+    "slug": "mapsmate",
+    "scheme": "mapsmate",
     "owner": "giuseppeluzzi",
     "version": "1.0.0",
     "orientation": "portrait",
