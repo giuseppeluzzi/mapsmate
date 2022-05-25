@@ -9,7 +9,6 @@ import {
   NavigatorScreenParams
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { User } from "@supabase/supabase-js";
 
 declare global {
   namespace ReactNavigation {
@@ -39,6 +38,7 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>;
 
 export type RootTabParamList = {
+  MapTab: undefined;
   GroupsTab: undefined;
   ProfileTab: undefined;
 };
