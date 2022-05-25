@@ -31,6 +31,7 @@ import Svg, { Path, Rect } from "react-native-svg";
 import ProfileTabScreen from "../screens/ProfileTabScreen";
 import GroupsTabScreens from "../screens/GroupsTabScreens";
 import {
+  Box,
   Heading,
   HStack,
   Icon,
@@ -42,6 +43,7 @@ import {
 import CreateGroupModal from "../screens/groups/CreateGroupModal";
 import AddPartecipantModal from "../screens/groups/AddPartecipantModal";
 import MapScreen from "screens/MapScreen";
+import ExploreScreen from "screens/ExploreScreen";
 
 export default function Navigation({
   colorScheme
@@ -209,15 +211,19 @@ function HomeBottomTabNavigator() {
         },
         headerTitleAlign: "left",
         tabBarStyle: {
-          paddingTop: theme.space[4],
+          position: "absolute",
+          height: 100,
+          paddingTop: theme.space[1],
           backgroundColor: useColorModeValue(
             theme.colors.gray[100],
             theme.colors.gray[900]
-          )
+          ),
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20
         },
         tabBarLabelStyle: {
-          marginBottom: -theme.space[1],
-          paddingTop: theme.space[3]
+          // marginBottom: -theme.space[0]
+          // paddingTop: theme.space[3]
         },
         tabBarActiveTintColor: useColorModeValue(
           theme.colors.gray[900],
@@ -230,30 +236,61 @@ function HomeBottomTabNavigator() {
       }}
     >
       <BottomTab.Screen
+        name="ExploreTab"
+        component={ExploreScreen}
+        options={({ navigation }: RootTabScreenProps<"ExploreTab">) => ({
+          title: "Explore",
+          header: () => null,
+          tabBarIcon: ({ focused, color }) => (
+            <Box
+              bg={focused ? "primary.400" : "transparent"}
+              borderRadius={"full"}
+              p={1.5}
+              marginBottom={focused ? 0 : -4}
+            >
+              <Svg fill="none" height={32} width={32}>
+                <Path
+                  stroke={color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="m28 28.5-8-8 8 8Zm-5.3333-14.6667c0 1.2257-.2414 2.4394-.7105 3.5717a9.3324 9.3324 0 0 1-2.0232 3.028 9.3324 9.3324 0 0 1-3.028 2.0232 9.33188 9.33188 0 0 1-3.5717.7105 9.33246 9.33246 0 0 1-3.57168-.7105 9.3323 9.3323 0 0 1-3.02795-2.0232 9.33339 9.33339 0 0 1-2.02321-3.028A9.33278 9.33278 0 0 1 4 13.8333c0-2.4753.98333-4.84929 2.73367-6.59963C8.48401 5.48333 10.858 4.5 13.3333 4.5c2.4754 0 4.8494.98333 6.5997 2.73367 1.7503 1.75034 2.7337 4.12433 2.7337 6.59963Z"
+                />
+              </Svg>
+            </Box>
+          )
+        })}
+      />
+      <BottomTab.Screen
         name="MapTab"
         component={MapScreen}
         options={({ navigation }: RootTabScreenProps<"MapTab">) => ({
           title: "Map",
           header: () => null,
           tabBarIcon: ({ focused, color }) => (
-            <Svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <Rect opacity="0.01" width="28" height="28" fill="black" />
-              <Path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M15.8021 9.2619C15.8021 12.1634 13.4984 14.5238 10.6667 14.5238C7.83554 14.5238 5.53125 12.1634 5.53125 9.2619C5.53125 6.36043 7.83494 4 10.6667 4C13.4984 4 15.8021 6.36043 15.8021 9.2619ZM1 24.8312C1 20.1719 5.33671 16.381 10.6667 16.381C15.9972 16.381 20.3333 20.1719 20.3333 24.8312C20.3333 26.5788 18.7075 28 16.7083 28H4.625C2.62581 28 1 26.5788 1 24.8312ZM24 17C26.2056 17 28 15.2056 28 13C28 10.7944 26.2056 9 24 9C21.7944 9 20 10.7944 20 13C20 15.2056 21.7948 17 24 17ZM31 25.5455C31 21.9365 27.6358 19 23.5 19C22.7271 19 21.9812 19.1026 21.2786 19.2934C22.5654 21.0229 23.3333 23.2002 23.3333 25.5628C23.3333 26.4891 23.0187 27.3393 22.4961 28.0011L28.1875 28L28.3651 27.9952C29.8338 27.9149 31 26.8471 31 25.5455Z"
-                fill={
-                  focused
-                    ? useColorModeValue(
-                        theme.colors.gray[900],
-                        theme.colors.gray[100]
-                      )
-                    : "none"
-                }
-                stroke={color}
-                strokeWidth="1.5"
-              />
-            </Svg>
+            <Box
+              bg={focused ? "primary.400" : "transparent"}
+              borderRadius={"full"}
+              p={1.5}
+              marginBottom={focused ? 0 : -4}
+            >
+              <Svg fill="none" height={32} width={32}>
+                <Path
+                  stroke={color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="m23.5427 22.7293-5.6574 5.6574a2.66378 2.66378 0 0 1-.8646.5781 2.66304 2.66304 0 0 1-2.0401 0 2.66378 2.66378 0 0 1-.8646-.5781l-5.65868-5.6574a10.6665 10.6665 0 0 1-2.312-11.6243A10.66646 10.66646 0 0 1 10.074 6.318a10.66668 10.66668 0 0 1 11.852 0 10.66629 10.66629 0 0 1 3.9286 4.787 10.66552 10.66552 0 0 1 .6071 6.1628 10.66643 10.66643 0 0 1-2.919 5.4615v0Z"
+                />
+                <Path
+                  stroke={color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M20 15.1866a3.99992 3.99992 0 0 1-4 4 3.99992 3.99992 0 0 1-4-4c0-1.0608.4214-2.0782 1.1716-2.8284A4.00002 4.00002 0 0 1 16 11.1866c1.0609 0 2.0783.4215 2.8284 1.1716A3.99994 3.99994 0 0 1 20 15.1866v0Z"
+                />
+              </Svg>
+            </Box>
           )
         })}
       />
@@ -263,24 +300,22 @@ function HomeBottomTabNavigator() {
         options={{
           title: "Profile",
           tabBarIcon: ({ focused, color }) => (
-            <Svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <Rect opacity="0.01" width="28" height="28" fill="black" />
-              <Path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M4 6.66C4 5.19067 5.19067 4 6.66 4H25.34C26.8093 4 28 5.19067 28 6.66V25.34C28 26.8091 26.8091 28 25.34 28H6.66C5.19092 28 4 26.8091 4 25.34V6.66ZM8 24H24C22.1787 21.4923 19.19 19.998 16 20C12.81 19.998 9.8213 21.4923 8 24ZM16 18C18.7614 18 21 15.7614 21 13C21 10.2386 18.7614 8 16 8C13.2386 8 11 10.2386 11 13C11 15.7614 13.2386 18 16 18Z"
-                fill={
-                  focused
-                    ? useColorModeValue(
-                        theme.colors.gray[900],
-                        theme.colors.gray[100]
-                      )
-                    : "none"
-                }
-                stroke={color}
-                strokeWidth="1.5"
-              />
-            </Svg>
+            <Box
+              bg={focused ? "primary.400" : "transparent"}
+              borderRadius={"full"}
+              p={1.5}
+              marginBottom={focused ? 0 : -4}
+            >
+              <Svg fill="none" height={32} width={32}>
+                <Path
+                  stroke={color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21.3333 9.83333a5.33343 5.33343 0 0 1-1.5621 3.77127A5.33322 5.33322 0 0 1 16 15.1667c-1.4145 0-2.7711-.5619-3.7712-1.5621a5.33343 5.33343 0 0 1-1.5621-3.77127 5.3333 5.3333 0 0 1 1.5621-3.77123C13.2289 5.0619 14.5855 4.5 16 4.5c1.4145 0 2.771.5619 3.7712 1.5621a5.3333 5.3333 0 0 1 1.5621 3.77123v0ZM16 19.1667c-2.4754 0-4.8493.9833-6.59967 2.7336-1.75034 1.7504-2.73367 4.1243-2.73367 6.5997H25.3333c0-2.4754-.9833-4.8493-2.7336-6.5997C20.8493 20.15 18.4753 19.1667 16 19.1667v0Z"
+                />
+              </Svg>
+            </Box>
           )
         }}
       />
