@@ -21,7 +21,6 @@ export type RootStackParamList = {
   SignUp: undefined;
   Welcome: undefined;
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
-  Group: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
 
   CreateGroupModal: {
@@ -39,7 +38,6 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
 
 export type RootTabParamList = {
   MapTab: undefined;
-  GroupsTab: undefined;
   ProfileTab: undefined;
 };
 
