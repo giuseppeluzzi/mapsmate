@@ -14,12 +14,7 @@ import {
   VStack,
 } from "native-base";
 import React, { useEffect, useState } from "react";
-import {
-  Pressable,
-  Settings,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import { supabase } from "../lib/supabase";

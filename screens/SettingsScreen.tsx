@@ -8,6 +8,8 @@ import {
   VStack,
   Text,
   ScrollView,
+  TextArea,
+  Button,
 } from "native-base";
 import * as React from "react";
 import { useEffect, useState } from "react";
@@ -19,6 +21,8 @@ import EmojiPicker, { EmojiKeyboard } from "rn-emoji-keyboard";
 
 import { RootTabScreenProps } from "../types";
 import { Path } from "react-native-svg";
+import { positionStyle } from "react-native-flash-message";
+import { TextInput, TouchableOpacity } from "react-native";
 
 export default function ExploreScreen({
   navigation,
@@ -26,6 +30,9 @@ export default function ExploreScreen({
   const { user } = useStore();
 
   const [username, setUsername] = useState<string>();
+  const [name, setName] = useState<string>();
+  const [email, setMail] = useState<string>();
+  const [biography, setBiography] = useState<string>();
   const [userEmoji, setUserEmoji] = useState<string>();
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -37,7 +44,40 @@ export default function ExploreScreen({
       .eq("id", user?.id)
       .then((result) => {
         if (!result.data || !result.data[0]) return;
+        setName(result.data[0].name);
+      });
+  });
+
+  useEffect(() => {
+    supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user?.id)
+      .then((result) => {
+        if (!result.data || !result.data[0]) return;
         setUsername(result.data[0].name);
+      });
+  });
+
+  useEffect(() => {
+    supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", user?.id)
+      .then((result) => {
+        if (!result.data || !result.data[0]) return;
+        setMail(result.data[0].name);
+      });
+  });
+
+  useEffect(() => {
+    supabase
+      .from("profiles")
+      .select("biography")
+      .eq("id", user?.id)
+      .then((result) => {
+        if (!result.data || !result.data[0]) return;
+        setBiography(result.data[0].name);
       });
   });
 
@@ -60,6 +100,13 @@ export default function ExploreScreen({
       .update({ emoji: emoji.emoji })
       .match({ id: user?.id });
   };
+
+  function saveAndExit() {
+    async () => {
+      await supabase.from("profiles").update({}); //retrieve form fields
+    };
+  }
+
   return (
     <SafeAreaView>
       <Box>
@@ -102,6 +149,23 @@ export default function ExploreScreen({
           {username}
         </Text>
       </Box>
+      <VStack space={5} p={1}>
+        <TextArea placeholder="@username" value={username}></TextArea>
+        <TextArea placeholder={name} value={name}></TextArea>
+        <TextArea placeholder="Email" value={email}></TextArea>
+        <TextArea placeholder="Biography" value={biography}></TextArea>
+      </VStack>
+
+      <Button
+        onPress={() => {
+          console.log("pressed");
+          saveAndExit();
+        }}
+        w={"1/3"}
+        alignSelf={"center"}
+      >
+        Save
+      </Button>
     </SafeAreaView>
   );
 }
