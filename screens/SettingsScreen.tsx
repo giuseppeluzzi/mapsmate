@@ -10,6 +10,7 @@ import {
   ScrollView,
   TextArea,
   Button,
+  View,
 } from "native-base";
 import * as React from "react";
 import { useEffect, useState } from "react";
@@ -23,6 +24,8 @@ import { RootTabScreenProps } from "../types";
 import { Path } from "react-native-svg";
 import { positionStyle } from "react-native-flash-message";
 import { TextInput, TouchableOpacity } from "react-native";
+import tailwind from "tailwind-rn";
+import { background } from "native-base/lib/typescript/theme/styled-system";
 
 export default function ExploreScreen({
   navigation,
@@ -46,7 +49,7 @@ export default function ExploreScreen({
         if (!result.data || !result.data[0]) return;
         setName(result.data[0].name);
       });
-  });
+  }, []);
 
   useEffect(() => {
     supabase
@@ -55,9 +58,9 @@ export default function ExploreScreen({
       .eq("id", user?.id)
       .then((result) => {
         if (!result.data || !result.data[0]) return;
-        setUsername(result.data[0].name);
+        setUsername(result.data[0].username);
       });
-  });
+  }, []);
 
   useEffect(() => {
     supabase
@@ -66,9 +69,9 @@ export default function ExploreScreen({
       .eq("id", user?.id)
       .then((result) => {
         if (!result.data || !result.data[0]) return;
-        setMail(result.data[0].name);
+        setMail(result.data[0].email);
       });
-  });
+  }, []);
 
   useEffect(() => {
     supabase
@@ -77,9 +80,9 @@ export default function ExploreScreen({
       .eq("id", user?.id)
       .then((result) => {
         if (!result.data || !result.data[0]) return;
-        setBiography(result.data[0].name);
+        setBiography(result.data[0].biography);
       });
-  });
+  }, []);
 
   useEffect(() => {
     supabase
@@ -101,11 +104,17 @@ export default function ExploreScreen({
       .match({ id: user?.id });
   };
 
-  function saveAndExit() {
-    async () => {
-      await supabase.from("profiles").update({}); //retrieve form fields
-    };
-  }
+  const update = async () => {
+    await supabase
+      .from("profiles")
+      .update({
+        username: username,
+        name: name,
+        email: email,
+        biography: biography,
+      })
+      .match({ id: user?.id });
+  };
 
   return (
     <SafeAreaView>
@@ -146,24 +155,33 @@ export default function ExploreScreen({
       </Box>
       <Box mt="5" alignItems={"center"}>
         <Text bold fontSize={16}>
-          {username}
+          {name}
         </Text>
       </Box>
       <VStack space={5} p={1}>
-        <TextArea placeholder="@username" value={username}></TextArea>
-        <TextArea placeholder={name} value={name}></TextArea>
-        <TextArea placeholder="Email" value={email}></TextArea>
-        <TextArea placeholder="Biography" value={biography}></TextArea>
+        <TextArea
+          onChangeText={(text) => setUsername(text)}
+          placeholder="Change your username"
+          value={username}
+        ></TextArea>
+        <TextArea
+          onChangeText={(text) => setName(text)}
+          placeholder="Change your name"
+          value={name}
+        ></TextArea>
+        <TextArea
+          onChangeText={(text) => setMail(text)}
+          placeholder="Change your email"
+          value={email}
+        ></TextArea>
+        <TextArea
+          onChangeText={(text) => setBiography(text)}
+          placeholder="Change your biography"
+          value={biography}
+        ></TextArea>
       </VStack>
 
-      <Button
-        onPress={() => {
-          console.log("pressed");
-          saveAndExit();
-        }}
-        w={"1/3"}
-        alignSelf={"center"}
-      >
+      <Button onPress={update} w={"1/3"} alignSelf={"center"}>
         Save
       </Button>
     </SafeAreaView>
