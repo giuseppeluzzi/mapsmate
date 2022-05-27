@@ -9,30 +9,30 @@ const supabaseAnonKey =
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   localStorage: AsyncStorage,
-  detectSessionInUrl: false
+  detectSessionInUrl: false,
 });
 
 export const onFacebookLogin = () => {
   const proxyRedirectUri = makeRedirectUri({
-    useProxy: true
+    useProxy: true,
   });
   const redirectUri = makeRedirectUri({
     path: "/",
-    useProxy: false
+    useProxy: false,
   });
 
   startAsync({
     authUrl:
       "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=" +
       proxyRedirectUri,
-    returnUrl: redirectUri
-  }).then(async result => {
+    returnUrl: redirectUri,
+  }).then(async (result) => {
     if (!result) return;
 
     if (result.type === "error" && result.error) {
       showMessage({
         message: result.error?.message,
-        type: "danger"
+        type: "danger",
       });
 
       return;
@@ -40,13 +40,13 @@ export const onFacebookLogin = () => {
 
     if (result.type === "success" && result.params) {
       const { session, error } = await supabase.auth.signIn({
-        refreshToken: result.params.refresh_token
+        refreshToken: result.params.refresh_token,
       });
 
       if (error) {
         showMessage({
           message: "Unexpected error, please try again",
-          type: "danger"
+          type: "danger",
         });
       }
 
@@ -56,13 +56,18 @@ export const onFacebookLogin = () => {
     } else {
       showMessage({
         message: "Unexpected error, please try again",
-        type: "danger"
+        type: "danger",
       });
     }
   });
 };
 
-export const initializeUserProfile = (id: string, name: string) => {
+export const initializeUserProfile = (
+  id: string,
+  name: string,
+  username: string,
+  email: string
+) => {
   const emojis = [
     "🤪",
     "😃",
@@ -82,14 +87,14 @@ export const initializeUserProfile = (id: string, name: string) => {
     "🤎",
     "❤️‍🔥",
     "🥐",
-    "🍓"
+    "🍓",
   ];
 
   supabase
     .from("profiles")
     .select("id")
     .eq("id", id)
-    .then(value => {
+    .then((value) => {
       if (!value.data || value.data.length === 0) {
         supabase
           .from("profiles")
@@ -97,11 +102,13 @@ export const initializeUserProfile = (id: string, name: string) => {
             {
               id: id,
               name: name,
-              emoji: emojis[Math.floor(Math.random() * (emojis.length + 1))]
-            }
+              username: username,
+              email: email,
+              emoji: emojis[Math.floor(Math.random() * (emojis.length + 1))],
+            },
           ])
-          .then(() => {
-            // console.log(data);
+          .then((data) => {
+            console.log(data);
           });
       }
     });

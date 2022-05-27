@@ -158,7 +158,11 @@ function RootNavigator() {
             }}
           >
             <Stack.Screen name="Modal" component={ModalScreen} />
-            <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen
+              name="Settings"
+              options={{ headerShown: false }}
+              component={SettingsScreen}
+            />
             {/*<Stack.Screen
               name="CreateGroupModal"
               component={CreateGroupModal}
