@@ -44,54 +44,14 @@ export default function ExploreScreen({
   useEffect(() => {
     supabase
       .from("profiles")
-      .select("name")
+      .select("name, username, email, biography, emoji")
       .eq("id", user?.id)
       .then((result) => {
         if (!result.data || !result.data[0]) return;
         setName(result.data[0].name);
-      });
-  }, []);
-
-  useEffect(() => {
-    supabase
-      .from("profiles")
-      .select("username")
-      .eq("id", user?.id)
-      .then((result) => {
-        if (!result.data || !result.data[0]) return;
         setUsername(result.data[0].username);
-      });
-  }, []);
-
-  useEffect(() => {
-    supabase
-      .from("profiles")
-      .select("email")
-      .eq("id", user?.id)
-      .then((result) => {
-        if (!result.data || !result.data[0]) return;
         setMail(result.data[0].email);
-      });
-  }, []);
-
-  useEffect(() => {
-    supabase
-      .from("profiles")
-      .select("biography")
-      .eq("id", user?.id)
-      .then((result) => {
-        if (!result.data || !result.data[0]) return;
         setBiography(result.data[0].biography);
-      });
-  }, []);
-
-  useEffect(() => {
-    supabase
-      .from("profiles")
-      .select("emoji")
-      .eq("id", user?.id)
-      .then((result) => {
-        if (!result.data || !result.data[0]) return;
         setUserEmoji(result.data[0].emoji);
       });
   }, []);
@@ -130,6 +90,7 @@ export default function ExploreScreen({
             h={"9"}
             w={"9"}
             mt={"-4"}
+            pr={"4"}
             justifyContent="center"
             alignSelf={"center"}
             rounded="lg"
@@ -147,7 +108,7 @@ export default function ExploreScreen({
               categoryPosition="top"
               enableRecentlyUsed
             />
-            <Icon h={"8"} w={"8"}>
+            <Icon viewBox="0 0 24 24">
               <Path
                 fill-rule="evenodd"
                 clip-rule="evenodd"
