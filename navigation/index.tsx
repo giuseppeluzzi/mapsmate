@@ -8,21 +8,20 @@ import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
-  useNavigation,
+  useNavigation
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { ColorSchemeName, Settings } from "react-native";
 
 import LoginScreen from "../screens/LoginScreen";
-import ModalScreen from "../screens/ModalScreen";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import { useStore } from "../state/userState";
 import {
   RootStackParamList,
   RootTabParamList,
-  RootTabScreenProps,
+  RootTabScreenProps
 } from "../types";
 import LinkingConfiguration from "./LinkingConfiguration";
 
@@ -37,14 +36,14 @@ import {
   IconButton,
   Text,
   useColorModeValue,
-  useTheme,
+  useTheme
 } from "native-base";
 import MapScreen from "screens/MapScreen";
 import ExploreScreen from "screens/ExploreScreen";
 import SettingsScreen from "screens/SettingsScreen";
 
 export default function Navigation({
-  colorScheme,
+  colorScheme
 }: {
   colorScheme: ColorSchemeName;
 }) {
@@ -67,8 +66,8 @@ export default function Navigation({
             theme.colors.gray[100],
             theme.colors.gray[900]
           ),
-          notification: theme.colors.primary[300],
-        },
+          notification: theme.colors.primary[300]
+        }
       }}
     >
       <RootNavigator />
@@ -153,11 +152,11 @@ function RootNavigator() {
               ),
 
               contentStyle: {
-                paddingHorizontal: theme.space[6],
-              },
+                paddingHorizontal: theme.space[6]
+              }
             }}
           >
-            <Stack.Screen name="Modal" component={ModalScreen} />
+            {/*<Stack.Screen name="Modal" component={ModalScreen} />*/}
             <Stack.Screen
               name="Settings"
               options={{ headerShown: false }}
@@ -205,13 +204,13 @@ function HomeBottomTabNavigator() {
           borderBottomWidth: 0,
           shadowOpacity: 0,
           height: 116,
-          backgroundColor: useColorModeValue("#f9f9f9", theme.colors.gray[900]),
+          backgroundColor: useColorModeValue("#f9f9f9", theme.colors.gray[900])
         },
         headerLeftContainerStyle: {
-          paddingLeft: theme.space[2],
+          paddingLeft: theme.space[2]
         },
         headerRightContainerStyle: {
-          paddingRight: 22,
+          paddingRight: 22
         },
         headerTitleAlign: "left",
         tabBarStyle: {
@@ -223,7 +222,7 @@ function HomeBottomTabNavigator() {
             theme.colors.gray[900]
           ),
           borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+          borderTopRightRadius: 20
         },
         tabBarLabelStyle: {
           // marginBottom: -theme.space[0]
@@ -236,7 +235,7 @@ function HomeBottomTabNavigator() {
         tabBarInactiveTintColor: useColorModeValue(
           theme.colors.gray[700],
           theme.colors.gray[300]
-        ),
+        )
       }}
     >
       <BottomTab.Screen
@@ -262,7 +261,7 @@ function HomeBottomTabNavigator() {
                 />
               </Svg>
             </Box>
-          ),
+          )
         })}
       />
       <BottomTab.Screen
@@ -295,7 +294,7 @@ function HomeBottomTabNavigator() {
                 />
               </Svg>
             </Box>
-          ),
+          )
         })}
       />
       <BottomTab.Screen
@@ -321,7 +320,7 @@ function HomeBottomTabNavigator() {
                 />
               </Svg>
             </Box>
-          ),
+          )
         }}
       />
     </BottomTab.Navigator>

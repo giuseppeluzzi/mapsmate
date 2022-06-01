@@ -6,15 +6,15 @@ import { showMessage } from "react-native-flash-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
-import { Text } from "../components/Themed";
 import { onFacebookLogin, supabase } from "../lib/supabase";
 import { RootStackParamList } from "../types";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStore } from "state/userState";
+import { Text } from "native-base";
 
 export default function WelcomeScreen({
-  navigation,
+  navigation
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
   const { setUser } = useStore();
 
@@ -50,7 +50,7 @@ export default function WelcomeScreen({
             autoCompleteType={"email"}
             placeholder="Enter your email address"
             value={mail}
-            onChangeText={(text) => setMail(text)}
+            onChangeText={text => setMail(text)}
           />
         </View>
         <View style={tailwind("pt-6")}>
@@ -65,7 +65,7 @@ export default function WelcomeScreen({
             editable={!loading}
             placeholder="Enter your password"
             value={password}
-            onChangeText={(text) => setPassword(text)}
+            onChangeText={text => setPassword(text)}
           />
         </View>
       </View>
@@ -76,7 +76,7 @@ export default function WelcomeScreen({
           if (mail.trim().length === 0 || password.trim().length === 0) {
             showMessage({
               message: "Insert username and password",
-              type: "danger",
+              type: "danger"
             });
             return;
           }
@@ -84,14 +84,14 @@ export default function WelcomeScreen({
           setLoading(true);
           const { user, session, error } = await supabase.auth.signIn({
             email: mail,
-            password: password,
+            password: password
           });
 
           if (error) {
             setLoading(false);
             showMessage({
               message: error.message,
-              type: "danger",
+              type: "danger"
             });
             return;
           }

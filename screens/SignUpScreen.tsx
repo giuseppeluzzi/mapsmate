@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScrollView } from "native-base";
+import { ScrollView, Text } from "native-base";
 import * as React from "react";
 import { useState } from "react";
 import { View, TouchableOpacity, TextInput } from "react-native";
@@ -7,17 +7,16 @@ import { showMessage } from "react-native-flash-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import tailwind from "tailwind-rn";
-import { Text } from "../components/Themed";
 import {
   initializeUserProfile,
   onFacebookLogin,
-  supabase,
+  supabase
 } from "../lib/supabase";
 import { useStore } from "../state/userState";
 import { RootStackParamList } from "../types";
 
 export default function WelcomeScreen({
-  navigation,
+  navigation
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
   const { setUser } = useStore();
 
@@ -55,7 +54,7 @@ export default function WelcomeScreen({
               editable={!loading}
               placeholder="Enter your name"
               value={name}
-              onChangeText={(text) => setName(text)}
+              onChangeText={text => setName(text)}
             />
           </View>
           <View style={tailwind("pt-10")}>
@@ -69,7 +68,7 @@ export default function WelcomeScreen({
               editable={!loading}
               placeholder="Enter your username"
               value={username}
-              onChangeText={(text) => setUsername(text)}
+              onChangeText={text => setUsername(text)}
             />
           </View>
 
@@ -85,7 +84,7 @@ export default function WelcomeScreen({
               autoCompleteType={"email"}
               placeholder="Enter your email address"
               value={mail}
-              onChangeText={(text) => setMail(text)}
+              onChangeText={text => setMail(text)}
             />
           </View>
           <View style={tailwind("pt-6")}>
@@ -100,7 +99,7 @@ export default function WelcomeScreen({
               placeholder="Enter your password"
               editable={!loading}
               value={password}
-              onChangeText={(text) => setPassword(text)}
+              onChangeText={text => setPassword(text)}
             />
           </View>
           {/* temp workaround for ios */}
@@ -117,7 +116,7 @@ export default function WelcomeScreen({
               placeholder="Repeat your password"
               editable={!loading}
               value={passwordConfirm}
-              onChangeText={(text) => setPasswordConfirm(text)}
+              onChangeText={text => setPasswordConfirm(text)}
             />
           </View>
         </View>
@@ -131,7 +130,7 @@ export default function WelcomeScreen({
             ) {
               showMessage({
                 message: "Insert username and password",
-                type: "danger",
+                type: "danger"
               });
               return;
             }
@@ -139,7 +138,7 @@ export default function WelcomeScreen({
             if (password !== passwordConfirm) {
               showMessage({
                 message: "Passwords do not match",
-                type: "danger",
+                type: "danger"
               });
               return;
             }
@@ -147,14 +146,14 @@ export default function WelcomeScreen({
             setLoading(true);
             const { user, error } = await supabase.auth.signUp({
               email: mail,
-              password: password,
+              password: password
             });
 
             if (error) {
               setLoading(false);
               showMessage({
                 message: error.message,
-                type: "danger",
+                type: "danger"
               });
               return;
             }
@@ -170,7 +169,7 @@ export default function WelcomeScreen({
 
             showMessage({
               message: "Unexpected error, please try again",
-              type: "danger",
+              type: "danger"
             });
             setLoading(false);
           }}
