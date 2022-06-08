@@ -18,23 +18,32 @@ import { supabase } from "../lib/supabase";
 import { SafeAreaView } from "react-native";
 import { useEffect, useState } from "react";
 
+/*const images = [
+  {
+    uri: "https://www.ticonsiglio.com/wp-content/uploads/2016/03/politecnico-di-milano.jpg",
+  },
+  {
+    uri: "https://image.jimcdn.com/app/cms/image/transf/none/path/sf63059cf0e80ccf2/image/i7001d23fa637ce9c/version/1593436367/image.jpg",
+  },
+  {
+    uri: "https://www.hotelaspromonte.it/wp-content/uploads/2016/04/Politecnico-di-Milano-offerte-Hotel-Aspromonte-1.jpg",
+  },
+];*/
+
 export default function POIScreen({ navigation }: RootTabScreenProps<"POI">) {
   const [visible, setIsVisible] = useState(false);
   const [currentSelectedImage, setCurrentSelectedImage] = useState(0);
-  const [images, setImages] = useState<any[]>([]);
+  const [images, setImages] = useState<[]>([]);
 
   useEffect(() => {
-    (async () => {
-      await supabase
-        .from("pois")
-        .select("images")
-        .eq("id", 1)
-        .then((result) => {
-          if (!result.data || !result.data[0]) return;
-          console.log(result.data[0].images);
-          setImages(result.data[0].images);
-        });
-    })();
+    supabase
+      .from("pois")
+      .select("images")
+      .eq("id", 1)
+      .then((result) => {
+        if (!result.data || !result.data[0]) return;
+        setImages(result.data[0].images);
+      });
   }, []);
 
   return (
@@ -51,13 +60,13 @@ export default function POIScreen({ navigation }: RootTabScreenProps<"POI">) {
             <Pressable
               key={imageIndex}
               onPress={() => {
-                setCurrentSelectedImage(imageIndex);
                 setIsVisible(true);
+                setCurrentSelectedImage(imageIndex);
               }}
             >
               <View>
                 <Image
-                  source={{ uri: image.uri }}
+                  source={{ uri: image }}
                   width={"full"}
                   height={"full"}
                   alt="null"
