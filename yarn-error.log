@@ -1,8 +1,8 @@
 Arguments: 
-  /opt/homebrew/Cellar/node/18.0.0/bin/node /Users/giuseppe/Documents/University/DIMA/mapsmate/.yarn/releases/yarn-1.22.10.cjs add -D @types/expo-location
+  /opt/homebrew/Cellar/node/18.0.0/bin/node /Users/giuseppe/Documents/University/DIMA/mapsmate/.yarn/releases/yarn-1.22.10.cjs add queryify
 
 PATH: 
-  /Users/giuseppe/.yarn/bin:/Users/giuseppe/Library/Android/sdk/platform-tools:/opt/homebrew/opt/openjdk/bin:/Users/giuseppe/.composer/vendor/bin:/opt/homebrew/opt/php@7.4/sbin:/opt/homebrew/opt/php@7.4/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion Tech Preview.app/Contents/Public:/Library/Apple/usr/bin
+  /Users/giuseppe/.yarn/bin:/Users/giuseppe/Library/Android/sdk/platform-tools:/opt/homebrew/opt/openjdk/bin:/Users/giuseppe/.composer/vendor/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion Tech Preview.app/Contents/Public:/Library/Apple/usr/bin
 
 Yarn version: 
   1.22.10
@@ -14,7 +14,7 @@ Platform:
   darwin arm64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fexpo-location: Not found
+  Error: https://registry.yarnpkg.com/queryify: Not found
       at params.callback [as _callback] (/Users/giuseppe/Documents/University/DIMA/mapsmate/.yarn/releases/yarn-1.22.10.cjs:78518:18)
       at self.callback (/Users/giuseppe/Documents/University/DIMA/mapsmate/.yarn/releases/yarn-1.22.10.cjs:135160:22)
       at Request.emit (node:events:527:28)
@@ -51,12 +51,14 @@ npm manifest:
       "@fortawesome/free-regular-svg-icons": "^6.1.1",
       "@fortawesome/free-solid-svg-icons": "^6.1.1",
       "@fortawesome/react-fontawesome": "^0.1.18",
+      "@googlemaps/react-wrapper": "^1.1.34",
       "@material-ui/core": "^4.12.3",
       "@react-native-async-storage/async-storage": "~1.15.0",
       "@react-navigation/bottom-tabs": "^6.0.5",
       "@react-navigation/native": "^6.0.2",
       "@react-navigation/native-stack": "^6.1.0",
       "@supabase/supabase-js": "^1.31.1",
+      "axios": "^0.27.2",
       "emoji-picker-react": "^3.5.1",
       "expo": "~43.0.2",
       "expo-app-loading": "~1.2.1",
@@ -78,7 +80,7 @@ npm manifest:
       "react-native-emoji-selector": "^0.2.0",
       "react-native-flash-message": "^0.2.0",
       "react-native-maps": "0.28.0",
-      "react-native-safe-area-context": "3.3.2",
+      "react-native-safe-area-context": "^4.2.5",
       "react-native-screens": "~3.8.0",
       "react-native-svg": "^12.1.1",
       "react-native-url-polyfill": "^1.3.0",
@@ -88,10 +90,13 @@ npm manifest:
       "swr": "^1.2.2",
       "tailwind-rn": "^3.0.1",
       "unfetch": "^4.2.0",
+      "use-debounce": "^8.0.1",
       "zustand": "^3.6.5"
     },
     "devDependencies": {
       "@babel/core": "^7.12.9",
+      "@types/axios": "^0.14.0",
+      "@types/google.maps": "^3.49.1",
       "@types/react": "~17.0.21",
       "@types/react-native": "~0.64.12",
       "@types/react-native-maps": "^0.24.2",
@@ -1560,6 +1565,20 @@ Lockfile:
     dependencies:
       prop-types "^15.8.1"
   
+  "@googlemaps/js-api-loader@^1.13.2":
+    version "1.14.3"
+    resolved "https://registry.yarnpkg.com/@googlemaps/js-api-loader/-/js-api-loader-1.14.3.tgz#d7a161cd547be04ad46a1cb176e6c2647f6d74a7"
+    integrity sha512-6iIb+qpGgQpgIHmIFO44WhE1rDUxPVHuezNFL30wRJnkvhwFm94tD291UvNg9L05hLDSoL16jd0lbqqmdy4C5g==
+    dependencies:
+      fast-deep-equal "^3.1.3"
+  
+  "@googlemaps/react-wrapper@^1.1.34":
+    version "1.1.34"
+    resolved "https://registry.yarnpkg.com/@googlemaps/react-wrapper/-/react-wrapper-1.1.34.tgz#c9ebd3ab6f728c05fccf0b3d481a9faa015ce715"
+    integrity sha512-wxKTS6EF5P76Z+TO954CY3WK4kIDC1L/7QgKPsPo55ZTfpk176tS+7jkW1HwxGWebnv3+DMMMoMMl00ZNMzdmA==
+    dependencies:
+      "@googlemaps/js-api-loader" "^1.13.2"
+  
   "@hapi/hoek@^9.0.0":
     version "9.2.1"
     resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.2.1.tgz#9551142a1980503752536b5050fd99f4a7f13b17"
@@ -2874,6 +2893,13 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
     integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
   
+  "@types/axios@^0.14.0":
+    version "0.14.0"
+    resolved "https://registry.yarnpkg.com/@types/axios/-/axios-0.14.0.tgz#ec2300fbe7d7dddd7eb9d3abf87999964cafce46"
+    integrity sha512-KqQnQbdYE54D7oa/UmYVMZKq7CO4l8DEENzOKc4aBRwxCXSlJXGz83flFx5L7AWrOQnmuN3kVsRdt+GZPPjiVQ==
+    dependencies:
+      axios "*"
+  
   "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
     version "7.1.16"
     resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.16.tgz#bc12c74b7d65e82d29876b5d0baf5c625ac58702"
@@ -2911,6 +2937,11 @@ Lockfile:
     version "7946.0.8"
     resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.8.tgz#30744afdb385e2945e22f3b033f897f76b1f12ca"
     integrity sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==
+  
+  "@types/google.maps@^3.49.1":
+    version "3.49.1"
+    resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.49.1.tgz#863cc43e11008eed5eed22eb2153528fac6cd435"
+    integrity sha512-Sbl5anucT7LUcUxXsRxkCozHdXIkUiY+Tyru+OVl5rot0+VIZuuulmABC7X+nF7rL7BRTAguSBSAD/e/AfIkkA==
   
   "@types/graceful-fs@^4.1.2":
     version "4.1.5"
@@ -3434,6 +3465,14 @@ Lockfile:
     version "1.11.0"
     resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
     integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
+  
+  axios@*, axios@^0.27.2:
+    version "0.27.2"
+    resolved "https://registry.yarnpkg.com/axios/-/axios-0.27.2.tgz#207658cc8621606e586c85db4b41a750e756d972"
+    integrity sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==
+    dependencies:
+      follow-redirects "^1.14.9"
+      form-data "^4.0.0"
   
   babel-core@^5.0.0:
     version "5.8.38"
@@ -5943,6 +5982,11 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.121.0.tgz#9f9898eaec91a9f7c323e9e992d81ab5c58e618f"
     integrity sha512-1gIBiWJNR0tKUNv8gZuk7l9rVX06OuLzY9AoGio7y/JT4V1IZErEMEq2TJS+PFcw/y0RshZ1J/27VfK1UQzYVg==
   
+  follow-redirects@^1.14.9:
+    version "1.15.1"
+    resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.1.tgz#0ca6a452306c9b276e4d3127483e29575e207ad5"
+    integrity sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==
+  
   fontfaceobserver@^2.1.0:
     version "2.1.0"
     resolved "https://registry.yarnpkg.com/fontfaceobserver/-/fontfaceobserver-2.1.0.tgz#e2705d293e2c585a6531c2a722905657317a2991"
@@ -5962,6 +6006,15 @@ Lockfile:
     version "3.0.1"
     resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.1.tgz#ebd53791b78356a99af9a300d4282c4d5eb9755f"
     integrity sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==
+    dependencies:
+      asynckit "^0.4.0"
+      combined-stream "^1.0.8"
+      mime-types "^2.1.12"
+  
+  form-data@^4.0.0:
+    version "4.0.0"
+    resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.0.tgz#93919daeaf361ee529584b9b31664dc12c9fa452"
+    integrity sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==
     dependencies:
       asynckit "^0.4.0"
       combined-stream "^1.0.8"
@@ -9582,10 +9635,10 @@ Lockfile:
     dependencies:
       "@types/geojson" "^7946.0.7"
   
-  react-native-safe-area-context@3.3.2:
-    version "3.3.2"
-    resolved "https://registry.yarnpkg.com/react-native-safe-area-context/-/react-native-safe-area-context-3.3.2.tgz#9549a2ce580f2374edb05e49d661258d1b8bcaed"
-    integrity sha512-yOwiiPJ1rk+/nfK13eafbpW6sKW0jOnsRem2C1LPJjM3tfTof6hlvV5eWHATye3XOpu2cJ7N+HdkUvUDGwFD2Q==
+  react-native-safe-area-context@^4.2.5:
+    version "4.2.5"
+    resolved "https://registry.yarnpkg.com/react-native-safe-area-context/-/react-native-safe-area-context-4.2.5.tgz#23006dc1a398bb825d7d795c27f1c46119efe8a5"
+    integrity sha512-nUil2de1gk/8ZB9IzIxFyGCiKeAYcHzJb/Tks2NzSkev1qH4MNR05DWYDSmW6vLT+y4mospLVyG/H5dyUd+KQQ==
   
   react-native-screens@~3.8.0:
     version "3.8.0"
@@ -11401,6 +11454,11 @@ Lockfile:
     dependencies:
       punycode "1.3.2"
       querystring "0.2.0"
+  
+  use-debounce@^8.0.1:
+    version "8.0.1"
+    resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-8.0.1.tgz#5f3e11b067bdf9f2c554a20b4764e38b48022664"
+    integrity sha512-6tGAFJKJ0qCalecaV7/gm/M6n238nmitNppvR89ff1yfwSFjwFKR7IQZzIZf1KZRQhqNireBzytzU6jgb29oVg==
   
   use-subscription@^1.0.0:
     version "1.5.1"

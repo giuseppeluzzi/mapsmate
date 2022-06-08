@@ -1,7 +1,15 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 
-import { Icon, Input, ScrollView, Text, VStack } from "native-base";
+import {
+  Box,
+  Icon,
+  Input,
+  ScrollView,
+  Spinner,
+  Text,
+  VStack
+} from "native-base";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -9,46 +17,162 @@ import { RootTabScreenProps } from "../types";
 import { Path } from "react-native-svg";
 import { supabase } from "lib/supabase";
 
+import axios from "axios";
+
+import { useDebounce } from "use-debounce";
+
+import { useCurrentLocationStore } from "state/currentLocationState";
+
+import { v4 as uuidv4 } from "uuid";
+import { KEYS } from "../constants/Keys";
+
 type SearchItem = {
   id?: string;
   google_place_id?: string;
   name: string;
   to_import: boolean;
+  type: string;
 };
 
 export default function ExploreScreen({
   navigation
 }: RootTabScreenProps<"ExploreTab">) {
+  const { currentLocation, setCurrentLocation } = useCurrentLocationStore();
+
+  const [sessionToken, setSessionToken] = useState<string>(uuidv4());
+
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [results, setResults] = useState<SearchItem[]>([]);
 
+  const [debouncedSearch, _] = useDebounce<string>(search, 500);
+
+  const placesTypes = [
+    "amusement_park",
+    "aquarium",
+    "art_gallery",
+    "bakery",
+    "bar",
+    "beauty_salon",
+    "book_store",
+    "bowling_alley",
+    "cafe",
+    "campground",
+    "casino",
+    "church",
+    "hindu_temple",
+    "library",
+    "lodging",
+    "meal_delivery",
+    "meal_takeaway",
+    "mosque",
+    "museum",
+    "night_club",
+    "park",
+    "restaurant",
+    "rv_park",
+    "shopping_mall",
+    "spa",
+    "synagogue",
+    "tourist_attraction",
+    "zoo"
+  ];
+
   useEffect(() => {
-    if (search.length === 0) {
+    if (search.length == 0) {
       setResults([]);
       return;
     }
 
     if (search.length <= 2) return;
 
-    supabase
-      .from("pois")
-      .select()
-      .like("name", "%" + search + "%")
-      .then(data => {
-        if (!data.data) return;
+    const supabaseController = new AbortController();
+    const axiosController = new AbortController();
 
-        setResults(
-          data.data.map(item => {
+    const placesSearchParams = new URLSearchParams({
+      key: KEYS.GOOGLE_MAPS_KEY,
+      sessiontoken: sessionToken,
+      language: "it",
+      input: debouncedSearch,
+      location: currentLocation.latitude + "," + currentLocation.longitude,
+      radius: "50000",
+      origin: currentLocation.latitude + "," + currentLocation.longitude,
+      // types: placesTypes.join("|")
+      types: "establishment"
+    });
+
+    console.log(placesSearchParams.toString());
+    console.log(
+      "https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
+        placesSearchParams.toString()
+    );
+
+    setIsSearching(true);
+    Promise.all([
+      supabase
+        .from("pois")
+        .select()
+        .like("name", "%" + debouncedSearch + "%")
+        .abortSignal(supabaseController.signal)
+        .then(data => {
+          if (!data.data) return [];
+
+          return data.data.map(item => {
             return {
               id: item.id,
               google_place_id: item.google_place_id,
               name: item.name,
+              type: item.type,
               to_import: false
             };
-          })
+          });
+        }),
+
+      axios({
+        method: "get",
+        url:
+          "https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
+          placesSearchParams.toString(),
+        signal: axiosController.signal
+      }).then(result => {
+        // console.log(result.data.predictions);
+        return (
+          result.data.predictions
+            /*.filter((prediction: { types: string[] }) => {
+            console.log(prediction.types);
+            return placesTypes.some(type => {
+              console.log(type, type in prediction.types);
+              return "" + type in prediction.types;
+            });
+          })*/
+            .map(
+              (prediction: {
+                place_id: any;
+                description: any;
+                types: string[];
+              }) => {
+                console.log(prediction);
+                return {
+                  google_place_id: prediction.place_id,
+                  name: prediction.description,
+                  type: prediction.types.filter(type => type in placesTypes)[0],
+                  to_import: true
+                };
+              }
+            )
         );
-      });
-  }, [search]);
+      })
+    ]).then(data => {
+      setIsSearching(false);
+      console.log(data);
+      setResults(data.flat());
+    });
+
+    return () => {
+      supabaseController.abort();
+      axiosController.abort();
+    };
+  }, [debouncedSearch]);
 
   return (
     <SafeAreaView>
@@ -75,8 +199,11 @@ export default function ExploreScreen({
           }
         />
         <VStack>
-          {results.map(item => (
-            <Text>ciao</Text>
+          <Box py={3}>
+            {isSearching && results.length === 0 && <Spinner size={"lg"} />}
+          </Box>
+          {results.map((item, itemIdx) => (
+            <Text key={itemIdx}>{item.name}</Text>
           ))}
         </VStack>
       </ScrollView>

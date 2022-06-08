@@ -16,6 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import AppLoading from "expo-app-loading";
 
 import "react-native-url-polyfill/auto";
+import "react-native-get-random-values";
 
 import { LogBox } from "react-native";
 LogBox.ignoreLogs(["Setting a timer"]);

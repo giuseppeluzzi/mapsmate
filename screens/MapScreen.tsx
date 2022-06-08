@@ -9,6 +9,8 @@ import { RootTabScreenProps } from "../types";
 import { useTheme } from "native-base";
 import Svg, { Path } from "react-native-svg";
 
+import { useCurrentLocationStore } from "../state/currentLocationState";
+
 export default function MapScreen({
   navigation
 }: RootTabScreenProps<"MapTab">) {
@@ -16,10 +18,7 @@ export default function MapScreen({
 
   const mapRef = useRef<MapView>(null);
 
-  const [location, setLocation] = useState<LatLng>({
-    latitude: 45.464211,
-    longitude: 9.191383
-  });
+  const { currentLocation, setCurrentLocation } = useCurrentLocationStore();
 
   const zoomOnCurrentLocation = (latitude: number, longitude: number) => {
     if (mapRef.current) {
@@ -41,7 +40,7 @@ export default function MapScreen({
       }
 
       const location = await Location.getCurrentPositionAsync({});
-      setLocation({
+      setCurrentLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
       });
@@ -65,13 +64,16 @@ export default function MapScreen({
       zoomControlEnabled={true}
       style={{ width: "100%", height: "100%" }}
       initialRegion={{
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
         latitudeDelta: 1,
         longitudeDelta: 1
       }}
       onMapReady={() => {
-        zoomOnCurrentLocation(location.latitude, location.longitude);
+        zoomOnCurrentLocation(
+          currentLocation.latitude,
+          currentLocation.longitude
+        );
       }}
     >
       {[
