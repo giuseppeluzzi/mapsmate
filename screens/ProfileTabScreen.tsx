@@ -22,11 +22,12 @@ import { supabase } from "../lib/supabase";
 import EmojiPicker, { EmojiKeyboard } from "rn-emoji-keyboard";
 import { EmojiType } from "rn-emoji-keyboard/lib/typescript/types";
 import { useStore } from "state/userState";
-import { RootTabScreenProps } from "types";
+import { RootStackParamList, RootTabScreenProps } from "types";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export default function ProfileTabScreens({
   navigation,
-}: RootTabScreenProps<"ProfileTab">) {
+}: NativeStackScreenProps<RootStackParamList, "Profile">) {
   const { user } = useStore();
 
   const [username, setUsername] = useState<string>();
@@ -47,18 +48,9 @@ export default function ProfileTabScreens({
       });
   }, []);
 
-  const handlePick = async (emoji: EmojiType) => {
-    setUserEmoji(emoji.emoji);
-    setIsModalOpen((prev) => !prev);
-    await supabase
-      .from("profiles")
-      .update({ emoji: emoji.emoji })
-      .match({ id: user?.id });
-  };
-
   return (
-    <ScrollView paddingX={1} _contentContainerStyle={{ paddingTop: 3 }}>
-      <VStack mt={"16"} space={12}>
+    <ScrollView>
+      <VStack space={12}>
         <Box
           borderBottomWidth={2}
           p="10"
@@ -66,13 +58,12 @@ export default function ProfileTabScreens({
           borderBottomRadius="sm"
           backgroundColor={"white"}
         >
-          <HStack w="full" justifyContent={"center"}>
-            <Avatar mt={"4"} size="2xl" bg="gray.900">
+          <HStack mt={"1/5"} w="full" justifyContent={"center"}>
+            <Avatar size="2xl" bg="gray.900">
               {userEmoji}
             </Avatar>
             <Box
-              justifyContent={"space-between"}
-              alignItems={"center"}
+              alignSelf={"flex-end"}
               style={{ position: "absolute", right: 0, top: 0 }}
             >
               <IconButton
@@ -82,13 +73,13 @@ export default function ProfileTabScreens({
                 pr={"1/2"}
                 rounded="lg"
                 variant={"primary"}
-                justifyContent={"center"}
                 alignItems={"center"}
+                justifyContent={"center"}
                 onPress={() => {
-                  navigation.navigate({ name: "Settings" });
+                  navigation.navigate("Settings");
                 }}
               >
-                <Icon viewBox="0 0 24 24">
+                <Icon size={"md"} viewBox="0 0 24 24">
                   <Path
                     fill="#1E1F20"
                     fill-rule="evenodd"
@@ -141,10 +132,11 @@ export default function ProfileTabScreens({
           alignItems={"center"}
           justifyContent={"center"}
           onPress={() => {
-            supabase.auth.signOut();
+            //supabase.auth.signOut();
+            navigation.navigate("POI");
           }}
         >
-          <Icon viewBox="0 0 24 24">
+          <Icon size={"md"} viewBox="0 0 24 24">
             <Path
               fill="none"
               stroke="currentColor"

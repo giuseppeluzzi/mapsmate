@@ -21,16 +21,17 @@ import { EmojiType } from "rn-emoji-keyboard/lib/typescript/types";
 import { useStore } from "state/userState";
 import EmojiPicker, { EmojiKeyboard } from "rn-emoji-keyboard";
 
-import { RootTabScreenProps } from "../types";
+import { RootStackParamList, RootTabScreenProps } from "../types";
 import { Path } from "react-native-svg";
 import { positionStyle } from "react-native-flash-message";
 import { TextInput, TouchableOpacity } from "react-native";
 import tailwind from "tailwind-rn";
 import { background } from "native-base/lib/typescript/theme/styled-system";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export default function ExploreScreen({
   navigation,
-}: RootTabScreenProps<"SettingsTab">) {
+}: NativeStackScreenProps<RootStackParamList, "Settings">) {
   const { user } = useStore();
 
   const [username, setUsername] = useState<string>();
@@ -76,7 +77,7 @@ export default function ExploreScreen({
       })
       .match({ id: user?.id });
 
-    navigation.navigate({ name: "ProfileTab" });
+    navigation.navigate("Profile");
   };
 
   return (
@@ -108,7 +109,7 @@ export default function ExploreScreen({
               categoryPosition="top"
               enableRecentlyUsed
             />
-            <Icon viewBox="0 0 24 24">
+            <Icon size={"md"} viewBox="0 0 24 24">
               <Path
                 fill-rule="evenodd"
                 clip-rule="evenodd"
