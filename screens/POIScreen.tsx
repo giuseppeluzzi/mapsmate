@@ -16,8 +16,8 @@ import ImageView from "react-native-image-viewing";
 
 import { supabase } from "../lib/supabase";
 
-import { SafeAreaView } from "react-native";
 import { useEffect, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 /*const images = [
   {
@@ -31,7 +31,10 @@ import { useEffect, useState } from "react";
   },
 ];*/
 
-export default function POIScreen({ navigation }: RootStackScreenProps<"POI">) {
+export default function POIScreen({
+  navigation,
+  route,
+}: RootStackScreenProps<"POI">) {
   const theme = useTheme();
 
   const [visible, setIsVisible] = useState<boolean>(false);
@@ -41,11 +44,17 @@ export default function POIScreen({ navigation }: RootStackScreenProps<"POI">) {
   useEffect(() => {
     supabase
       .from("pois")
-      .select("images")
-      .eq("id", 1)
+      .select("*")
+      .eq("id", route.params.id)
       .then((result) => {
         if (!result.data || !result.data[0]) return;
-        setImages(result.data[0].images);
+        setImages(
+          result.data[0].images.map(
+            (image: string) =>
+              "https://qfjavyudshdwnuoedalk.supabase.co/storage/v1/object/public/" +
+              image
+          )
+        );
       });
   }, []);
 
@@ -54,7 +63,9 @@ export default function POIScreen({ navigation }: RootStackScreenProps<"POI">) {
       <HStack h={"300px"} justifyContent={"center"}>
         <ImageView
           images={images.map((image) => {
-            return { uri: image };
+            return {
+              uri: image,
+            };
           })}
           imageIndex={currentSelectedImage}
           visible={visible}
