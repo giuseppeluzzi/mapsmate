@@ -215,9 +215,9 @@ const fetchGooglePlace = ({
       ),
       review_rating: googleData.result.rating,
       review_count: googleData.result.user_ratings_total,
-      images_references: googleData.result.photos.map(
-        (photo: any) => photo.photo_reference
-      ),
+      images_references: googleData.result.photos
+        .map((photo: any) => photo.photo_reference)
+        .slice(0, 4),
     };
   });
 };
