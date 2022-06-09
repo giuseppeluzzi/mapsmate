@@ -325,6 +325,41 @@ const importGooglePlace = async ({
   return data[0].id;
 };
 
+const searchPlaces = ({
+  keyword,
+  sessionToken,
+  latitude,
+  longitude,
+  serverAbortSignal,
+  googleAbortSignal,
+}: {
+  keyword: string;
+  sessionToken: string;
+  latitude: number;
+  longitude: number;
+  serverAbortSignal: AbortSignal;
+  googleAbortSignal: AbortSignal;
+}): Promise<SearchItem[]> => {
+  return Promise.all([
+    fetchServerPlaces({
+      keyword: keyword,
+      abortSignal: serverAbortSignal,
+    }),
+    fetchGoogleAutocomplete({
+      keyword: keyword,
+      sessionToken,
+      latitude: latitude,
+      longitude: longitude,
+      abortSignal: googleAbortSignal,
+    }),
+  ]).then((fetchedPlaces) =>
+    margeAndRemoveDuplicatedPlaces({
+      serverPlaces: fetchedPlaces[0],
+      googlePlaces: fetchedPlaces[1],
+    })
+  );
+};
+
 export default function ExploreScreen({
   navigation,
 }: RootTabScreenProps<"ExploreTab">) {
@@ -358,6 +393,22 @@ export default function ExploreScreen({
         refreshSessionToken: () => setSessionToken(uuidv4()),
       });
 
+      // Not really useful, but not a problem
+      const voidServerAbortController = new AbortController();
+      const voidGoogleAbortController = new AbortController();
+
+      searchPlaces({
+        sessionToken,
+        keyword: debouncedSearch,
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        serverAbortSignal: voidServerAbortController.signal,
+        googleAbortSignal: voidGoogleAbortController.signal,
+      }).then((places) => {
+        setResults(places);
+        setIsSearching(false);
+      });
+
       navigation.navigate("POI", {
         id: poiId,
       });
@@ -381,29 +432,17 @@ export default function ExploreScreen({
 
     setIsSearching(true);
 
-    Promise.all([
-      fetchServerPlaces({
-        keyword: debouncedSearch,
-        abortSignal: serverAbortController.signal,
-      }),
-      fetchGoogleAutocomplete({
-        keyword: debouncedSearch,
-        sessionToken,
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-        abortSignal: googleAbortController.signal,
-      }),
-    ])
-      .then((fetchedPlaces) =>
-        margeAndRemoveDuplicatedPlaces({
-          serverPlaces: fetchedPlaces[0],
-          googlePlaces: fetchedPlaces[1],
-        })
-      )
-      .then((places) => {
-        setResults(places);
-        setIsSearching(false);
-      });
+    searchPlaces({
+      sessionToken,
+      keyword: debouncedSearch,
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude,
+      serverAbortSignal: serverAbortController.signal,
+      googleAbortSignal: googleAbortController.signal,
+    }).then((places) => {
+      setResults(places);
+      setIsSearching(false);
+    });
 
     return () => {
       serverAbortController.abort();
@@ -456,7 +495,7 @@ export default function ExploreScreen({
                   w={"100%"}
                 >
                   <Text isTruncated numberOfLines={1}>
-                    {result.item.title}
+                    {result.item.title + (result.item.to_import ? "!!" : "")}
                   </Text>
                   {result.item.subtitle && (
                     <Text
