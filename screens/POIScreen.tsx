@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RootTabScreenProps } from "../types";
+import { RootStackScreenProps, RootTabScreenProps } from "../types";
 
 import {
   HStack,
@@ -8,7 +8,7 @@ import {
   ScrollView,
   useTheme,
   View,
-  VStack
+  VStack,
 } from "native-base";
 
 import Swiper from "react-native-swiper";
@@ -31,7 +31,7 @@ import { useEffect, useState } from "react";
   },
 ];*/
 
-export default function POIScreen({ navigation }: RootTabScreenProps<"POI">) {
+export default function POIScreen({ navigation }: RootStackScreenProps<"POI">) {
   const theme = useTheme();
 
   const [visible, setIsVisible] = useState<boolean>(false);
@@ -43,7 +43,7 @@ export default function POIScreen({ navigation }: RootTabScreenProps<"POI">) {
       .from("pois")
       .select("images")
       .eq("id", 1)
-      .then(result => {
+      .then((result) => {
         if (!result.data || !result.data[0]) return;
         setImages(result.data[0].images);
       });
@@ -53,7 +53,7 @@ export default function POIScreen({ navigation }: RootTabScreenProps<"POI">) {
     <SafeAreaView>
       <HStack h={"300px"} justifyContent={"center"}>
         <ImageView
-          images={images.map(image => {
+          images={images.map((image) => {
             return { uri: image };
           })}
           imageIndex={currentSelectedImage}
@@ -65,11 +65,11 @@ export default function POIScreen({ navigation }: RootTabScreenProps<"POI">) {
             paginationStyle={{}}
             dotStyle={{
               backgroundColor: "white",
-              opacity: 0.5
+              opacity: 0.5,
             }}
             activeDotStyle={{
               backgroundColor: "white",
-              opacity: 1
+              opacity: 1,
             }}
           >
             {images.map((image, imageIndex) => (

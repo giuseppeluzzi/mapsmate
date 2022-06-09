@@ -132,8 +132,7 @@ export default function ProfileTabScreens({
           alignItems={"center"}
           justifyContent={"center"}
           onPress={() => {
-            //supabase.auth.signOut();
-            navigation.navigate("POI");
+            supabase.auth.signOut();
           }}
         >
           <Icon size={"md"} viewBox="0 0 24 24">

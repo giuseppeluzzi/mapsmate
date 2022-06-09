@@ -1,23 +1,27 @@
+import { RootTabScreenProps } from "../types";
+
 import * as React from "react";
 import { useEffect, useState } from "react";
 
 import {
+  Avatar,
   Box,
+  FlatList,
+  HStack,
   Icon,
   Input,
   ScrollView,
   Spinner,
   Text,
-  VStack
+  VStack,
 } from "native-base";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { RootTabScreenProps } from "../types";
 import { Path } from "react-native-svg";
 import { supabase } from "lib/supabase";
 
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 import { useDebounce } from "use-debounce";
 
@@ -25,17 +29,304 @@ import { useCurrentLocationStore } from "state/currentLocationState";
 
 import { v4 as uuidv4 } from "uuid";
 import { KEYS } from "../constants/Keys";
+import { placesTypes } from "constants/PlacesTypes";
+import { TouchableOpacity } from "react-native";
+import { showMessage } from "react-native-flash-message";
+import * as mime from "mime";
 
 type SearchItem = {
+  key: string;
   id?: string;
   google_place_id?: string;
-  name: string;
+  title: string;
+  subtitle?: string;
   to_import: boolean;
+  type: "user" | keyof typeof placesTypes;
+};
+
+type GooglePlace = {
+  id: string;
+  name: string;
   type: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  workhours: string[];
+  review_rating: number;
+  review_count: number;
+  images_references: string[];
+};
+
+type GooglePlaceImage = {
+  file: ArrayBuffer;
+  contentType: string;
+  extension: string;
+};
+
+const fetchServerPlaces = ({
+  keyword,
+  abortSignal,
+}: {
+  keyword: string;
+  abortSignal: AbortSignal;
+}): Promise<SearchItem[]> => {
+  return new Promise((resolve, reject) => {
+    supabase
+      .from("pois")
+      .select()
+      .ilike("name", "%" + keyword + "%")
+      .abortSignal(abortSignal)
+      .then((result) => {
+        if (result.error) return reject(result.error);
+        if (!result.data) return resolve([]);
+
+        return resolve(
+          result.data.map((item): SearchItem => {
+            return {
+              key: "local-" + item.id,
+              id: item.id,
+              google_place_id: item.google_place_id,
+              title: item.name,
+              subtitle: item.address,
+              to_import: false,
+              type: item.type,
+            };
+          })
+        );
+      });
+  });
+};
+
+const fetchGoogleAutocomplete = ({
+  keyword,
+  sessionToken,
+  latitude,
+  longitude,
+  abortSignal,
+}: {
+  keyword: string;
+  sessionToken: string;
+  latitude: number;
+  longitude: number;
+  abortSignal: AbortSignal;
+}): Promise<SearchItem[]> => {
+  // TODO: test output SearchItem[] doesn't contain not allowed types
+
+  const placesSearchParams = new URLSearchParams({
+    key: KEYS.GOOGLE_MAPS_KEY,
+    sessiontoken: sessionToken,
+    language: "it",
+    input: keyword,
+    location: latitude + "," + longitude,
+    radius: "50000",
+    origin: latitude + "," + longitude,
+    types: "establishment",
+  });
+
+  return axios({
+    method: "get",
+    url:
+      "https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
+      placesSearchParams.toString(),
+    signal: abortSignal,
+  }).then((result): SearchItem[] => {
+    return result.data.predictions
+      .filter((prediction: { types: string[] }) => {
+        return !Object.keys(placesTypes).some((type) => {
+          return "" + type in prediction.types;
+        });
+      })
+      .map((prediction: any): SearchItem => {
+        return {
+          key: prediction.place_id,
+          google_place_id: prediction.place_id,
+          title: prediction.structured_formatting.main_text,
+          subtitle: prediction.structured_formatting.secondary_text,
+          type: prediction.types.filter(
+            (type: string) => !(type in Object.keys(placesTypes))
+          )[0],
+          to_import: true,
+        };
+      });
+  });
+};
+
+const margeAndRemoveDuplicatedPlaces = ({
+  serverPlaces,
+  googlePlaces,
+}: {
+  serverPlaces: SearchItem[];
+  googlePlaces: SearchItem[];
+}): SearchItem[] => {
+  // TODO: test ouput doesn't contain more than one item with the same google_place_id
+  const serverPlacesGoogleIds = serverPlaces.map(
+    (item) => item.google_place_id
+  );
+
+  return [
+    ...serverPlaces,
+    ...googlePlaces.filter((googleItem) => {
+      if (!googleItem.google_place_id) return false;
+      return !serverPlacesGoogleIds.includes(googleItem.google_place_id);
+    }),
+  ];
+};
+
+const fetchGooglePlace = ({
+  placeId,
+  sessionToken,
+}: {
+  placeId: string;
+  sessionToken: string;
+}): Promise<GooglePlace> => {
+  const placeDetailsParams = new URLSearchParams({
+    key: KEYS.GOOGLE_MAPS_KEY,
+    sessiontoken: sessionToken,
+    language: "it",
+    fields:
+      "formatted_address,name,geometry,place_id,photo,type,opening_hours,rating,user_ratings_total",
+    place_id: placeId,
+  });
+
+  return axios({
+    method: "get",
+    url:
+      "https://maps.googleapis.com/maps/api/place/details/json?" +
+      placeDetailsParams.toString(),
+  }).then(({ data: googleData }: { data: any }) => {
+    return {
+      id: googleData.result.place_id,
+      name: googleData.result.name,
+      type: googleData.result.types.filter(
+        (type: string) => !(type in Object.keys(placesTypes))
+      )[0],
+      latitude: googleData.result.geometry.location.lat,
+      longitude: googleData.result.geometry.location.lng,
+      address: googleData.result.formatted_address,
+      workhours: googleData.result.opening_hours.periods.map(
+        (period: any) =>
+          period.open.time.substr(0, 2) +
+          ":" +
+          period.open.time.substr(2, 2) +
+          " - " +
+          period.close.time.substr(0, 2) +
+          ":" +
+          period.close.time.substr(2, 2)
+      ),
+      review_rating: googleData.result.rating,
+      review_count: googleData.result.user_ratings_total,
+      images_references: googleData.result.photos.map(
+        (photo: any) => photo.photo_reference
+      ),
+    };
+  });
+};
+
+const fetchGoogleImage = ({
+  imageReference,
+}: {
+  imageReference: string;
+}): Promise<GooglePlaceImage> => {
+  const placePhotoParams = new URLSearchParams({
+    key: KEYS.GOOGLE_MAPS_KEY,
+    maxwidth: "600",
+    photo_reference: imageReference,
+  });
+
+  return axios({
+    method: "GET",
+    url:
+      "https://maps.googleapis.com/maps/api/place/photo?" +
+      placePhotoParams.toString(),
+    responseType: "arraybuffer",
+  }).then((result: AxiosResponse<ArrayBuffer>) => {
+    return {
+      file: result.data,
+      contentType: result.headers["contentType"],
+      extension: "" + mime.getExtension(result.headers["content-type"]),
+    };
+  });
+};
+
+const saveGoogleImage = ({
+  placeId,
+  imageReference,
+}: {
+  placeId: string;
+  imageReference: string;
+}): Promise<string> => {
+  return new Promise(async (resolve, reject) => {
+    const downloadedImage = await fetchGoogleImage({
+      imageReference,
+    });
+
+    const { data, error } = await supabase.storage
+      .from("poi-images")
+      .upload(
+        placeId + "/" + imageReference + "." + downloadedImage.extension,
+        downloadedImage.file,
+        {
+          upsert: true,
+        }
+      );
+
+    if (error || !data) return reject(error);
+
+    return resolve(data?.Key);
+  });
+};
+
+const importGooglePlace = async ({
+  placeId,
+  sessionToken,
+  refreshSessionToken,
+}: {
+  placeId: string;
+  sessionToken: string;
+  refreshSessionToken: () => void;
+}): Promise<string> => {
+  const place = await fetchGooglePlace({
+    placeId,
+    sessionToken,
+  });
+
+  refreshSessionToken();
+
+  // Parallelize download and upload
+  const placeImages = await Promise.all(
+    place.images_references.map((imageReference) =>
+      saveGoogleImage({ placeId: place.id, imageReference })
+    )
+  );
+
+  const { data, error } = await supabase.from("pois").insert([
+    {
+      name: place.name,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      address: place.address,
+      workhours: place.workhours,
+      google_place_id: place.id,
+      google_review_rating: place.review_rating,
+      google_review_count: place.review_count,
+      type: place.type,
+      images: placeImages,
+    },
+  ]);
+
+  if (error || !data) {
+    showMessage({
+      message: "Unexpected error, please retry later",
+      type: "danger",
+    });
+    throw new Error();
+  }
+
+  return data[0].id;
 };
 
 export default function ExploreScreen({
-  navigation
+  navigation,
 }: RootTabScreenProps<"ExploreTab">) {
   const { currentLocation, setCurrentLocation } = useCurrentLocationStore();
 
@@ -47,36 +338,35 @@ export default function ExploreScreen({
 
   const [debouncedSearch, _] = useDebounce<string>(search, 500);
 
-  const placesTypes = [
-    "amusement_park",
-    "aquarium",
-    "art_gallery",
-    "bakery",
-    "bar",
-    "beauty_salon",
-    "book_store",
-    "bowling_alley",
-    "cafe",
-    "campground",
-    "casino",
-    "church",
-    "hindu_temple",
-    "library",
-    "lodging",
-    "meal_delivery",
-    "meal_takeaway",
-    "mosque",
-    "museum",
-    "night_club",
-    "park",
-    "restaurant",
-    "rv_park",
-    "shopping_mall",
-    "spa",
-    "synagogue",
-    "tourist_attraction",
-    "zoo"
-  ];
+  const navigateToResult = async (item: SearchItem): Promise<void> => {
+    if (item.type === "user") {
+      return;
+    }
+
+    if (item.to_import) {
+      if (!item.google_place_id) {
+        showMessage({
+          message: "Unexpected error, please retry later",
+          type: "danger",
+        });
+        return;
+      }
+
+      const poiId = await importGooglePlace({
+        placeId: item.google_place_id,
+        sessionToken,
+        refreshSessionToken: () => setSessionToken(uuidv4()),
+      });
+
+      navigation.navigate("POI", {
+        id: poiId,
+      });
+    } else if (item.id) {
+      navigation.navigate("POI", {
+        id: item.id,
+      });
+    }
+  };
 
   useEffect(() => {
     if (search.length == 0) {
@@ -86,100 +376,48 @@ export default function ExploreScreen({
 
     if (search.length <= 2) return;
 
-    const supabaseController = new AbortController();
-    const axiosController = new AbortController();
-
-    const placesSearchParams = new URLSearchParams({
-      key: KEYS.GOOGLE_MAPS_KEY,
-      sessiontoken: sessionToken,
-      language: "it",
-      input: debouncedSearch,
-      location: currentLocation.latitude + "," + currentLocation.longitude,
-      radius: "50000",
-      origin: currentLocation.latitude + "," + currentLocation.longitude,
-      // types: placesTypes.join("|")
-      types: "establishment"
-    });
-
-    console.log(placesSearchParams.toString());
-    console.log(
-      "https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
-        placesSearchParams.toString()
-    );
+    const serverAbortController = new AbortController();
+    const googleAbortController = new AbortController();
 
     setIsSearching(true);
+
     Promise.all([
-      supabase
-        .from("pois")
-        .select()
-        .like("name", "%" + debouncedSearch + "%")
-        .abortSignal(supabaseController.signal)
-        .then(data => {
-          if (!data.data) return [];
-
-          return data.data.map(item => {
-            return {
-              id: item.id,
-              google_place_id: item.google_place_id,
-              name: item.name,
-              type: item.type,
-              to_import: false
-            };
-          });
-        }),
-
-      axios({
-        method: "get",
-        url:
-          "https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
-          placesSearchParams.toString(),
-        signal: axiosController.signal
-      }).then(result => {
-        // console.log(result.data.predictions);
-        return (
-          result.data.predictions
-            /*.filter((prediction: { types: string[] }) => {
-            console.log(prediction.types);
-            return placesTypes.some(type => {
-              console.log(type, type in prediction.types);
-              return "" + type in prediction.types;
-            });
-          })*/
-            .map(
-              (prediction: {
-                place_id: any;
-                description: any;
-                types: string[];
-              }) => {
-                console.log(prediction);
-                return {
-                  google_place_id: prediction.place_id,
-                  name: prediction.description,
-                  type: prediction.types.filter(type => type in placesTypes)[0],
-                  to_import: true
-                };
-              }
-            )
-        );
-      })
-    ]).then(data => {
-      setIsSearching(false);
-      console.log(data);
-      setResults(data.flat());
-    });
+      fetchServerPlaces({
+        keyword: debouncedSearch,
+        abortSignal: serverAbortController.signal,
+      }),
+      fetchGoogleAutocomplete({
+        keyword: debouncedSearch,
+        sessionToken,
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        abortSignal: googleAbortController.signal,
+      }),
+    ])
+      .then((fetchedPlaces) =>
+        margeAndRemoveDuplicatedPlaces({
+          serverPlaces: fetchedPlaces[0],
+          googlePlaces: fetchedPlaces[1],
+        })
+      )
+      .then((places) => {
+        setResults(places);
+        setIsSearching(false);
+      });
 
     return () => {
-      supabaseController.abort();
-      axiosController.abort();
+      serverAbortController.abort();
+      googleAbortController.abort();
     };
   }, [debouncedSearch]);
 
   return (
     <SafeAreaView>
-      <ScrollView paddingX={6} _contentContainerStyle={{ paddingTop: 3 }}>
+      {/*<ScrollView paddingX={6} _contentContainerStyle={{ paddingTop: 3 }}>*/}
+      <VStack px={6} pt={3} space={3}>
         <Input
           value={search}
-          onChangeText={value => setSearch(value)}
+          onChangeText={(value) => setSearch(value)}
           placeholder="Search"
           autoCapitalize={"none"}
           fontSize={16}
@@ -198,15 +436,46 @@ export default function ExploreScreen({
             </Icon>
           }
         />
-        <VStack>
-          <Box py={3}>
-            {isSearching && results.length === 0 && <Spinner size={"lg"} />}
-          </Box>
-          {results.map((item, itemIdx) => (
-            <Text key={itemIdx}>{item.name}</Text>
-          ))}
-        </VStack>
-      </ScrollView>
+        {((isSearching && results.length === 0) ||
+          (!isSearching && debouncedSearch.length !== search.length)) && (
+          <Spinner size={"lg"} mt={3} />
+        )}
+        <FlatList
+          height={"full"}
+          data={results}
+          keyExtractor={(result) => result.key}
+          renderItem={(result) => (
+            <TouchableOpacity onPress={() => navigateToResult(result.item)}>
+              <HStack space={3} mb={3}>
+                <Avatar bg="gray.200">
+                  {placesTypes[result.item.type].icon}
+                </Avatar>
+                <VStack
+                  justifyContent={"center"}
+                  alignItems={"flex-start"}
+                  w={"100%"}
+                >
+                  <Text isTruncated numberOfLines={1}>
+                    {result.item.title}
+                  </Text>
+                  {result.item.subtitle && (
+                    <Text
+                      color="gray.500"
+                      fontSize="xs"
+                      isTruncated
+                      numberOfLines={1}
+                      w={"80%"}
+                    >
+                      {result.item.subtitle}
+                    </Text>
+                  )}
+                </VStack>
+              </HStack>
+            </TouchableOpacity>
+          )}
+        />
+      </VStack>
+      {/*</ScrollView>*/}
     </SafeAreaView>
   );
 }

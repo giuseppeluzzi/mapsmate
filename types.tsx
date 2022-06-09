@@ -24,7 +24,9 @@ export type RootStackParamList = {
   Modal: undefined;
   Settings: undefined;
   Profile: undefined;
-  POI: undefined;
+  POI: {
+    id: string;
+  };
 
   /*CreateGroupModal: {
     partecipants?: GroupPartecipant[];
@@ -44,7 +46,6 @@ export type RootTabParamList = {
   MapTab: undefined;
   ProfileTab: undefined;
   SettingsTab: undefined;
-  POI: undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
