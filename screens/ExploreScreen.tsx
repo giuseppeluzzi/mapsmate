@@ -30,9 +30,9 @@ import { useCurrentLocationStore } from "state/currentLocationState";
 import { v4 as uuidv4 } from "uuid";
 import { KEYS } from "../constants/Keys";
 import { placesTypes } from "constants/PlacesTypes";
-import { TouchableOpacity } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import * as mime from "mime";
+import { TouchableOpacity } from "react-native";
 
 type SearchItem = {
   key: string;
@@ -495,7 +495,7 @@ export default function ExploreScreen({
                   w={"100%"}
                 >
                   <Text isTruncated numberOfLines={1}>
-                    {result.item.title + (result.item.to_import ? "!!" : "")}
+                    {result.item.title}
                   </Text>
                   {result.item.subtitle && (
                     <Text
