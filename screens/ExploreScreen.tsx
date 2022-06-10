@@ -132,8 +132,8 @@ const fetchGoogleAutocomplete = ({
   }).then((result): SearchItem[] => {
     return result.data.predictions
       .filter((prediction: { types: string[] }) => {
-        return !Object.keys(placesTypes).some((type) => {
-          return "" + type in prediction.types;
+        return Object.keys(placesTypes).some((type) => {
+          return prediction.types.includes(type);
         });
       })
       .map((prediction: any): SearchItem => {
@@ -142,8 +142,8 @@ const fetchGoogleAutocomplete = ({
           google_place_id: prediction.place_id,
           title: prediction.structured_formatting.main_text,
           subtitle: prediction.structured_formatting.secondary_text,
-          type: prediction.types.filter(
-            (type: string) => !(type in Object.keys(placesTypes))
+          type: prediction.types.filter((type: string) =>
+            Object.keys(placesTypes).includes(type)
           )[0],
           to_import: true,
         };
@@ -184,7 +184,7 @@ const fetchGooglePlace = ({
     sessiontoken: sessionToken,
     language: "it",
     fields:
-      "formatted_address,name,geometry,place_id,photo,type,opening_hours,rating,user_ratings_total",
+      "formatted_address,adr_address,address_component,name,geometry,place_id,photo,type,opening_hours,rating,user_ratings_total",
     place_id: placeId,
   });
 
@@ -197,8 +197,8 @@ const fetchGooglePlace = ({
     return {
       id: googleData.result.place_id,
       name: googleData.result.name,
-      type: googleData.result.types.filter(
-        (type: string) => !(type in Object.keys(placesTypes))
+      type: googleData.result.types.filter((type: string) =>
+        Object.keys(placesTypes).includes(type)
       )[0],
       latitude: googleData.result.geometry.location.lat,
       longitude: googleData.result.geometry.location.lng,

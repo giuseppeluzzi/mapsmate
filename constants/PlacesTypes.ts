@@ -22,7 +22,7 @@ export const placesTypes: {
   },
   bar: {
     type: "bar",
-    icon: "🍷",
+    icon: "🍺",
   },
   beauty_salon: {
     type: "beauty_salon",
