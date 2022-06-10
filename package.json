@@ -11,10 +11,6 @@
   "jest": {
     "preset": "jest-expo"
   },
-  "resolutions": {
-    "@types/react": "17.0.43",
-    "@types/react-dom": "17.0.2"
-  },
   "dependencies": {
     "@expo-google-fonts/nunito-sans": "^0.2.2",
     "@expo/ngrok": "^2.5.0",
@@ -33,7 +29,6 @@
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/native-stack": "^6.1.0",
     "@supabase/supabase-js": "^1.31.1",
-    "@types/react-dom": "18",
     "axios": "^0.27.2",
     "emoji-picker-react": "^3.5.1",
     "expo": "~43.0.2",
@@ -50,9 +45,9 @@
     "expo-web-browser": "~10.0.3",
     "mime": "^3.0.0",
     "native-base": "^3.3.7",
-    "react": "18",
+    "react": "^17.0.1",
     "react-currency-conversion": "^1.0.5",
-    "react-dom": "18",
+    "react-dom": "17.0.1",
     "react-native": "0.64.3",
     "react-native-emoji-selector": "^0.2.0",
     "react-native-flash-message": "^0.2.0",
@@ -81,7 +76,7 @@
     "@types/google.maps": "^3.49.1",
     "@types/mime": "^2.0.3",
     "@types/node": "^17.0.41",
-    "@types/react": "18",
+    "@types/react": "~17.0.21",
     "@types/react-native": "^0.64.12",
     "@types/react-native-maps": "^0.24.2",
     "@types/uuid": "^8.3.4",
