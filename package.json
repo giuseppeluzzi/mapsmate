@@ -44,6 +44,7 @@
     "expo-status-bar": "~1.1.0",
     "expo-web-browser": "~10.0.3",
     "mime": "^3.0.0",
+    "moment": "^2.29.3",
     "native-base": "^3.3.7",
     "react": "^17.0.1",
     "react-currency-conversion": "^1.0.5",
