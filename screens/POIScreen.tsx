@@ -12,7 +12,6 @@ import {
   View,
   VStack,
   Text,
-  TextField,
   Avatar,
 } from "native-base";
 
@@ -24,9 +23,8 @@ import { supabase } from "../lib/supabase";
 
 import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import moment from "moment";
-const now = new Date();
+//@ts-ignore
+import StarRating from "react-native-star-rating";
 
 type ReviewItem = {
   id: string;
@@ -39,28 +37,33 @@ type ReviewItem = {
   username: string;
 };
 
-function timeDifference(current: number, previous: number) {
-  var msPerMinute = 60 * 1000;
-  var msPerHour = msPerMinute * 60;
-  var msPerDay = msPerHour * 24;
-  var msPerMonth = msPerDay * 30;
-  var msPerYear = msPerDay * 365;
+function timeSince(date: Date) {
+  var seconds = Math.floor(
+    (new Date().getTime() - new Date(date).getTime()) / 1000
+  );
 
-  var elapsed = current - previous;
+  var interval = seconds / 31536000;
 
-  if (elapsed < msPerMinute) {
-    return Math.round(elapsed / 1000) + " seconds ago";
-  } else if (elapsed < msPerHour) {
-    return Math.round(elapsed / msPerMinute) + " minutes ago";
-  } else if (elapsed < msPerDay) {
-    return Math.round(elapsed / msPerHour) + " hours ago";
-  } else if (elapsed < msPerMonth) {
-    return "approximately " + Math.round(elapsed / msPerDay) + " days ago";
-  } else if (elapsed < msPerYear) {
-    return "approximately " + Math.round(elapsed / msPerMonth) + " months ago";
-  } else {
-    return "approximately " + Math.round(elapsed / msPerYear) + " years ago";
+  if (interval > 1) {
+    return Math.floor(interval) + " years ago";
   }
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    return Math.floor(interval) + " months ago";
+  }
+  interval = seconds / 86400;
+  if (interval > 1) {
+    return Math.floor(interval) + " days ago";
+  }
+  interval = seconds / 3600;
+  if (interval > 1) {
+    return Math.floor(interval) + " hours ago";
+  }
+  interval = seconds / 60;
+  if (interval > 1) {
+    return Math.floor(interval) + " minutes ago";
+  }
+  return Math.floor(seconds) + " seconds ago";
 }
 
 const fetchReview = ({ key }: { key: string }): Promise<ReviewItem[]> => {
@@ -176,7 +179,11 @@ export default function POIScreen({
           )}
         </HStack>
 
-        <VStack paddingX={"10"} bgColor={"red"} space={4}>
+        <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
+          Reviews
+        </Text>
+
+        <VStack mb={"16"} paddingX={"10"} bgColor={"red"} space={4}>
           {reviews.map((review) => {
             return (
               <Box
@@ -192,13 +199,22 @@ export default function POIScreen({
                   <Avatar mb={"3"} size={"md"}>
                     {review.user_emoji}
                   </Avatar>
-                  <Text ml={"2"}>{review.username}</Text>
+                  <Text alignSelf={"baseline"} m={"3"} fontWeight={"semibold"}>
+                    {review.username}
+                  </Text>
                 </Box>
-                <Box mr={"5"} flexDirection={"row"}>
-                  <Box>{review.rating}</Box>
-                  <Box>
-                    {timeDifference(now.getDate(), review.date.getDate())} //TO
-                    BE FIXED
+                <Box mb={"3"} flexDirection={"row"}>
+                  <StarRating
+                    disabled={true}
+                    maxStars={5}
+                    rating={review.rating}
+                    starSize={20}
+                    fullStarColor={"#FFCA62"}
+                  />
+                  <Box ml={"2"}>
+                    <Text fontWeight={"light"}>
+                      {"- " + timeSince(review.date)}
+                    </Text>
                   </Box>
                 </Box>
                 <Text alignItems={"baseline"}>{review.text}</Text>
