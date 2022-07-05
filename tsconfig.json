@@ -5,6 +5,7 @@
     "jsx": "react",
     "strict": true,
     "baseUrl": "./",
+    "lib": ["ES2016"],
     "paths": {
       "components": ["./components"]
     }
