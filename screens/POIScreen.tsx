@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 //@ts-ignore
 import StarRating from "react-native-star-rating";
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 type ReviewItem = {
@@ -38,16 +38,12 @@ type ReviewItem = {
   date: Date;
   user_emoji: string;
   username: string;
-  place_name: string;
-  latitude: number;
-  longitude: number;
-  place_address: string;
 };
 
 type POIDetails = {
   name: string;
-  latitude?: number;
-  longitude?: number;
+  latitude: number;
+  longitude: number;
   address: string;
 };
 
@@ -84,7 +80,7 @@ const fetchReview = ({ key }: { key: string }): Promise<ReviewItem[]> => {
   return new Promise((resolve, reject) => {
     supabase
       .from("reviews")
-      .select(" *, profiles(*), pois(*)")
+      .select(" *, profiles(*)")
       .eq("place_id", key)
       .then((result) => {
         if (result.error) return reject(result.error);
@@ -101,10 +97,6 @@ const fetchReview = ({ key }: { key: string }): Promise<ReviewItem[]> => {
               user_emoji: item.profiles.emoji,
               username: item.profiles.username,
               date: item.created_at,
-              place_name: item.pois.name,
-              latitude: item.pois.latitude,
-              longitude: item.pois.longitude,
-              place_address: item.pois.address,
             };
           })
         );
@@ -120,25 +112,14 @@ const fetchPois = ({ key }: { key: string }): Promise<POIDetails> => {
       .eq("id", key)
       .then((result) => {
         if (result.error) return reject(result.error);
-        if (!result.data) return resolve(result);
+        if (!result.data) return reject(result);
 
-        return resolve(
-          result.data[0].map(
-            async (item: {
-              name: string;
-              latitude: number;
-              longitude: number;
-              address: any;
-            }): Promise<POIDetails> => {
-              return {
-                name: item.name,
-                latitude: await item.latitude,
-                longitude: await item.longitude,
-                address: item.address,
-              };
-            }
-          )
-        );
+        return resolve({
+          name: result.data[0].name,
+          latitude: result.data[0].latitude,
+          longitude: result.data[0].longitude,
+          address: result.data[0].address,
+        });
       });
   });
 };
@@ -153,7 +134,7 @@ export default function POIScreen({
   const [currentSelectedImage, setCurrentSelectedImage] = useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
-  //const [POIDetails, setPOIDetails] = useState<POIDetails>();
+  const [POIDetails, setPOIDetails] = useState<POIDetails>();
 
   useEffect(() => {
     supabase
@@ -174,7 +155,7 @@ export default function POIScreen({
 
   useEffect(() => {
     fetchPois({ key: route.params.id }).then((details) => {
-      //setPOIDetails(details);
+      setPOIDetails(details);
     });
   }, []);
 
@@ -235,29 +216,29 @@ export default function POIScreen({
           )}
         </HStack>
 
-        {reviews.length > 0 && (
+        {POIDetails && (
           <>
             <Box paddingX={"4"} mb={"4"}>
               <Text fontWeight={"bold"} fontSize={"20"}>
-                {reviews[0].place_name}
+                {POIDetails.name}
               </Text>
-              <Text>{reviews[0].place_address}</Text>
+              <Text>{POIDetails.address}</Text>
             </Box>
             <View style={styles.container}>
               <MapView
                 scrollEnabled={false}
                 style={styles.map}
                 initialRegion={{
-                  latitude: reviews[0].latitude,
-                  longitude: reviews[0].longitude,
+                  latitude: POIDetails.latitude,
+                  longitude: POIDetails.longitude,
                   latitudeDelta: 0.002,
                   longitudeDelta: 0.002,
                 }}
               >
                 <Marker
                   coordinate={{
-                    latitude: reviews[0].latitude,
-                    longitude: reviews[0].longitude,
+                    latitude: POIDetails.latitude,
+                    longitude: POIDetails.longitude,
                   }}
                   pinColor={"red"}
                 />
@@ -265,47 +246,54 @@ export default function POIScreen({
             </View>
           </>
         )}
+
         <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
           Reviews
         </Text>
 
-        <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
-          {reviews.map((review) => {
-            return (
-              <Box
-                p={"5"}
-                borderColor={"gray.300"}
-                borderWidth={1}
-                borderRadius={"md"}
-                alignItems={"flex-start"}
-                bgColor={"white"}
-                key={review.id}
-              >
-                <Box mb={"3"} flexDirection={"row"}>
-                  <Avatar size={"md"}>{review.user_emoji}</Avatar>
-                  <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
-                    {review.username}
-                  </Text>
-                </Box>
-                <Box mb={"3"} flexDirection={"row"}>
-                  <StarRating
-                    disabled={true}
-                    maxStars={5}
-                    rating={review.rating}
-                    starSize={20}
-                    fullStarColor={"#FFCA62"}
-                  />
-                  <Box ml={"2"}>
-                    <Text fontWeight={"light"}>
-                      {"- " + timeSince(review.date)}
+        {reviews.length > 0 ? (
+          <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
+            {reviews.map((review) => {
+              return (
+                <Box
+                  p={"5"}
+                  borderColor={"gray.300"}
+                  borderWidth={1}
+                  borderRadius={"md"}
+                  alignItems={"flex-start"}
+                  bgColor={"white"}
+                  key={review.id}
+                >
+                  <Box mb={"3"} flexDirection={"row"}>
+                    <Avatar size={"md"}>{review.user_emoji}</Avatar>
+                    <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
+                      {review.username}
                     </Text>
                   </Box>
+                  <Box mb={"3"} flexDirection={"row"}>
+                    <StarRating
+                      disabled={true}
+                      maxStars={5}
+                      rating={review.rating}
+                      starSize={20}
+                      fullStarColor={"#FFCA62"}
+                    />
+                    <Box ml={"2"}>
+                      <Text fontWeight={"light"}>
+                        {"- " + timeSince(review.date)}
+                      </Text>
+                    </Box>
+                  </Box>
+                  <Text alignItems={"baseline"}>{review.text}</Text>
                 </Box>
-                <Text alignItems={"baseline"}>{review.text}</Text>
-              </Box>
-            );
-          })}
-        </VStack>
+              );
+            })}
+          </VStack>
+        ) : (
+          <Text fontWeight={"light"} mb={"16"} paddingX={"4"}>
+            There are no reviews yet, add the first one! :)
+          </Text>
+        )}
 
         <Button
           variant={"primary"}
