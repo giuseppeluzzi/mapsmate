@@ -41,6 +41,7 @@ type ReviewItem = {
 };
 
 type POIDetails = {
+  place_id: string;
   name: string;
   latitude: number;
   longitude: number;
@@ -115,6 +116,7 @@ const fetchPois = ({ key }: { key: string }): Promise<POIDetails> => {
         if (!result.data) return reject(result);
 
         return resolve({
+          place_id: result.data[0].id,
           name: result.data[0].name,
           latitude: result.data[0].latitude,
           longitude: result.data[0].longitude,
@@ -302,6 +304,12 @@ export default function POIScreen({
           alignSelf={"center"}
           w={"1/3"}
           size={"sm"}
+          onPress={() => {
+            POIDetails &&
+              navigation.navigate("Review", {
+                place_id: POIDetails.place_id,
+              });
+          }}
         >
           Add Review
         </Button>

@@ -152,6 +152,7 @@ export default function App() {
               _pressed: {
                 bg: "primary.500",
               },
+<<<<<<< Updated upstream
             };
 
             return styleObject;
@@ -180,6 +181,8 @@ export default function App() {
               _pressed: {
                 bg: "gray.100",
               },
+=======
+>>>>>>> Stashed changes
             };
 
             return styleObject;
@@ -217,6 +220,7 @@ export default function App() {
 
             return styleObject;
           },
+<<<<<<< Updated upstream
           white: (props: any) => {
             const styleObject = {
               bg: "white",
@@ -230,6 +234,8 @@ export default function App() {
 
             return styleObject;
           },
+=======
+>>>>>>> Stashed changes
         },
       },
       Input: {
@@ -285,6 +291,7 @@ export default function App() {
     return <AppLoading />;
   } else {
     return (
+<<<<<<< Updated upstream
       <QueryClientProvider client={queryClient}>
         <NativeBaseProvider theme={theme}>
           <SafeAreaProvider>
@@ -301,6 +308,20 @@ export default function App() {
           </SafeAreaProvider>
         </NativeBaseProvider>
       </QueryClientProvider>
+=======
+      <NativeBaseProvider theme={theme}>
+        <SafeAreaProvider>
+          <Navigation colorScheme={colorScheme} />
+          <StatusBar />
+          <FlashMessage
+            position="top"
+            style={{
+              paddingHorizontal: 32,
+            }}
+          />
+        </SafeAreaProvider>
+      </NativeBaseProvider>
+>>>>>>> Stashed changes
     );
   }
 }

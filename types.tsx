@@ -30,6 +30,9 @@ export type RootStackParamList = {
   POI: {
     id: string;
   };
+  Review: {
+    place_id: string;
+  };
 
   /*CreateGroupModal: {
     partecipants?: GroupPartecipant[];

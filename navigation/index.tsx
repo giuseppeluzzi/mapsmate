@@ -37,7 +37,11 @@ import {
 import MapScreen from "screens/MapScreen";
 import ExploreScreen from "screens/ExploreScreen";
 import SettingsScreen from "screens/SettingsScreen";
+<<<<<<< Updated upstream
 import UserScreen from "screens/UserScreen";
+=======
+import ReviewScreen from "screens/ReviewScreen";
+>>>>>>> Stashed changes
 
 export default function Navigation({
   colorScheme,
@@ -118,7 +122,13 @@ function RootNavigator() {
           <Stack.Group
             screenOptions={{
               presentation: "modal",
+<<<<<<< Updated upstream
               header: ({ route, options }) => (
+=======
+              animation: "slide_from_bottom",
+              headerBlurEffect: "regular",
+              header: ({ options }) => (
+>>>>>>> Stashed changes
                 <HStack
                   style={{ height: 60 }}
                   bg={"primary.300"}
@@ -161,7 +171,9 @@ function RootNavigator() {
               },
             }}
           >
-            {/*<Stack.Screen name="Modal" component={ModalScreen} />*/}
+            {/*
+            <Stack.Screen name="Modal" component={ModalScreen} />
+            */}
             <Stack.Screen
               name="Settings"
               options={{ headerShown: false }}
@@ -175,12 +187,29 @@ function RootNavigator() {
               name="AddPartecipantModal"
               component={AddPartecipantModal}
             />*/}
+<<<<<<< Updated upstream
             <Stack.Screen
               name="User"
               component={UserScreen}
               options={{ title: "" }}
             />
             <Stack.Screen name="POI" component={POIScreen} />
+=======
+            {
+              <Stack.Screen
+                name="POI"
+                component={POIScreen}
+                options={{ headerShown: false }}
+              />
+            }
+            {
+              <Stack.Screen
+                name="Review"
+                component={ReviewScreen}
+                options={{ headerShown: false }}
+              />
+            }
+>>>>>>> Stashed changes
           </Stack.Group>
         </>
       )}
