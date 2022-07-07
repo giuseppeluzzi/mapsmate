@@ -11,6 +11,7 @@ import {
   Icon,
   Input,
   ScrollView,
+  SectionList,
   Spinner,
   Text,
   VStack,
@@ -34,10 +35,16 @@ import { showMessage } from "react-native-flash-message";
 import * as mime from "mime";
 import { TouchableOpacity } from "react-native";
 
+type SearchSection = {
+  title: string;
+  data: SearchItem[];
+};
+
 type SearchItem = {
   key: string;
   id?: string;
   google_place_id?: string;
+  icon: string;
   title: string;
   subtitle?: string;
   to_import: boolean;
@@ -87,6 +94,7 @@ const fetchServerPlaces = ({
               id: item.id,
               google_place_id: item.google_place_id,
               title: item.name,
+              icon: placesTypes[item.type].icon,
               subtitle: item.address,
               to_import: false,
               type: item.type,
@@ -137,14 +145,17 @@ const fetchGoogleAutocomplete = ({
         });
       })
       .map((prediction: any): SearchItem => {
+        const type = prediction.types.filter((type: string) =>
+          Object.keys(placesTypes).includes(type)
+        )[0];
+
         return {
           key: prediction.place_id,
           google_place_id: prediction.place_id,
           title: prediction.structured_formatting.main_text,
+          icon: placesTypes[type].icon,
           subtitle: prediction.structured_formatting.secondary_text,
-          type: prediction.types.filter((type: string) =>
-            Object.keys(placesTypes).includes(type)
-          )[0],
+          type: type,
           to_import: true,
         };
       });
@@ -203,21 +214,25 @@ const fetchGooglePlace = ({
       latitude: googleData.result.geometry.location.lat,
       longitude: googleData.result.geometry.location.lng,
       address: googleData.result.formatted_address,
-      workhours: googleData.result.opening_hours.periods.map(
-        (period: any) =>
-          period.open.time.substr(0, 2) +
-          ":" +
-          period.open.time.substr(2, 2) +
-          " - " +
-          period.close.time.substr(0, 2) +
-          ":" +
-          period.close.time.substr(2, 2)
-      ),
+      workhours: googleData.result.opening_hours
+        ? googleData.result.opening_hours.periods.map(
+            (period: any) =>
+              period.open.time.substr(0, 2) +
+              ":" +
+              period.open.time.substr(2, 2) +
+              " - " +
+              period.close.time.substr(0, 2) +
+              ":" +
+              period.close.time.substr(2, 2)
+          )
+        : [],
       review_rating: googleData.result.rating,
       review_count: googleData.result.user_ratings_total,
       images_references: googleData.result.photos
-        .map((photo: any) => photo.photo_reference)
-        .slice(0, 4),
+        ? googleData.result.photos
+            .map((photo: any) => photo.photo_reference)
+            .slice(0, 4)
+        : [],
     };
   });
 };
@@ -330,27 +345,25 @@ const searchPlaces = ({
   sessionToken,
   latitude,
   longitude,
-  serverAbortSignal,
-  googleAbortSignal,
+  abortSignal,
 }: {
   keyword: string;
   sessionToken: string;
   latitude: number;
   longitude: number;
-  serverAbortSignal: AbortSignal;
-  googleAbortSignal: AbortSignal;
+  abortSignal: AbortSignal;
 }): Promise<SearchItem[]> => {
   return Promise.all([
     fetchServerPlaces({
       keyword: keyword,
-      abortSignal: serverAbortSignal,
+      abortSignal: abortSignal,
     }),
     fetchGoogleAutocomplete({
       keyword: keyword,
       sessionToken,
       latitude: latitude,
       longitude: longitude,
-      abortSignal: googleAbortSignal,
+      abortSignal: abortSignal,
     }),
   ]).then((fetchedPlaces) =>
     margeAndRemoveDuplicatedPlaces({
@@ -358,6 +371,79 @@ const searchPlaces = ({
       googlePlaces: fetchedPlaces[1],
     })
   );
+};
+
+const searchUsers = ({
+  keyword,
+  abortSignal,
+}: {
+  keyword: string;
+  abortSignal: AbortSignal;
+}): Promise<SearchItem[]> => {
+  return new Promise((resolve, reject) => {
+    supabase
+      .from("profiles")
+      .select()
+      .or("username.ilike.*" + keyword + "*,name.ilike.*" + keyword + "*")
+      .abortSignal(abortSignal)
+      .then((result) => {
+        if (result.error) return reject(result.error);
+        if (!result.data) return resolve([]);
+
+        return resolve(
+          result.data.map((item): SearchItem => {
+            return {
+              key: "user-" + item.id,
+              id: item.id,
+              title: item.name,
+              icon: item.emoji,
+              subtitle: "@" + item.username,
+              to_import: false,
+              type: "user",
+            };
+          })
+        );
+      });
+  });
+};
+
+const searchPlacesAndUsers = ({
+  keyword,
+  sessionToken,
+  latitude,
+  longitude,
+  abortSignal,
+}: {
+  keyword: string;
+  sessionToken: string;
+  latitude: number;
+  longitude: number;
+  abortSignal: AbortSignal;
+}): Promise<SearchSection[]> => {
+  return Promise.all([
+    searchPlaces({
+      keyword,
+      sessionToken,
+      latitude,
+      longitude,
+      abortSignal,
+    }),
+    searchUsers({
+      keyword,
+      abortSignal,
+    }),
+  ]).then((results) => {
+    let output = [];
+
+    if (results[0].length > 0) {
+      output.push({ title: "Places", data: results[0] });
+    }
+    if (results[1].length > 0) {
+      output.push({ title: "Users", data: results[1] });
+    }
+
+    return output;
+  });
 };
 
 export default function ExploreScreen({
@@ -369,12 +455,15 @@ export default function ExploreScreen({
 
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
-  const [results, setResults] = useState<SearchItem[]>([]);
+  const [results, setResults] = useState<SearchSection[]>([]);
 
   const [debouncedSearch, _] = useDebounce<string>(search, 500);
 
   const navigateToResult = async (item: SearchItem): Promise<void> => {
-    if (item.type === "user") {
+    if (item.type === "user" && item.id) {
+      navigation.navigate("User", {
+        userId: item.id,
+      });
       return;
     }
 
@@ -394,18 +483,16 @@ export default function ExploreScreen({
       });
 
       // Not really useful, but not a problem
-      const voidServerAbortController = new AbortController();
-      const voidGoogleAbortController = new AbortController();
+      const abortController = new AbortController();
 
-      searchPlaces({
+      searchPlacesAndUsers({
         sessionToken,
         keyword: debouncedSearch,
         latitude: currentLocation.latitude,
         longitude: currentLocation.longitude,
-        serverAbortSignal: voidServerAbortController.signal,
-        googleAbortSignal: voidGoogleAbortController.signal,
-      }).then((places) => {
-        setResults(places);
+        abortSignal: abortController.signal,
+      }).then((results) => {
+        setResults(results);
         setIsSearching(false);
       });
 
@@ -427,26 +514,23 @@ export default function ExploreScreen({
 
     if (search.length <= 2) return;
 
-    const serverAbortController = new AbortController();
-    const googleAbortController = new AbortController();
+    const abortController = new AbortController();
 
     setIsSearching(true);
 
-    searchPlaces({
+    searchPlacesAndUsers({
       sessionToken,
       keyword: debouncedSearch,
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
-      serverAbortSignal: serverAbortController.signal,
-      googleAbortSignal: googleAbortController.signal,
+      abortSignal: abortController.signal,
     }).then((places) => {
       setResults(places);
       setIsSearching(false);
     });
 
     return () => {
-      serverAbortController.abort();
-      googleAbortController.abort();
+      abortController.abort();
     };
   }, [debouncedSearch]);
 
@@ -457,7 +541,7 @@ export default function ExploreScreen({
         <Input
           value={search}
           onChangeText={(value) => setSearch(value)}
-          placeholder="Search"
+          placeholder="Search places or users"
           autoCapitalize={"none"}
           fontSize={16}
           py={3}
@@ -479,40 +563,51 @@ export default function ExploreScreen({
           (!isSearching && debouncedSearch.length !== search.length)) && (
           <Spinner size={"lg"} mt={3} />
         )}
-        <FlatList
-          height={"full"}
-          data={results}
-          keyExtractor={(result) => result.key}
-          renderItem={(result) => (
-            <TouchableOpacity onPress={() => navigateToResult(result.item)}>
-              <HStack space={3} mb={3}>
-                <Avatar bg="gray.200">
-                  {placesTypes[result.item.type].icon}
-                </Avatar>
-                <VStack
-                  justifyContent={"center"}
-                  alignItems={"flex-start"}
-                  w={"100%"}
-                >
-                  <Text isTruncated numberOfLines={1}>
-                    {result.item.title}
-                  </Text>
-                  {result.item.subtitle && (
-                    <Text
-                      color="gray.500"
-                      fontSize="xs"
-                      isTruncated
-                      numberOfLines={1}
-                      w={"80%"}
-                    >
-                      {result.item.subtitle}
+        {!isSearching &&
+          debouncedSearch.length == search.length &&
+          search.length > 0 &&
+          results.length == 0 && <Text>No results found :(</Text>}
+        {!isSearching && results.length > 0 && (
+          <SectionList
+            height={"full"}
+            sections={results}
+            keyExtractor={(result) => result.key}
+            renderItem={(result) => (
+              <TouchableOpacity onPress={() => navigateToResult(result.item)}>
+                <HStack space={3} mb={3}>
+                  <Avatar bg="gray.200">{result.item.icon}</Avatar>
+                  <VStack
+                    justifyContent={"center"}
+                    alignItems={"flex-start"}
+                    w={"100%"}
+                  >
+                    <Text isTruncated numberOfLines={1}>
+                      {result.item.title}
                     </Text>
-                  )}
-                </VStack>
-              </HStack>
-            </TouchableOpacity>
-          )}
-        />
+                    {result.item.subtitle && (
+                      <Text
+                        color="gray.500"
+                        fontSize="xs"
+                        isTruncated
+                        numberOfLines={1}
+                        w={"80%"}
+                      >
+                        {result.item.subtitle}
+                      </Text>
+                    )}
+                  </VStack>
+                </HStack>
+              </TouchableOpacity>
+            )}
+            renderSectionHeader={(result) => (
+              <Box bg={"gray.100"}>
+                <Text mt={1} mb={3} fontWeight={"semibold"}>
+                  {result.section.title}
+                </Text>
+              </Box>
+            )}
+          />
+        )}
       </VStack>
       {/*</ScrollView>*/}
     </SafeAreaView>

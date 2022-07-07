@@ -18,9 +18,19 @@ import AppLoading from "expo-app-loading";
 import "react-native-url-polyfill/auto";
 import "react-native-get-random-values";
 
+import { QueryClient, QueryClientProvider } from "react-query";
+
 import { LogBox } from "react-native";
 LogBox.ignoreLogs(["Setting a timer"]);
 LogBox.ignoreLogs(["NativeBase:"]);
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 0,
+    },
+  },
+});
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -35,7 +45,23 @@ export default function App() {
       (event, session) => {
         console.log({ event });
         if (session && session.user && event !== "SIGNED_IN") {
-          setUser(session.user);
+          supabase
+            .from("profiles")
+            .select()
+            .eq("id", session.user.id)
+            .then((result) => {
+              if (result.error) return setUser(null);
+              if (!result.data || result.data.length === 0)
+                return setUser(null);
+
+              setUser({
+                id: result.data[0].id,
+                name: result.data[0].name,
+                username: result.data[0].username,
+                email: result.data[0].email,
+                emoji: result.data[0].emoji,
+              });
+            });
         } else if (event == "SIGNED_OUT") {
           setUser(null);
         }
@@ -43,10 +69,10 @@ export default function App() {
       }
     );
 
-    AsyncStorage.getItem("auth/refresh_token").then(async value => {
+    AsyncStorage.getItem("auth/refresh_token").then(async (value) => {
       if (value) {
         const { session, error } = await supabase.auth.signIn({
-          refreshToken: value
+          refreshToken: value,
         });
         if (error) {
           AsyncStorage.removeItem("auth/refresh_token");
@@ -69,7 +95,7 @@ export default function App() {
   const theme = extendTheme({
     colors: {
       gray: {
-        100: "#f9f9f9"
+        100: "#f9f9f9",
       },
       // Primary custom
       primary: {
@@ -82,8 +108,8 @@ export default function App() {
         600: "#b37600",
         700: "#805400",
         800: "#4e3300",
-        900: "#1e1000"
-      }
+        900: "#1e1000",
+      },
       // Primary yellow
       /*primary: {
         50: "#fefce8",
@@ -114,22 +140,35 @@ export default function App() {
     components: {
       Button: {
         baseStyle: {
-          rounded: "full"
+          rounded: "full",
         },
         variants: {
           primary: (props: any) => {
             const styleObject = {
               bg: "primary.300",
               _hover: {
-                bg: "primary.500"
+                bg: "primary.500",
               },
               _pressed: {
-                bg: "primary.500"
-              }
+                bg: "primary.500",
+              },
             };
 
             return styleObject;
-          }
+          },
+          white: (props: any) => {
+            const styleObject = {
+              bg: "white",
+              _hover: {
+                bg: "gray.100",
+              },
+              _pressed: {
+                bg: "gray.100",
+              },
+            };
+
+            return styleObject;
+          },
         },
         defaultProps: {
           variant: "primary",
@@ -137,99 +176,114 @@ export default function App() {
             fontWeight: "bold",
             paddingX: 3.5,
             paddingY: 0.5,
-            color: "black"
-          }
-        }
+            color: "black",
+          },
+        },
       },
       IconButton: {
         baseStyle: {
           rounded: "16",
-          color: "black"
+          color: "black",
         },
         variants: {
           primary: (props: any) => {
             const styleObject = {
               _web: {
-                outlineWidth: 0
+                outlineWidth: 0,
               },
               bg: "primary.300",
               _hover: {
-                bg: "primary.500"
+                bg: "primary.500",
               },
               _pressed: {
-                bg: "primary.500"
-              }
+                bg: "primary.500",
+              },
             };
 
             return styleObject;
-          }
-        }
+          },
+          white: (props: any) => {
+            const styleObject = {
+              bg: "white",
+              _hover: {
+                bg: "gray.100",
+              },
+              _pressed: {
+                bg: "gray.100",
+              },
+            };
+
+            return styleObject;
+          },
+        },
       },
       Input: {
         defaultProps: {
           borderWidth: 0,
-          bg: "white"
-        }
-      }
+          bg: "white",
+        },
+      },
     },
     fontConfig: {
       NunitoSans: {
         200: {
           normal: "NunitoSans_200ExtraLight",
-          italic: "NunitoSans_200ExtraLight_Italic"
+          italic: "NunitoSans_200ExtraLight_Italic",
         },
         300: {
           normal: "NunitoSans_300Light",
-          italic: "NunitoSans_300Light_Italic"
+          italic: "NunitoSans_300Light_Italic",
         },
         400: {
           normal: "NunitoSans_400Regular",
-          italic: "NunitoSans_400Regular_Italic"
+          italic: "NunitoSans_400Regular_Italic",
         },
         600: {
           normal: "NunitoSans_600SemiBold",
-          italic: "NunitoSans_600SemiBold_Italic"
+          italic: "NunitoSans_600SemiBold_Italic",
         },
         700: {
           normal: "NunitoSans_700Bold",
-          italic: "NunitoSans_700Bold_Italic"
+          italic: "NunitoSans_700Bold_Italic",
         },
         800: {
           normal: "NunitoSans_800ExtraBold",
-          italic: "NunitoSans_800ExtraBold_Italic"
+          italic: "NunitoSans_800ExtraBold_Italic",
         },
         900: {
           normal: "NunitoSans_900Black",
-          italic: "NunitoSans_900Black_Italic"
-        }
-      }
+          italic: "NunitoSans_900Black_Italic",
+        },
+      },
     },
     fonts: {
       heading: "NunitoSans",
-      body: "NunitoSans"
+      body: "NunitoSans",
     },
     config: {
       initialColorMode: "light",
-      useSystemColorMode: false
-    }
+      useSystemColorMode: false,
+    },
   });
 
   if (!isLoadingComplete || !authCheckCompleted) {
     return <AppLoading />;
   } else {
     return (
-      <NativeBaseProvider theme={theme}>
-        <SafeAreaProvider>
-          <Navigation colorScheme={colorScheme} />
-          <StatusBar />
-          <FlashMessage
-            position="top"
-            style={{
-              paddingHorizontal: 32
-            }}
-          />
-        </SafeAreaProvider>
-      </NativeBaseProvider>
+      <QueryClientProvider client={queryClient}>
+        <NativeBaseProvider theme={theme}>
+          <SafeAreaProvider>
+            <Navigation colorScheme={colorScheme} />
+            <StatusBar />
+            <FlashMessage
+              position="top"
+              style={{
+                paddingHorizontal: 32,
+              }}
+            />
+          </SafeAreaProvider>
+        </NativeBaseProvider>
+      </QueryClientProvider>
     );
   }
 }

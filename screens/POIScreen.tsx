@@ -245,6 +245,7 @@ export default function POIScreen({
             </Box>
             <View style={styles.container}>
               <MapView
+                provider={"google"}
                 scrollEnabled={false}
                 style={styles.map}
                 initialRegion={{

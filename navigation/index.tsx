@@ -4,12 +4,7 @@
  *
  */
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  NavigationContainer,
-  DefaultTheme,
-  DarkTheme,
-  useNavigation,
-} from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { ColorSchemeName, Settings } from "react-native";
@@ -31,10 +26,10 @@ import Svg, { Path, Rect } from "react-native-svg";
 import ProfileTabScreen from "../screens/ProfileTabScreen";
 import {
   Box,
+  Button,
   Heading,
   HStack,
   Icon,
-  IconButton,
   Text,
   useColorModeValue,
   useTheme,
@@ -42,6 +37,7 @@ import {
 import MapScreen from "screens/MapScreen";
 import ExploreScreen from "screens/ExploreScreen";
 import SettingsScreen from "screens/SettingsScreen";
+import UserScreen from "screens/UserScreen";
 
 export default function Navigation({
   colorScheme,
@@ -122,22 +118,31 @@ function RootNavigator() {
           <Stack.Group
             screenOptions={{
               presentation: "modal",
-              header: ({ options }) => (
+              header: ({ route, options }) => (
                 <HStack
+                  style={{ height: 60 }}
+                  bg={"primary.300"}
+                  justifyContent={"center"}
                   alignItems={"center"}
-                  justifyContent={"space-between"}
-                  bg={"gray.100"}
-                  _dark={{ bg: "gray.900" }}
-                  px={6}
-                  pt={6}
-                  pb={12}
                 >
-                  <IconButton
-                    colorScheme={"white"}
-                    bg={"#ffffff"}
+                  <Text color={"primary"} fontWeight={"bold"} fontSize={"md"}>
+                    {options.title ?? route.name}
+                  </Text>
+
+                  <Button
                     onPress={() => {
                       navigation.goBack();
                     }}
+                    position={"absolute"}
+                    right={4}
+                    variant={"white"}
+                    rounded={16}
+                    paddingX={0}
+                    paddingY={0}
+                    height={10}
+                    width={10}
+                    alignItems={"center"}
+                    justifyContent={"center"}
                   >
                     <Icon viewBox="0 0 24 24">
                       <Path
@@ -147,11 +152,10 @@ function RootNavigator() {
                         clip-rule="evenodd"
                       />
                     </Icon>
-                  </IconButton>
-                  {options.headerRight && options.headerRight({})}
+                  </Button>
                 </HStack>
               ),
-
+              headerStyle: {},
               contentStyle: {
                 //paddingHorizontal: theme.space[6],
               },
@@ -171,13 +175,8 @@ function RootNavigator() {
               name="AddPartecipantModal"
               component={AddPartecipantModal}
             />*/}
-            {
-              <Stack.Screen
-                name="POI"
-                component={POIScreen}
-                options={{ headerShown: false }}
-              />
-            }
+            <Stack.Screen name="User" component={UserScreen} />
+            <Stack.Screen name="POI" component={POIScreen} />
           </Stack.Group>
         </>
       )}

@@ -24,6 +24,9 @@ export type RootStackParamList = {
   Modal: undefined;
   Settings: undefined;
   Profile: undefined;
+  User: {
+    userId: string;
+  };
   POI: {
     id: string;
   };
@@ -54,15 +57,10 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
     NativeStackScreenProps<RootStackParamList>
   >;
 
-export type UserProfile = {
+export type User = {
   id: string;
   name: string;
+  username: string;
   email: string;
   emoji: string;
-};
-
-export type GroupPartecipant = {
-  name: string;
-  user?: UserProfile;
-  self?: boolean;
 };
