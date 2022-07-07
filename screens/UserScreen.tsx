@@ -110,7 +110,7 @@ export default function UserScreen({
     userId: route.params.userId,
   });
 
-  const { data: statsData, isSuccess: isLoadingStats } = useUserStats({
+  const { data: statsData, isLoading: isLoadingStats } = useUserStats({
     userId: route.params.userId,
   });
 
@@ -120,7 +120,8 @@ export default function UserScreen({
       followedId: route.params.userId,
     });
 
-  if (isLoading || !userData) return <Spinner size={"lg"} mt={3} />;
+  if (isLoading || !userData || isLoadingStats || !statsData)
+    return <Spinner size={"lg"} mt={3} />;
 
   if (!userData || userData.id == user.id) {
     showMessage({
