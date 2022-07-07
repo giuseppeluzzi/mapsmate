@@ -7,6 +7,7 @@ import { showMessage } from "react-native-flash-message";
 import { useQuery, useQueryClient } from "react-query";
 import { RootStackScreenProps, User, UserStats } from "types";
 import { useStore } from "state/userState";
+import { useEffect } from "react";
 
 const useUser = ({ userId }: { userId: string }) => {
   return useQuery<User | null>(["user", userId], async () => {
@@ -120,8 +121,15 @@ export default function UserScreen({
       followedId: route.params.userId,
     });
 
-  if (isLoading || !userData || isLoadingStats || !statsData)
-    return <Spinner size={"lg"} mt={3} />;
+  useEffect(() => {
+    if (userData && userData.username) {
+      navigation.setOptions({
+        title: "@" + userData.username,
+      });
+    }
+  }, [userData]);
+
+  if (isLoading || !userData) return <Spinner size={"lg"} mt={3} />;
 
   if (!userData || userData.id == user.id) {
     showMessage({
@@ -133,13 +141,7 @@ export default function UserScreen({
     return null;
   }
 
-  if (userData.username) {
-    navigation.setOptions({
-      title: "@" + userData.username,
-    });
-  }
-
-  if (!isLoadingStats || !statsData) return <Spinner size={"lg"} mt={3} />;
+  if (isLoadingStats || !statsData) return <Spinner size={"lg"} mt={3} />;
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries(["user", userData.id], {
