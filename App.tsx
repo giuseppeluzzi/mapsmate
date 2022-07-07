@@ -20,7 +20,7 @@ import "react-native-get-random-values";
 
 import { QueryClient, QueryClientProvider } from "react-query";
 
-import { LogBox } from "react-native";
+import { LogBox, View } from "react-native";
 LogBox.ignoreLogs(["Setting a timer"]);
 LogBox.ignoreLogs(["NativeBase:"]);
 
@@ -156,6 +156,21 @@ export default function App() {
 
             return styleObject;
           },
+          primaryOutline: (props: any) => {
+            const styleObject = {
+              bg: "transparent",
+              borderColor: "primary.500",
+              borderWidth: 2,
+              _hover: {
+                bg: "primary.500",
+              },
+              _pressed: {
+                bg: "primary.500",
+              },
+            };
+
+            return styleObject;
+          },
           white: (props: any) => {
             const styleObject = {
               bg: "white",
@@ -273,14 +288,16 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <NativeBaseProvider theme={theme}>
           <SafeAreaProvider>
-            <Navigation colorScheme={colorScheme} />
-            <StatusBar />
-            <FlashMessage
-              position="top"
-              style={{
-                paddingHorizontal: 32,
-              }}
-            />
+            <View style={{ flex: 1 }}>
+              <Navigation colorScheme={colorScheme} />
+              <StatusBar />
+              <FlashMessage
+                position="top"
+                style={{
+                  paddingHorizontal: 32,
+                }}
+              />
+            </View>
           </SafeAreaProvider>
         </NativeBaseProvider>
       </QueryClientProvider>

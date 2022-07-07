@@ -175,7 +175,11 @@ function RootNavigator() {
               name="AddPartecipantModal"
               component={AddPartecipantModal}
             />*/}
-            <Stack.Screen name="User" component={UserScreen} />
+            <Stack.Screen
+              name="User"
+              component={UserScreen}
+              options={{ title: "" }}
+            />
             <Stack.Screen name="POI" component={POIScreen} />
           </Stack.Group>
         </>

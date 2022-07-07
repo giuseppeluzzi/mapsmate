@@ -34,6 +34,7 @@ import { placesTypes } from "constants/PlacesTypes";
 import { showMessage } from "react-native-flash-message";
 import * as mime from "mime";
 import { TouchableOpacity } from "react-native";
+import { useStore } from "state/userState";
 
 type SearchSection = {
   title: string;
@@ -375,9 +376,11 @@ const searchPlaces = ({
 
 const searchUsers = ({
   keyword,
+  excludedIds,
   abortSignal,
 }: {
   keyword: string;
+  excludedIds: string[];
   abortSignal: AbortSignal;
 }): Promise<SearchItem[]> => {
   return new Promise((resolve, reject) => {
@@ -385,6 +388,7 @@ const searchUsers = ({
       .from("profiles")
       .select()
       .or("username.ilike.*" + keyword + "*,name.ilike.*" + keyword + "*")
+      .not("id", "in", "(" + (excludedIds ?? []).join(",") + ")")
       .abortSignal(abortSignal)
       .then((result) => {
         if (result.error) return reject(result.error);
@@ -412,12 +416,14 @@ const searchPlacesAndUsers = ({
   sessionToken,
   latitude,
   longitude,
+  excludedUserIds,
   abortSignal,
 }: {
   keyword: string;
   sessionToken: string;
   latitude: number;
   longitude: number;
+  excludedUserIds: string[];
   abortSignal: AbortSignal;
 }): Promise<SearchSection[]> => {
   return Promise.all([
@@ -430,6 +436,7 @@ const searchPlacesAndUsers = ({
     }),
     searchUsers({
       keyword,
+      excludedIds: excludedUserIds,
       abortSignal,
     }),
   ]).then((results) => {
@@ -449,6 +456,8 @@ const searchPlacesAndUsers = ({
 export default function ExploreScreen({
   navigation,
 }: RootTabScreenProps<"ExploreTab">) {
+  const { user } = useStore();
+
   const { currentLocation, setCurrentLocation } = useCurrentLocationStore();
 
   const [sessionToken, setSessionToken] = useState<string>(uuidv4());
@@ -490,6 +499,7 @@ export default function ExploreScreen({
         keyword: debouncedSearch,
         latitude: currentLocation.latitude,
         longitude: currentLocation.longitude,
+        excludedUserIds: user?.id ? [user.id] : [],
         abortSignal: abortController.signal,
       }).then((results) => {
         setResults(results);
@@ -523,6 +533,7 @@ export default function ExploreScreen({
       keyword: debouncedSearch,
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude,
+      excludedUserIds: user?.id ? [user.id] : [],
       abortSignal: abortController.signal,
     }).then((places) => {
       setResults(places);

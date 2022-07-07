@@ -64,3 +64,9 @@ export type User = {
   email: string;
   emoji: string;
 };
+
+export type UserStats = {
+  reviewsCount: number;
+  followersCount: number;
+  followingCount: number;
+};

@@ -1,31 +1,28 @@
 import React from "react";
 
-import {
-  Avatar,
-  Box,
-  Button,
-  HStack,
-  Icon,
-  IconButton,
-  ScrollView,
-  Text,
-  VStack,
-} from "native-base";
-
+import { Avatar, Box, Button, HStack, Icon, Text, VStack } from "native-base";
 import { Path } from "react-native-svg";
 
-import { supabase } from "../lib/supabase";
-
-import { User } from "types";
+import { User, UserStats } from "types";
 
 export default function UserProfile({
   user,
+  stats,
+  followButton = false,
+  unfollowButton = false,
   settingsButton,
-  onSettingsClick,
+  onFollowPress,
+  onUnfollowPress,
+  onSettingsPress,
 }: {
   user: User;
+  stats: UserStats;
+  followButton?: boolean;
+  unfollowButton?: boolean;
   settingsButton?: boolean;
-  onSettingsClick?: () => void;
+  onFollowPress?: () => void;
+  onUnfollowPress?: () => void;
+  onSettingsPress?: () => void;
 }) {
   return (
     <>
@@ -40,7 +37,7 @@ export default function UserProfile({
         borderBottomRadius="sm"
         backgroundColor={"white"}
       >
-        {settingsButton && onSettingsClick && (
+        {settingsButton && onSettingsPress && (
           <Button
             position={"absolute"}
             top={4}
@@ -53,7 +50,7 @@ export default function UserProfile({
             rounded={16}
             alignItems={"center"}
             justifyContent={"center"}
-            onPress={onSettingsClick}
+            onPress={onSettingsPress}
           >
             <Icon viewBox="0 0 20 20">
               <Path
@@ -75,22 +72,52 @@ export default function UserProfile({
         <HStack space={10}>
           <VStack alignItems={"center"}>
             <Text fontSize={"md"} bold>
-              0
+              {stats.reviewsCount}
             </Text>
-            <Text>places</Text>
+            <Text>reviews</Text>
           </VStack>
           <VStack alignItems={"center"}>
             <Text fontSize={"md"} bold>
-              0
+              {stats.followersCount}
             </Text>
             <Text>followers</Text>
           </VStack>
           <VStack alignItems={"center"}>
             <Text fontSize={"md"} bold>
-              0
+              {stats.followingCount}
             </Text>
             <Text>following</Text>
           </VStack>
+        </HStack>
+        <HStack flexWrap={"wrap"} space={3}>
+          {followButton && onFollowPress && (
+            <Button
+              variant={"primary"}
+              borderWidth={2}
+              borderColor={"transparent"}
+              py={2}
+              px={5}
+              onPress={onFollowPress}
+            >
+              <HStack space={1} alignItems={"center"}>
+                <Text bold>Follow</Text>
+              </HStack>
+            </Button>
+          )}
+          {unfollowButton && onUnfollowPress && (
+            <Button
+              variant={"white"}
+              borderWidth={2}
+              borderColor={"gray.200"}
+              py={2}
+              px={5}
+              onPress={onUnfollowPress}
+            >
+              <HStack space={1} alignItems={"center"}>
+                <Text bold>Following</Text>
+              </HStack>
+            </Button>
+          )}
         </HStack>
       </VStack>
     </>

@@ -22,7 +22,7 @@ export default function ProfileTabScreens({
         <UserProfile
           user={user}
           settingsButton={true}
-          onSettingsClick={() => {
+          onSettingsPress={() => {
             navigation.navigate("Settings");
           }}
         />

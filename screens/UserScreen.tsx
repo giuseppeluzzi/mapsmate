@@ -1,14 +1,15 @@
-import UserProfile from "components/UserProfile";
-import { supabase } from "lib/supabase";
-import { Box, ScrollView, Spinner } from "native-base";
 import * as React from "react";
-import { useEffect } from "react";
+import UserProfile from "components/UserProfile";
+import { Box, ScrollView, Spinner } from "native-base";
+
+import { supabase } from "lib/supabase";
 import { showMessage } from "react-native-flash-message";
-import { useQuery } from "react-query";
-import { RootStackScreenProps, User } from "types";
+import { useQuery, useQueryClient } from "react-query";
+import { RootStackScreenProps, User, UserStats } from "types";
+import { useStore } from "state/userState";
 
 const useUser = ({ userId }: { userId: string }) => {
-  return useQuery<User | null>("user", async () => {
+  return useQuery<User | null>(["user", userId], async () => {
     const { data, error } = await supabase
       .from("profiles")
       .select()
@@ -32,31 +33,162 @@ const useUser = ({ userId }: { userId: string }) => {
   });
 };
 
+const useUserStats = ({ userId }: { userId: string }) => {
+  return useQuery<UserStats>(["userStats", userId], async () => {
+    const responses = await Promise.all([
+      supabase
+        .from("reviews")
+        .select("id", { count: "exact" })
+        .eq("user_id", userId),
+      supabase
+        .from("follows")
+        .select("id", { count: "exact" })
+        .eq("followed_user_id", userId),
+      supabase
+        .from("follows")
+        .select("id", { count: "exact" })
+        .eq("user_id", userId),
+    ]);
+
+    if (responses[0].error) new Error(responses[0].error.message);
+    if (responses[1].error) new Error(responses[1].error.message);
+    if (responses[2].error) new Error(responses[2].error.message);
+
+    return {
+      reviewsCount: responses[0]?.count ?? 0,
+      followersCount: responses[1]?.count ?? 0,
+      followingCount: responses[2]?.count ?? 0,
+    };
+  });
+};
+
+const useUserIsFollowing = ({
+  userId,
+  followedId,
+}: {
+  userId: string;
+  followedId: string;
+}) => {
+  return useQuery<boolean>(
+    ["userIsFollowing", userId, followedId],
+    async () => {
+      const { data, error } = await supabase
+        .from("follows")
+        .select()
+        .eq("user_id", userId)
+        .eq("followed_user_id", followedId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data || data.length === 0) return false;
+
+      return true;
+    }
+  );
+};
+
 export default function UserScreen({
   navigation,
   route,
 }: RootStackScreenProps<"User">) {
-  const { data, isLoading } = useUser({ userId: route.params.userId });
+  const queryClient = useQueryClient();
+  const { user } = useStore();
 
-  if (isLoading) return <Spinner size={"lg"} mt={3} />;
+  if (!user) {
+    showMessage({
+      message: "Unexpected error, please try restarting the application",
+      type: "danger",
+    });
 
-  if (!data) {
+    navigation.goBack();
+    return null;
+  }
+
+  const { data: userData, isLoading } = useUser({
+    userId: route.params.userId,
+  });
+
+  const { data: statsData, isSuccess: isLoadingStats } = useUserStats({
+    userId: route.params.userId,
+  });
+
+  const { data: followingData, isSuccess: isLoadingFollowingData } =
+    useUserIsFollowing({
+      userId: user.id,
+      followedId: route.params.userId,
+    });
+
+  if (isLoading || !userData) return <Spinner size={"lg"} mt={3} />;
+
+  if (!userData || userData.id == user.id) {
     showMessage({
       message: "User not found",
       type: "danger",
     });
-    return;
+
+    navigation.goBack();
+    return null;
   }
 
-  navigation.setOptions({
-    title: data.username ? "@" + data.username : "",
-  });
+  if (userData.username) {
+    navigation.setOptions({
+      title: "@" + userData.username,
+    });
+  }
+
+  if (!isLoadingStats || !statsData) return <Spinner size={"lg"} mt={3} />;
+
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries(["user", userData.id], {
+      refetchActive: true,
+      refetchInactive: true,
+    });
+    queryClient.invalidateQueries(["userStats", userData.id], {
+      refetchActive: true,
+      refetchInactive: true,
+    });
+    queryClient.invalidateQueries(["userIsFollowing", user.id, userData.id], {
+      refetchActive: true,
+      refetchInactive: true,
+    });
+  };
+
+  const followUser = async () => {
+    await supabase.from("follows").insert([
+      {
+        user_id: user.id,
+        followed_user_id: userData.id,
+      },
+    ]);
+
+    invalidateQueries();
+  };
+
+  const unfollowUser = async () => {
+    await supabase.from("follows").delete().match({
+      user_id: user.id,
+      followed_user_id: userData.id,
+    });
+
+    invalidateQueries();
+  };
 
   return (
-    <ScrollView>
-      <Box>
-        <UserProfile user={data} />
-      </Box>
-    </ScrollView>
+    <>
+      <ScrollView>
+        <Box>
+          <UserProfile
+            user={userData}
+            stats={statsData}
+            followButton={isLoadingFollowingData && !followingData}
+            unfollowButton={isLoadingFollowingData && followingData}
+            onFollowPress={followUser}
+            onUnfollowPress={unfollowUser}
+          />
+        </Box>
+      </ScrollView>
+    </>
   );
 }
