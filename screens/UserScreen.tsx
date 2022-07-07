@@ -176,19 +176,21 @@ export default function UserScreen({
   };
 
   return (
-    <>
-      <ScrollView>
-        <Box>
-          <UserProfile
-            user={userData}
-            stats={statsData}
-            followButton={isLoadingFollowingData && !followingData}
-            unfollowButton={isLoadingFollowingData && followingData}
-            onFollowPress={followUser}
-            onUnfollowPress={unfollowUser}
-          />
-        </Box>
-      </ScrollView>
-    </>
+    statsData != undefined && (
+      <>
+        <ScrollView>
+          <Box>
+            <UserProfile
+              user={userData}
+              stats={statsData}
+              followButton={isLoadingFollowingData && !followingData}
+              unfollowButton={isLoadingFollowingData && followingData}
+              onFollowPress={followUser}
+              onUnfollowPress={unfollowUser}
+            />
+          </Box>
+        </ScrollView>
+      </>
+    )
   );
 }

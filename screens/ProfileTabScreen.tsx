@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { ScrollView } from "native-base";
 
@@ -8,15 +8,12 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import UserProfile from "components/UserProfile";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "lib/supabase";
 
 export default function ProfileTabScreens({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "Profile">) {
   const { user } = useStore();
-
-<<<<<<< Updated upstream
-  if (!user) return;
-=======
   const [username, setUsername] = useState<string>();
   const [userEmoji, setUserEmoji] = useState<string>();
 
@@ -26,12 +23,11 @@ export default function ProfileTabScreens({
       .select("name, emoji")
       .eq("id", user?.id)
       .then((result) => {
-        if (!result.data || !result.data[0]) return;
+        if (!result.data || !result.data[0] || !user) return;
         setUsername(result.data[0].name);
         setUserEmoji(result.data[0].emoji);
       });
   }, []);
->>>>>>> Stashed changes
 
   return (
     <SafeAreaView>
