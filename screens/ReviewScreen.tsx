@@ -14,8 +14,10 @@ import {
 import * as React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackParamList } from "../types";
+
 //@ts-ignore
 import StarRating from "react-native-star-rating";
+
 import Svg, { Path } from "react-native-svg";
 import { useEffect, useState } from "react";
 import { supabase } from "lib/supabase";
@@ -29,7 +31,6 @@ export default function ReviewScreen({
   const [rating, setRating] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
   const [text, setText] = useState<string>();
-  const { format } = require("date-fns");
 
   useEffect(() => {
     supabase
