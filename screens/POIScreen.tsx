@@ -28,6 +28,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import StarRating from "react-native-star-rating";
 import { Platform, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import BottomSheet from "reanimated-bottom-sheet";
+import { ReviewScreen } from "screens/ReviewScreen";
 
 type ReviewItem = {
   id: string;
@@ -130,6 +132,8 @@ export default function POIScreen({
   navigation,
   route,
 }: RootStackScreenProps<"POI">) {
+  const sheetRef = React.useRef<BottomSheet>(null);
+
   const theme = useTheme();
 
   const [visible, setIsVisible] = useState<boolean>(false);
@@ -174,6 +178,14 @@ export default function POIScreen({
 
   return (
     <ScrollView>
+      <BottomSheet
+        ref={sheetRef}
+        snapPoints={[450, 300, 0]}
+        borderRadius={10}
+        renderContent={() => {
+          return <Box>ciao</Box>;
+        }}
+      />
       <HStack h={"220px"} justifyContent={"center"}>
         <ImageView
           images={images.map((image) => {
@@ -219,7 +231,6 @@ export default function POIScreen({
           </Swiper>
         )}
       </HStack>
-
       {POIDetails && (
         <>
           <Box paddingX={"4"} mt={4} mb={4}>
@@ -251,11 +262,9 @@ export default function POIScreen({
           </View>
         </>
       )}
-
       <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
         Reviews
       </Text>
-
       {reviews.length > 0 ? (
         <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
           {reviews.map((review) => {
@@ -299,18 +308,21 @@ export default function POIScreen({
           There are no reviews yet, add the first one! :)
         </Text>
       )}
-
       <Button
         variant={"primary"}
-        m={"12"}
+        m={"64"}
         alignSelf={"center"}
         w={"1/3"}
         size={"sm"}
         onPress={() => {
-          POIDetails &&
+          /*POIDetails &&
             navigation.navigate("Review", {
               place_id: POIDetails.place_id,
-            });
+            });*/
+          if (sheetRef.current) {
+            console.log("ciao");
+            sheetRef.current.snapTo(300);
+          }
         }}
       >
         Add Review

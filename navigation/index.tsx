@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
-import { ColorSchemeName, Settings } from "react-native";
+import { ColorSchemeName, Platform, Settings } from "react-native";
 
 import LoginScreen from "../screens/LoginScreen";
 import NotFoundScreen from "../screens/NotFoundScreen";
@@ -126,7 +126,12 @@ function RootNavigator() {
                 <SafeAreaInsetsContext.Consumer>
                   {(insets) => (
                     <HStack
-                      style={{ height: 60, marginTop: insets?.top ?? 0 }}
+                      style={{
+                        height: 60,
+                        marginTop: Platform.OS != "ios" ? insets?.top ?? 0 : 0,
+                        borderTopLeftRadius: 10,
+                        borderTopRightRadius: 10,
+                      }}
                       bg={"primary.300"}
                       justifyContent={"center"}
                       alignItems={"center"}
@@ -199,13 +204,6 @@ function RootNavigator() {
                 name="POI"
                 component={POIScreen}
                 options={{ headerShown: true }}
-              />
-            }
-            {
-              <Stack.Screen
-                name="Review"
-                component={ReviewScreen}
-                options={{ headerShown: false }}
               />
             }
           </Stack.Group>
