@@ -126,7 +126,12 @@ function RootNavigator() {
                 <SafeAreaInsetsContext.Consumer>
                   {(insets) => (
                     <HStack
-                      style={{ height: 60, marginTop: insets?.top ?? 0 }}
+                      style={{
+                        height: 60,
+                        marginTop: Platform.OS != "ios" ? insets?.top ?? 0 : 0,
+                        borderTopLeftRadius: 10,
+                        borderTopRightRadius: 10,
+                      }}
                       bg={"primary.300"}
                       justifyContent={"center"}
                       alignItems={"center"}
