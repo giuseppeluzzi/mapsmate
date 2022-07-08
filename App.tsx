@@ -20,7 +20,7 @@ import "react-native-get-random-values";
 
 import { QueryClient, QueryClientProvider } from "react-query";
 
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { PortalProvider } from "@gorhom/portal";
 
 import { LogBox, Platform, View } from "react-native";
 
@@ -291,7 +291,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <NativeBaseProvider theme={theme}>
           <SafeAreaProvider>
-            <BottomSheetModalProvider>
+            <PortalProvider>
               <View style={{ flex: 1 }}>
                 <Navigation colorScheme={colorScheme} />
                 <StatusBar />
@@ -302,7 +302,7 @@ export default function App() {
                   }}
                 />
               </View>
-            </BottomSheetModalProvider>
+            </PortalProvider>
           </SafeAreaProvider>
         </NativeBaseProvider>
       </QueryClientProvider>
