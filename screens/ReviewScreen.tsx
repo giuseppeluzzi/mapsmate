@@ -5,6 +5,7 @@ import {
   HStack,
   Icon,
   IconButton,
+  Modal,
   Text,
   TextArea,
   View,
@@ -13,7 +14,6 @@ import {
 import * as React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RootStackParamList } from "../types";
-import Modal from "react-native-modal";
 
 //@ts-ignore
 import StarRating from "react-native-star-rating";
@@ -24,14 +24,15 @@ import { supabase } from "lib/supabase";
 import { useStore } from "state/userState";
 import { showMessage } from "react-native-flash-message";
 import { Platform } from "react-native";
-import BottomSheet from "reanimated-bottom-sheet";
 
-export const ReviewScreen = () => {
+export default function ReviewScreen({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, "Review">) {
   const { user } = useStore();
   const [rating, setRating] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
   const [text, setText] = useState<string>("");
-  const [isModalVisible, setModalVisible] = useState<boolean>(true);
 
   useEffect(() => {
     supabase
@@ -45,12 +46,35 @@ export const ReviewScreen = () => {
   }, []);
 
   return (
-    <>
+    <SafeAreaView>
       <VStack space={"6"}>
         <HStack justifyContent={"space-between"} flexDirection={"row"}>
           <Text textAlign={"left"} fontWeight={"bold"} fontSize={"20"} p={"4"}>
             Share your experience
           </Text>
+
+          <IconButton
+            alignSelf={"center"}
+            flexDirection={"row"}
+            h={"6"}
+            w={"6"}
+            rounded="lg"
+            m={"4"}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
+            <Icon alignSelf={"center"} size={"lg"} viewBox={"0 0 24 24"}>
+              <Path
+                fill="none"
+                stroke={"black"}
+                stroke-linecap="square"
+                stroke-linejoin="round"
+                stroke-width="6"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </Icon>
+          </IconButton>
         </HStack>
         <Box alignSelf={"center"} w={"1/2"}>
           <StarRating
@@ -71,6 +95,7 @@ export const ReviewScreen = () => {
           {text}
         </TextArea>
       </VStack>
+
       <Button
         variant={"primary"}
         m={"12"}
@@ -107,6 +132,6 @@ export const ReviewScreen = () => {
       >
         Submit Review
       </Button>
-    </>
+    </SafeAreaView>
   );
-};
+}

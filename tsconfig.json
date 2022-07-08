@@ -8,6 +8,6 @@
     "lib": ["ES2016"],
     "paths": {
       "components": ["./components"]
-    } 
-  }
+    }
+  },
 }
