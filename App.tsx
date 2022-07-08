@@ -20,7 +20,10 @@ import "react-native-get-random-values";
 
 import { QueryClient, QueryClientProvider } from "react-query";
 
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+
 import { LogBox, Platform, View } from "react-native";
+
 LogBox.ignoreLogs(["Setting a timer"]);
 LogBox.ignoreLogs(["NativeBase:"]);
 
@@ -288,16 +291,18 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <NativeBaseProvider theme={theme}>
           <SafeAreaProvider>
-            <View style={{ flex: 1 }}>
-              <Navigation colorScheme={colorScheme} />
-              <StatusBar />
-              <FlashMessage
-                position="top"
-                style={{
-                  paddingHorizontal: 32,
-                }}
-              />
-            </View>
+            <BottomSheetModalProvider>
+              <View style={{ flex: 1 }}>
+                <Navigation colorScheme={colorScheme} />
+                <StatusBar />
+                <FlashMessage
+                  position="top"
+                  style={{
+                    paddingHorizontal: 32,
+                  }}
+                />
+              </View>
+            </BottomSheetModalProvider>
           </SafeAreaProvider>
         </NativeBaseProvider>
       </QueryClientProvider>
