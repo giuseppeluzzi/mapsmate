@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 //@ts-ignore
 import StarRating from "react-native-star-rating";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 type ReviewItem = {

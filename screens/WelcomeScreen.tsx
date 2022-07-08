@@ -4,7 +4,7 @@ import { Button, Heading, VStack } from "native-base";
 import { RootStackParamList } from "../types";
 
 export default function WelcomeScreen({
-  navigation
+  navigation,
 }: NativeStackScreenProps<RootStackParamList, "Welcome">) {
   return (
     <VStack
@@ -14,7 +14,7 @@ export default function WelcomeScreen({
       space={4}
     >
       <Heading size={"2xl"} mb={3}>
-        Welcome to Splits!
+        Welcome to Mapsmate!
       </Heading>
       <Button
         onPress={() => {

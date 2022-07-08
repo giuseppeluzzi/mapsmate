@@ -20,7 +20,7 @@ import "react-native-get-random-values";
 
 import { QueryClient, QueryClientProvider } from "react-query";
 
-import { LogBox, View } from "react-native";
+import { LogBox, Platform, View } from "react-native";
 LogBox.ignoreLogs(["Setting a timer"]);
 LogBox.ignoreLogs(["NativeBase:"]);
 

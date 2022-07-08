@@ -22,6 +22,8 @@ import Svg, { Path } from "react-native-svg";
 import { useEffect, useState } from "react";
 import { supabase } from "lib/supabase";
 import { useStore } from "state/userState";
+import { showMessage } from "react-native-flash-message";
+import { Platform } from "react-native";
 
 export default function ReviewScreen({
   navigation,
@@ -30,7 +32,7 @@ export default function ReviewScreen({
   const { user } = useStore();
   const [rating, setRating] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
-  const [text, setText] = useState<string>();
+  const [text, setText] = useState<string>("");
 
   useEffect(() => {
     supabase
@@ -101,6 +103,20 @@ export default function ReviewScreen({
         w={"1/3"}
         size={"sm"}
         onPress={async () => {
+          if (text.length == 0 || rating == 0) {
+            if (rating == 0 && text.length > 0) {
+              showMessage({
+                message: "Rating must have at least 1 star!",
+                type: "danger",
+              });
+            } else {
+              showMessage({
+                message: "Review must not be empty!",
+                type: "danger",
+              });
+            }
+            return;
+          }
           await supabase.from("reviews").insert([
             {
               place_id: route.params.place_id,
