@@ -158,6 +158,9 @@ export default function POIScreen({
   useEffect(() => {
     fetchPois({ key: route.params.id }).then((details) => {
       setPOIDetails(details);
+      navigation.setOptions({
+        title: details.name,
+      });
     });
   }, []);
 
@@ -170,151 +173,149 @@ export default function POIScreen({
   }, []);
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <HStack h={"300px"} justifyContent={"center"}>
-          <ImageView
-            images={images.map((image) => {
-              return {
-                uri: image,
-              };
-            })}
-            imageIndex={currentSelectedImage}
-            visible={visible}
-            onRequestClose={() => setIsVisible(false)}
-          />
-          {images.length > 0 && (
-            <Swiper
-              paginationStyle={{}}
-              dotStyle={{
-                backgroundColor: "white",
-                opacity: 0.5,
-              }}
-              activeDotStyle={{
-                backgroundColor: "white",
-                opacity: 1,
-              }}
-            >
-              {images.map((image, imageIndex) => (
-                <Pressable
-                  key={imageIndex}
-                  onPress={() => {
-                    setIsVisible(true);
-                    setCurrentSelectedImage(imageIndex);
-                  }}
-                >
-                  <View>
-                    <Image
-                      source={{ uri: image }}
-                      resizeMode={"cover"}
-                      width={"full"}
-                      height={"72"}
-                      alt="null"
-                    />
-                  </View>
-                </Pressable>
-              ))}
-            </Swiper>
-          )}
-        </HStack>
-
-        {POIDetails && (
-          <>
-            <Box paddingX={"4"} mb={"4"}>
-              <Text fontWeight={"bold"} fontSize={"20"}>
-                {POIDetails.name}
-              </Text>
-              <Text>{POIDetails.address}</Text>
-            </Box>
-            <View style={styles.container}>
-              <MapView
-                provider={"google"}
-                scrollEnabled={false}
-                style={styles.map}
-                initialRegion={{
-                  latitude: POIDetails.latitude,
-                  longitude: POIDetails.longitude,
-                  latitudeDelta: 0.002,
-                  longitudeDelta: 0.002,
+    <ScrollView>
+      <HStack h={"220px"} justifyContent={"center"}>
+        <ImageView
+          images={images.map((image) => {
+            return {
+              uri: image,
+            };
+          })}
+          imageIndex={currentSelectedImage}
+          visible={visible}
+          onRequestClose={() => setIsVisible(false)}
+        />
+        {images.length > 0 && (
+          <Swiper
+            paginationStyle={{}}
+            dotStyle={{
+              backgroundColor: "white",
+              opacity: 0.5,
+            }}
+            activeDotStyle={{
+              backgroundColor: "white",
+              opacity: 1,
+            }}
+          >
+            {images.map((image, imageIndex) => (
+              <Pressable
+                key={imageIndex}
+                onPress={() => {
+                  setIsVisible(true);
+                  setCurrentSelectedImage(imageIndex);
                 }}
               >
-                <Marker
-                  coordinate={{
-                    latitude: POIDetails.latitude,
-                    longitude: POIDetails.longitude,
-                  }}
-                  pinColor={"red"}
-                />
-              </MapView>
-            </View>
-          </>
+                <View>
+                  <Image
+                    source={{ uri: image }}
+                    resizeMode={"cover"}
+                    width={"full"}
+                    height={"72"}
+                    alt="null"
+                  />
+                </View>
+              </Pressable>
+            ))}
+          </Swiper>
         )}
+      </HStack>
 
-        <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
-          Reviews
-        </Text>
+      {POIDetails && (
+        <>
+          <Box paddingX={"4"} mt={4} mb={4}>
+            <Text fontWeight={"bold"} fontSize={"20"}>
+              {POIDetails.name}
+            </Text>
+            <Text>{POIDetails.address}</Text>
+          </Box>
+          <View style={styles.container}>
+            <MapView
+              provider={"google"}
+              scrollEnabled={false}
+              style={styles.map}
+              initialRegion={{
+                latitude: POIDetails.latitude,
+                longitude: POIDetails.longitude,
+                latitudeDelta: 0.002,
+                longitudeDelta: 0.002,
+              }}
+            >
+              <Marker
+                coordinate={{
+                  latitude: POIDetails.latitude,
+                  longitude: POIDetails.longitude,
+                }}
+                pinColor={"red"}
+              />
+            </MapView>
+          </View>
+        </>
+      )}
 
-        {reviews.length > 0 ? (
-          <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
-            {reviews.map((review) => {
-              return (
-                <Box
-                  p={"5"}
-                  borderColor={"gray.300"}
-                  borderWidth={1}
-                  borderRadius={"md"}
-                  alignItems={"flex-start"}
-                  bgColor={"white"}
-                  key={review.id}
-                >
-                  <Box mb={"3"} flexDirection={"row"}>
-                    <Avatar size={"md"}>{review.user_emoji}</Avatar>
-                    <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
-                      {review.username}
+      <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
+        Reviews
+      </Text>
+
+      {reviews.length > 0 ? (
+        <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
+          {reviews.map((review) => {
+            return (
+              <Box
+                p={"5"}
+                borderColor={"gray.300"}
+                borderWidth={1}
+                borderRadius={"md"}
+                alignItems={"flex-start"}
+                bgColor={"white"}
+                key={review.id}
+              >
+                <Box mb={"3"} flexDirection={"row"}>
+                  <Avatar size={"md"}>{review.user_emoji}</Avatar>
+                  <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
+                    {review.username}
+                  </Text>
+                </Box>
+                <Box mb={"3"} flexDirection={"row"}>
+                  <StarRating
+                    disabled={true}
+                    maxStars={5}
+                    rating={review.rating}
+                    starSize={20}
+                    fullStarColor={"#FFCA62"}
+                  />
+                  <Box ml={"2"}>
+                    <Text fontWeight={"light"}>
+                      {"- " + timeSince(review.date)}
                     </Text>
                   </Box>
-                  <Box mb={"3"} flexDirection={"row"}>
-                    <StarRating
-                      disabled={true}
-                      maxStars={5}
-                      rating={review.rating}
-                      starSize={20}
-                      fullStarColor={"#FFCA62"}
-                    />
-                    <Box ml={"2"}>
-                      <Text fontWeight={"light"}>
-                        {"- " + timeSince(review.date)}
-                      </Text>
-                    </Box>
-                  </Box>
-                  <Text alignItems={"baseline"}>{review.text}</Text>
                 </Box>
-              );
-            })}
-          </VStack>
-        ) : (
-          <Text fontWeight={"light"} mb={"16"} paddingX={"4"}>
-            There are no reviews yet, add the first one! :)
-          </Text>
-        )}
+                <Text alignItems={"baseline"}>{review.text}</Text>
+              </Box>
+            );
+          })}
+        </VStack>
+      ) : (
+        <Text fontWeight={"light"} mb={"16"} paddingX={"4"}>
+          There are no reviews yet, add the first one! :)
+        </Text>
+      )}
 
-        <Button
-          variant={"primary"}
-          m={"12"}
-          alignSelf={"center"}
-          w={"1/3"}
-          size={"sm"}
-          onPress={() => {
-            POIDetails &&
-              navigation.navigate("Review", {
-                place_id: POIDetails.place_id,
-              });
-          }}
-        >
-          Add Review
-        </Button>
-      </ScrollView>
-    </SafeAreaView>
+      <Button
+        variant={"primary"}
+        m={"12"}
+        alignSelf={"center"}
+        w={"1/3"}
+        size={"sm"}
+        onPress={() => {
+          POIDetails &&
+            navigation.navigate("Review", {
+              place_id: POIDetails.place_id,
+            });
+        }}
+      >
+        Add Review
+      </Button>
+    </ScrollView>
   );
 }
 
