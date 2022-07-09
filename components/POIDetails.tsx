@@ -1,5 +1,10 @@
 import * as React from "react";
-import { RootStackScreenProps, RootTabScreenProps } from "../types";
+import {
+  RootStackParamList,
+  RootStackScreenProps,
+  RootTabParamList,
+  RootTabScreenProps,
+} from "../types";
 
 import {
   Box,
@@ -28,6 +33,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import StarRating from "react-native-star-rating";
 import { Platform, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type ReviewItem = {
   id: string;
@@ -126,7 +132,13 @@ const fetchPois = ({ key }: { key: string }): Promise<POIDetails> => {
   });
 };
 
-export const POIDetails = ({ poiId }: { poiId: string }) => {
+export const POIDetails = ({
+  poiId,
+  navigation,
+}: {
+  poiId: string;
+  navigation: NativeStackNavigationProp<RootStackParamList, "POI">;
+}) => {
   const theme = useTheme();
 
   const [visible, setIsVisible] = useState<boolean>(false);
@@ -301,10 +313,12 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
         w={"1/3"}
         size={"sm"}
         onPress={() => {
-          // TODO show modal
-          /*navigation.navigate("Review", {
-            place_id: POIDetails.place_id,
-          });*/
+          console.log(navigation);
+          if (navigation) {
+            navigation.navigate("Review", {
+              place_id: poiId,
+            });
+          }
         }}
       >
         Add Review
