@@ -1,19 +1,9 @@
 import * as React from "react";
 import {
-  RootStackParamList,
-  RootStackScreenProps,
-  RootTabParamList,
-  RootTabScreenProps,
-} from "../types";
-
-import {
   Box,
   HStack,
   Image,
   Pressable,
-  ScrollView,
-  TextArea,
-  useTheme,
   View,
   VStack,
   Text,
@@ -27,13 +17,12 @@ import ImageView from "react-native-image-viewing";
 
 import { supabase } from "../lib/supabase";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useRef, useState } from "react";
 //@ts-ignore
 import StarRating from "react-native-star-rating";
-import { Alert, Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import BottomSheet, {
+import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -41,8 +30,7 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 
 import { Review } from "./Review";
-import { useQuery, useQueryClient } from "react-query";
-import { close } from "fs";
+import { useQuery } from "react-query";
 
 type ReviewItem = {
   id: string;

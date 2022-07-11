@@ -171,7 +171,6 @@ export default function MapScreen({
                 });*/
               }}
             >
-              <Callout></Callout>
               <Svg viewBox="0 0 512 512" width={45} height={45}>
                 <Path
                   fill="#ffb21e"
