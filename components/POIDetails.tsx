@@ -139,14 +139,24 @@ const usePoi = ({ poiID }: { poiID: string }) => {
 
 export const POIDetails = ({ poiId }: { poiId: string }) => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const user = useStore();
+  const { user } = useStore();
   const [visible, setIsVisible] = useState<boolean>(false);
   const [currentSelectedImage, setCurrentSelectedImage] = useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
+  let userReview: ReviewItem | null;
+  let otherReview: ReviewItem[] | null;
 
   const { data: reviews } = useReview({
     place_id: poiId,
   });
+
+  if (reviews) {
+    userReview = reviews?.filter((review) => review.user_id == user?.id)[0];
+    otherReview = reviews?.filter((review) => review.user_id != user?.id);
+  } else {
+    userReview = null;
+    otherReview = [];
+  }
 
   const { data: poi } = usePoi({
     poiID: poiId,
@@ -171,89 +181,135 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
 
   return (
     <>
-      <HStack h={"220px"} justifyContent={"center"}>
-        <ImageView
-          images={images.map((image) => {
-            return {
-              uri: image,
-            };
-          })}
-          imageIndex={currentSelectedImage}
-          visible={visible}
-          onRequestClose={() => setIsVisible(false)}
-        />
-        {images.length > 0 && (
-          <Swiper
-            paginationStyle={{}}
-            dotStyle={{
-              backgroundColor: "white",
-              opacity: 0.5,
-            }}
-            activeDotStyle={{
-              backgroundColor: "white",
-              opacity: 1,
-            }}
-          >
-            {images.map((image, imageIndex) => (
-              <Pressable
-                key={imageIndex}
-                onPress={() => {
-                  setIsVisible(true);
-                  setCurrentSelectedImage(imageIndex);
-                }}
-              >
-                <View>
-                  <Image
-                    source={{ uri: image }}
-                    resizeMode={"cover"}
-                    width={"full"}
-                    height={"72"}
-                    alt="null"
-                  />
-                </View>
-              </Pressable>
-            ))}
-          </Swiper>
-        )}
-      </HStack>
-      {poi != null && poi && (
-        <>
-          <Box paddingX={"4"} mt={4} mb={4}>
-            <Text fontWeight={"bold"} fontSize={"20"}>
-              {poi.name}
-            </Text>
-            <Text>{poi.address}</Text>
-          </Box>
-          <View style={styles.container}>
-            <MapView
-              provider={"google"}
-              scrollEnabled={false}
-              style={styles.map}
-              initialRegion={{
-                latitude: poi.latitude,
-                longitude: poi.longitude,
-                latitudeDelta: 0.002,
-                longitudeDelta: 0.002,
+      <BottomSheetModalProvider>
+        <HStack h={"220px"} justifyContent={"center"}>
+          <ImageView
+            images={images.map((image) => {
+              return {
+                uri: image,
+              };
+            })}
+            imageIndex={currentSelectedImage}
+            visible={visible}
+            onRequestClose={() => setIsVisible(false)}
+          />
+          {images.length > 0 && (
+            <Swiper
+              paginationStyle={{}}
+              dotStyle={{
+                backgroundColor: "white",
+                opacity: 0.5,
+              }}
+              activeDotStyle={{
+                backgroundColor: "white",
+                opacity: 1,
               }}
             >
-              <Marker
-                coordinate={{
+              {images.map((image, imageIndex) => (
+                <Pressable
+                  key={imageIndex}
+                  onPress={() => {
+                    setIsVisible(true);
+                    setCurrentSelectedImage(imageIndex);
+                  }}
+                >
+                  <View>
+                    <Image
+                      source={{ uri: image }}
+                      resizeMode={"cover"}
+                      width={"full"}
+                      height={"72"}
+                      alt="null"
+                    />
+                  </View>
+                </Pressable>
+              ))}
+            </Swiper>
+          )}
+        </HStack>
+        {poi != null && poi && (
+          <>
+            <Box paddingX={"4"} mt={4} mb={4}>
+              <Text fontWeight={"bold"} fontSize={"20"}>
+                {poi.name}
+              </Text>
+              <Text>{poi.address}</Text>
+            </Box>
+            <View style={styles.container}>
+              <MapView
+                provider={"google"}
+                scrollEnabled={false}
+                style={styles.map}
+                initialRegion={{
                   latitude: poi.latitude,
                   longitude: poi.longitude,
+                  latitudeDelta: 0.002,
+                  longitudeDelta: 0.002,
                 }}
-                pinColor={"red"}
-              />
-            </MapView>
-          </View>
-        </>
-      )}
-      <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
-        Reviews
-      </Text>
-      <BottomSheetModalProvider>
-        {reviews && reviews.length > 0 ? (
+              >
+                <Marker
+                  coordinate={{
+                    latitude: poi.latitude,
+                    longitude: poi.longitude,
+                  }}
+                  pinColor={"red"}
+                />
+              </MapView>
+            </View>
+          </>
+        )}
+        <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
+          Reviews
+        </Text>
+        {userReview && (
+          <>
+            <VStack
+              mb={"5"}
+              paddingX={"4"}
+              bgColor={"red"}
+              space={4}
+              pb={"5"}
+              borderBottomWidth={1}
+              borderBottomColor={"gray.200"}
+            >
+              <Text>Your review</Text>
+              <Box
+                p={"5"}
+                borderColor={"gray.300"}
+                borderWidth={1}
+                borderRadius={"md"}
+                alignItems={"flex-start"}
+                bgColor={"white"}
+                key={userReview.id}
+              >
+                <Box mb={"3"} flexDirection={"row"}>
+                  <Avatar size={"md"}>{userReview.user_emoji}</Avatar>
+                  <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
+                    {userReview.username}
+                  </Text>
+                </Box>
+                <Box mb={"3"} flexDirection={"row"}>
+                  <StarRating
+                    disabled={true}
+                    maxStars={5}
+                    rating={userReview.rating}
+                    starSize={20}
+                    fullStarColor={"#FFCA62"}
+                  />
+                  <Box ml={"2"}>
+                    <Text fontWeight={"light"}>
+                      {"- " + timeSince(userReview.date)}
+                    </Text>
+                  </Box>
+                </Box>
+                <Text alignItems={"baseline"}>{userReview.text}</Text>
+              </Box>
+            </VStack>
+          </>
+        )}
+        {otherReview && (
           <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
-            {reviews.map((review) => {
+            {otherReview.map((review) => {
               return (
                 <Box
                   p={"5"}
@@ -289,24 +345,44 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
               );
             })}
           </VStack>
+        )}
+        {!userReview && otherReview.length == 0 ? (
+          <>
+            <Text fontWeight={"light"} mb={"16"} paddingX={"4"}>
+              There are no reviews yet, add the first one! :)
+            </Text>
+            <Button
+              variant={"primary"}
+              m={"12"}
+              alignSelf={"center"}
+              w={"1/3"}
+              size={"sm"}
+              onPress={() => {
+                bottomSheetModalRef.current?.present();
+              }}
+            >
+              Add Review
+            </Button>
+          </>
         ) : (
-          <Text fontWeight={"light"} mb={"16"} paddingX={"4"}>
-            There are no reviews yet, add the first one! :)
-          </Text>
+          !userReview && (
+            <>
+              <Button
+                variant={"primary"}
+                m={"12"}
+                alignSelf={"center"}
+                w={"1/3"}
+                size={"sm"}
+                onPress={() => {
+                  bottomSheetModalRef.current?.present();
+                }}
+              >
+                Add Review
+              </Button>
+            </>
+          )
         )}
 
-        <Button
-          variant={"primary"}
-          m={"12"}
-          alignSelf={"center"}
-          w={"1/3"}
-          size={"sm"}
-          onPress={() => {
-            bottomSheetModalRef.current?.present();
-          }}
-        >
-          Add Review
-        </Button>
         {poi != null && poi && (
           <>
             <View>
