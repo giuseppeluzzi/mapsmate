@@ -108,7 +108,7 @@ export const initializeUserProfile = (
             },
           ])
           .then((data) => {
-            console.log(data);
+            //console.log(data);
           });
       }
     });

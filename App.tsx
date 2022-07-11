@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  SafeAreaInsetsContext,
+  SafeAreaProvider,
+} from "react-native-safe-area-context";
 
 import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
@@ -23,6 +26,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { PortalProvider } from "@gorhom/portal";
 
 import { LogBox, Platform, View } from "react-native";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 LogBox.ignoreLogs(["Setting a timer"]);
 LogBox.ignoreLogs(["NativeBase:"]);
@@ -46,7 +50,6 @@ export default function App() {
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log({ event });
         if (session && session.user && event !== "SIGNED_IN") {
           supabase
             .from("profiles")
@@ -292,16 +295,24 @@ export default function App() {
         <NativeBaseProvider theme={theme}>
           <SafeAreaProvider>
             <PortalProvider>
-              <View style={{ flex: 1 }}>
-                <Navigation colorScheme={colorScheme} />
-                <StatusBar />
-                <FlashMessage
-                  position="top"
-                  style={{
-                    paddingHorizontal: 32,
-                  }}
-                />
-              </View>
+              <BottomSheetModalProvider>
+                <View style={{ flex: 1 }}>
+                  <Navigation colorScheme={colorScheme} />
+                  <StatusBar />
+                  <SafeAreaInsetsContext.Consumer>
+                    {(insets) => (
+                      <FlashMessage
+                        position="top"
+                        style={{
+                          //paddingHorizontal: 32,
+                          paddingTop:
+                            Platform.OS != "ios" ? (insets?.top ?? 0) + 5 : 0,
+                        }}
+                      />
+                    )}
+                  </SafeAreaInsetsContext.Consumer>
+                </View>
+              </BottomSheetModalProvider>
             </PortalProvider>
           </SafeAreaProvider>
         </NativeBaseProvider>

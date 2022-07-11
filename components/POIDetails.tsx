@@ -27,14 +27,21 @@ import ImageView from "react-native-image-viewing";
 
 import { supabase } from "../lib/supabase";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 //@ts-ignore
 import StarRating from "react-native-star-rating";
-import { Platform, StyleSheet } from "react-native";
+import { Alert, Platform, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+
+import { Review } from "./Review";
+import { useQuery, useQueryClient } from "react-query";
+import { close } from "fs";
 
 type ReviewItem = {
   id: string;
@@ -84,63 +91,77 @@ function timeSince(date: Date) {
   return Math.floor(seconds) + " seconds ago";
 }
 
-const fetchReview = ({ key }: { key: string }): Promise<ReviewItem[]> => {
-  return new Promise((resolve, reject) => {
-    supabase
+const useReview = ({ place_id }: { place_id: string }) => {
+  return useQuery<ReviewItem[]>(["review", place_id], async () => {
+    const { data, error } = await supabase
       .from("reviews")
       .select(" *, profiles(*)")
-      .eq("place_id", key)
-      .then((result) => {
-        if (result.error) return reject(result.error);
-        if (!result.data) return resolve(result);
+      .eq("place_id", place_id);
 
-        return resolve(
-          result.data.map((item): ReviewItem => {
-            return {
-              id: item.id,
-              place_id: item.place_id,
-              user_id: item.user_id,
-              text: item.text,
-              rating: item.rate,
-              user_emoji: item.profiles.emoji,
-              username: item.profiles.username,
-              date: item.created_at,
-            };
-          })
-        );
-      });
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    return data.map((review): ReviewItem => {
+      return {
+        id: review.id,
+        place_id: review.place_id,
+        user_id: review.user_id,
+        text: review.text,
+        rating: review.rate,
+        user_emoji: review.profiles.emoji,
+        username: review.profiles.username,
+        date: review.created_at,
+      };
+    });
   });
 };
 
-const fetchPois = ({ key }: { key: string }): Promise<POIDetails> => {
-  return new Promise((resolve, reject) => {
-    supabase
+const usePoi = ({ poiID }: { poiID: string }) => {
+  return useQuery<POIDetails | null>(["poi", poiID], async () => {
+    const { data, error } = await supabase
       .from("pois")
       .select()
-      .eq("id", key)
-      .then((result) => {
-        if (result.error) return reject(result.error);
-        if (!result.data) return reject(result);
+      .eq("id", poiID);
 
-        return resolve({
-          place_id: result.data[0].id,
-          name: result.data[0].name,
-          latitude: result.data[0].latitude,
-          longitude: result.data[0].longitude,
-          address: result.data[0].address,
-        });
-      });
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    return {
+      place_id: data[0].id,
+      name: data[0].name,
+      latitude: data[0].latitude,
+      longitude: data[0].longitude,
+      address: data[0].address,
+    };
   });
 };
 
 export const POIDetails = ({ poiId }: { poiId: string }) => {
-  const navigation = useNavigation();
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const [visible, setIsVisible] = useState<boolean>(false);
   const [currentSelectedImage, setCurrentSelectedImage] = useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
-  const [reviews, setReviews] = useState<ReviewItem[]>([]);
-  const [POIDetails, setPOIDetails] = useState<POIDetails>();
+  //const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  //const [POIDetails, setPOIDetails] = useState<POIDetails>();
+
+  const { data: reviews } = useReview({
+    place_id: poiId,
+  });
+
+  const { data: poi } = usePoi({
+    poiID: poiId,
+  });
 
   useEffect(() => {
     supabase
@@ -157,24 +178,6 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
           )
         );
       });
-  }, []);
-
-  useEffect(() => {
-    fetchPois({ key: poiId }).then((details) => {
-      setPOIDetails(details);
-      // TODO
-      /*navigation.setOptions({
-        title: details.name,
-      });*/
-    });
-  }, []);
-
-  useEffect(() => {
-    fetchReview({
-      key: poiId,
-    }).then((reviews) => {
-      setReviews(reviews);
-    });
   }, []);
 
   return (
@@ -224,13 +227,13 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
           </Swiper>
         )}
       </HStack>
-      {POIDetails && (
+      {poi != null && poi && (
         <>
           <Box paddingX={"4"} mt={4} mb={4}>
             <Text fontWeight={"bold"} fontSize={"20"}>
-              {POIDetails.name}
+              {poi.name}
             </Text>
-            <Text>{POIDetails.address}</Text>
+            <Text>{poi.address}</Text>
           </Box>
           <View style={styles.container}>
             <MapView
@@ -238,16 +241,16 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
               scrollEnabled={false}
               style={styles.map}
               initialRegion={{
-                latitude: POIDetails.latitude,
-                longitude: POIDetails.longitude,
+                latitude: poi.latitude,
+                longitude: poi.longitude,
                 latitudeDelta: 0.002,
                 longitudeDelta: 0.002,
               }}
             >
               <Marker
                 coordinate={{
-                  latitude: POIDetails.latitude,
-                  longitude: POIDetails.longitude,
+                  latitude: poi.latitude,
+                  longitude: poi.longitude,
                 }}
                 pinColor={"red"}
               />
@@ -258,7 +261,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
       <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
         Reviews
       </Text>
-      {reviews.length > 0 ? (
+      {reviews && reviews.length > 0 ? (
         <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
           {reviews.map((review) => {
             return (
@@ -301,6 +304,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
           There are no reviews yet, add the first one! :)
         </Text>
       )}
+
       <Button
         variant={"primary"}
         m={"12"}
@@ -308,13 +312,40 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
         w={"1/3"}
         size={"sm"}
         onPress={() => {
-          navigation.navigate("Review", {
-            place_id: poiId,
-          });
+          bottomSheetModalRef.current?.present();
         }}
       >
         Add Review
       </Button>
+      {poi != null && poi && (
+        <>
+          <View>
+            <BottomSheetModal
+              ref={bottomSheetModalRef}
+              index={1}
+              snapPoints={["50%", "50%"]}
+              backdropComponent={(backdropProps) => (
+                <BottomSheetBackdrop
+                  {...backdropProps}
+                  enableTouchThrough={true}
+                />
+              )}
+            >
+              <BottomSheetView>
+                <View>
+                  <Review
+                    onClose={() => {
+                      bottomSheetModalRef.current?.close();
+                    }}
+                    place_id={poi.place_id}
+                    key={poi.place_id}
+                  ></Review>
+                </View>
+              </BottomSheetView>
+            </BottomSheetModal>
+          </View>
+        </>
+      )}
     </>
   );
 };
