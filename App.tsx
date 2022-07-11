@@ -295,24 +295,22 @@ export default function App() {
         <NativeBaseProvider theme={theme}>
           <SafeAreaProvider>
             <PortalProvider>
-              <BottomSheetModalProvider>
-                <View style={{ flex: 1 }}>
-                  <Navigation colorScheme={colorScheme} />
-                  <StatusBar />
-                  <SafeAreaInsetsContext.Consumer>
-                    {(insets) => (
-                      <FlashMessage
-                        position="top"
-                        style={{
-                          //paddingHorizontal: 32,
-                          paddingTop:
-                            Platform.OS != "ios" ? (insets?.top ?? 0) + 5 : 0,
-                        }}
-                      />
-                    )}
-                  </SafeAreaInsetsContext.Consumer>
-                </View>
-              </BottomSheetModalProvider>
+              <View style={{ flex: 1 }}>
+                <Navigation colorScheme={colorScheme} />
+                <StatusBar />
+                <SafeAreaInsetsContext.Consumer>
+                  {(insets) => (
+                    <FlashMessage
+                      position="top"
+                      style={{
+                        //paddingHorizontal: 32,
+                        paddingTop:
+                          Platform.OS != "ios" ? (insets?.top ?? 0) + 5 : 0,
+                      }}
+                    />
+                  )}
+                </SafeAreaInsetsContext.Consumer>
+              </View>
             </PortalProvider>
           </SafeAreaProvider>
         </NativeBaseProvider>

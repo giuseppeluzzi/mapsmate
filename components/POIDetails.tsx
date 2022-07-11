@@ -36,6 +36,7 @@ import MapView, { Marker } from "react-native-maps";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetModal,
+  BottomSheetModalProvider,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 
@@ -261,91 +262,93 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
       <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
         Reviews
       </Text>
-      {reviews && reviews.length > 0 ? (
-        <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
-          {reviews.map((review) => {
-            return (
-              <Box
-                p={"5"}
-                borderColor={"gray.300"}
-                borderWidth={1}
-                borderRadius={"md"}
-                alignItems={"flex-start"}
-                bgColor={"white"}
-                key={review.id}
-              >
-                <Box mb={"3"} flexDirection={"row"}>
-                  <Avatar size={"md"}>{review.user_emoji}</Avatar>
-                  <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
-                    {review.username}
-                  </Text>
-                </Box>
-                <Box mb={"3"} flexDirection={"row"}>
-                  <StarRating
-                    disabled={true}
-                    maxStars={5}
-                    rating={review.rating}
-                    starSize={20}
-                    fullStarColor={"#FFCA62"}
-                  />
-                  <Box ml={"2"}>
-                    <Text fontWeight={"light"}>
-                      {"- " + timeSince(review.date)}
+      <BottomSheetModalProvider>
+        {reviews && reviews.length > 0 ? (
+          <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
+            {reviews.map((review) => {
+              return (
+                <Box
+                  p={"5"}
+                  borderColor={"gray.300"}
+                  borderWidth={1}
+                  borderRadius={"md"}
+                  alignItems={"flex-start"}
+                  bgColor={"white"}
+                  key={review.id}
+                >
+                  <Box mb={"3"} flexDirection={"row"}>
+                    <Avatar size={"md"}>{review.user_emoji}</Avatar>
+                    <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
+                      {review.username}
                     </Text>
                   </Box>
+                  <Box mb={"3"} flexDirection={"row"}>
+                    <StarRating
+                      disabled={true}
+                      maxStars={5}
+                      rating={review.rating}
+                      starSize={20}
+                      fullStarColor={"#FFCA62"}
+                    />
+                    <Box ml={"2"}>
+                      <Text fontWeight={"light"}>
+                        {"- " + timeSince(review.date)}
+                      </Text>
+                    </Box>
+                  </Box>
+                  <Text alignItems={"baseline"}>{review.text}</Text>
                 </Box>
-                <Text alignItems={"baseline"}>{review.text}</Text>
-              </Box>
-            );
-          })}
-        </VStack>
-      ) : (
-        <Text fontWeight={"light"} mb={"16"} paddingX={"4"}>
-          There are no reviews yet, add the first one! :)
-        </Text>
-      )}
+              );
+            })}
+          </VStack>
+        ) : (
+          <Text fontWeight={"light"} mb={"16"} paddingX={"4"}>
+            There are no reviews yet, add the first one! :)
+          </Text>
+        )}
 
-      <Button
-        variant={"primary"}
-        m={"12"}
-        alignSelf={"center"}
-        w={"1/3"}
-        size={"sm"}
-        onPress={() => {
-          bottomSheetModalRef.current?.present();
-        }}
-      >
-        Add Review
-      </Button>
-      {poi != null && poi && (
-        <>
-          <View>
-            <BottomSheetModal
-              ref={bottomSheetModalRef}
-              index={1}
-              snapPoints={["50%", "50%"]}
-              backdropComponent={(backdropProps) => (
-                <BottomSheetBackdrop
-                  {...backdropProps}
-                  enableTouchThrough={true}
-                />
-              )}
-            >
-              <BottomSheetView>
-                <View>
-                  <Review
-                    onClose={() => {
-                      bottomSheetModalRef.current?.close();
-                    }}
-                    place_id={poi.place_id}
-                    key={poi.place_id}
-                  ></Review>
-                </View>
-              </BottomSheetView>
-            </BottomSheetModal>
-          </View>
-        </>
-      )}
+        <Button
+          variant={"primary"}
+          m={"12"}
+          alignSelf={"center"}
+          w={"1/3"}
+          size={"sm"}
+          onPress={() => {
+            bottomSheetModalRef.current?.present();
+          }}
+        >
+          Add Review
+        </Button>
+        {poi != null && poi && (
+          <>
+            <View>
+              <BottomSheetModal
+                ref={bottomSheetModalRef}
+                index={1}
+                snapPoints={["50%", "50%"]}
+                backdropComponent={(backdropProps) => (
+                  <BottomSheetBackdrop
+                    {...backdropProps}
+                    enableTouchThrough={true}
+                  />
+                )}
+              >
+                <BottomSheetView>
+                  <View>
+                    <Review
+                      onClose={() => {
+                        bottomSheetModalRef.current?.close();
+                      }}
+                      place_id={poi.place_id}
+                      key={poi.place_id}
+                    ></Review>
+                  </View>
+                </BottomSheetView>
+              </BottomSheetModal>
+            </View>
+          </>
+        )}
+      </BottomSheetModalProvider>
     </>
   );
 };
