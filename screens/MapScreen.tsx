@@ -14,12 +14,13 @@ import { useStore } from "state/userState";
 import { showMessage } from "react-native-flash-message";
 import BottomSheet, {
   BottomSheetBackdrop,
+  BottomSheetHandle,
   BottomSheetScrollView,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { POIDetails } from "components/POIDetails";
 import { Portal, PortalHost } from "@gorhom/portal";
-import { ScrollView } from "react-native-gesture-handler";
+import { View } from "native-base";
 
 type Pin = {
   poiId: string;
@@ -61,6 +62,7 @@ export default function MapScreen({
   navigation,
 }: RootTabScreenProps<"MapTab">) {
   const poiBottomSheetRef = useRef<BottomSheet>(null);
+  const poiBottomSheetScrollViewRef = useRef<ScrollView>(null);
 
   const { user } = useStore();
 
@@ -77,6 +79,8 @@ export default function MapScreen({
   const mapRef = useRef<MapView>(null);
 
   const [selectedPoi, setSelectedPoi] = useState<string>("");
+  const [currentBottomSheetStatus, setCurrentBottomSheetStatus] =
+    useState<number>(0);
 
   const { currentLocation, setCurrentLocation } = useCurrentLocationStore();
 
@@ -119,6 +123,9 @@ export default function MapScreen({
       <MapView
         ref={mapRef}
         provider={"google"}
+        showsCompass={true}
+        showsBuildings={false}
+        showsPointsOfInterest={false}
         showsUserLocation={true}
         showsMyLocationButton={true}
         showsIndoors={false}
@@ -138,6 +145,16 @@ export default function MapScreen({
             currentLocation.longitude
           );
         }}
+        customMapStyle={[
+          {
+            featureType: "poi",
+            stylers: [
+              {
+                visibility: "off",
+              },
+            ],
+          },
+        ]}
       >
         {data &&
           data.map((item, index) => (
@@ -176,6 +193,22 @@ export default function MapScreen({
           enableContentPanningGesture={true}
           enablePanDownToClose={true}
           snapPoints={["40%", "41%", "90%"]}
+          handleComponent={(handleProps) => (
+            <BottomSheetHandle
+              {...handleProps}
+              style={{
+                backgroundColor: "transparent",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+              }}
+              indicatorStyle={{
+                backgroundColor: "white",
+                width: 50,
+              }}
+            />
+          )}
           backdropComponent={(backdropProps) => (
             <BottomSheetBackdrop
               {...backdropProps}
@@ -183,13 +216,27 @@ export default function MapScreen({
               opacity={0}
             />
           )}
+          onChange={(event) => {
+            setCurrentBottomSheetStatus(event);
+            console.log(event);
+          }}
           onClose={() => setSelectedPoi("")}
         >
           {selectedPoi.length > 0 && (
-            <BottomSheetView>
-              <ScrollView>
+            <BottomSheetView
+              style={{
+                borderTopLeftRadius: 10,
+                borderTopRightRadius: 10,
+                overflow: "hidden",
+              }}
+            >
+              <BottomSheetScrollView
+                ref={poiBottomSheetScrollViewRef}
+                bounces={false}
+                scrollEnabled={currentBottomSheetStatus > 1}
+              >
                 <POIDetails poiId={selectedPoi} key={selectedPoi} />
-              </ScrollView>
+              </BottomSheetScrollView>
             </BottomSheetView>
           )}
         </BottomSheet>

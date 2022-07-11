@@ -10,7 +10,7 @@ export default function ReviewScreen({
 }: RootStackScreenProps<"Review">) {
   return (
     <ScrollView>
-      <Review navigation={navigation} place_id={route.params.place_id} />
+      <Review place_id={route.params.place_id} />
     </ScrollView>
   );
 }
