@@ -219,7 +219,7 @@ export default function MapScreen({
           )}
           onChange={(event) => {
             setCurrentBottomSheetStatus(event);
-            console.log(event);
+            //console.log(event);
           }}
           onClose={() => setSelectedPoi("")}
         >

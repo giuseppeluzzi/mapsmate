@@ -19,21 +19,24 @@ import StarRating from "react-native-star-rating";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import Svg, { Path } from "react-native-svg";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "lib/supabase";
 import { useStore } from "state/userState";
 import { showMessage } from "react-native-flash-message";
 import { RootStackParamList, RootTabParamList } from "types";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { CompositeNavigationProp } from "@react-navigation/native";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useQueryClient } from "react-query";
 
 export const Review = ({
   place_id,
-  navigation,
+  onClose,
 }: {
   place_id: string;
-  navigation: NativeStackNavigationProp<RootStackParamList, "Review">;
+  onClose: () => void;
 }) => {
+  const queryClient = useQueryClient();
   const { user } = useStore();
   const [rating, setRating] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
@@ -50,36 +53,20 @@ export const Review = ({
       });
   }, []);
 
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries(["review", place_id], {
+      refetchActive: true,
+      refetchInactive: true,
+    });
+  };
+
   return (
-    <SafeAreaView>
+    <>
       <VStack space={"6"}>
         <HStack justifyContent={"space-between"} flexDirection={"row"}>
           <Text textAlign={"left"} fontWeight={"bold"} fontSize={"20"} p={"4"}>
             Share your experience
           </Text>
-
-          <IconButton
-            alignSelf={"center"}
-            flexDirection={"row"}
-            h={"6"}
-            w={"6"}
-            rounded="lg"
-            m={"4"}
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <Icon alignSelf={"center"} size={"lg"} viewBox={"0 0 24 24"}>
-              <Path
-                fill="none"
-                stroke={"black"}
-                stroke-linecap="square"
-                stroke-linejoin="round"
-                stroke-width="6"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </Icon>
-          </IconButton>
         </HStack>
         <Box alignSelf={"center"} w={"1/2"}>
           <StarRating
@@ -100,7 +87,6 @@ export const Review = ({
           {text}
         </TextArea>
       </VStack>
-
       <Button
         variant={"primary"}
         m={"12"}
@@ -131,10 +117,13 @@ export const Review = ({
               created_at: new Date(),
             },
           ]);
+
+          invalidateQueries();
+          onClose();
         }}
       >
         Submit Review
       </Button>
-    </SafeAreaView>
+    </>
   );
 };
