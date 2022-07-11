@@ -48,6 +48,7 @@ type SearchItem = {
   icon: string;
   title: string;
   subtitle?: string;
+  to_refetch?: string;
   to_import: boolean;
   type: "user" | keyof typeof placesTypes;
 };
@@ -63,6 +64,9 @@ type GooglePlace = {
   review_rating: number;
   review_count: number;
   images_references: string[];
+  website: string;
+  phone: string;
+  google_json: any;
 };
 
 type GooglePlaceImage = {
@@ -98,6 +102,7 @@ const fetchServerPlaces = ({
               icon: placesTypes[item.type].icon,
               subtitle: item.address,
               to_import: false,
+              to_refetch: item.refetch_info ? item.id : undefined,
               type: item.type,
             };
           })
@@ -175,6 +180,14 @@ const margeAndRemoveDuplicatedPlaces = ({
     (item) => item.google_place_id
   );
 
+  console.log([
+    ...serverPlaces,
+    ...googlePlaces.filter((googleItem) => {
+      if (!googleItem.google_place_id) return false;
+      return !serverPlacesGoogleIds.includes(googleItem.google_place_id);
+    }),
+  ]);
+
   return [
     ...serverPlaces,
     ...googlePlaces.filter((googleItem) => {
@@ -196,7 +209,7 @@ const fetchGooglePlace = ({
     sessiontoken: sessionToken,
     language: "it",
     fields:
-      "formatted_address,adr_address,address_component,name,geometry,place_id,photo,type,opening_hours,rating,user_ratings_total",
+      "formatted_address,adr_address,address_component,name,geometry,place_id,photo,type,opening_hours,rating,user_ratings_total,website,international_phone_number",
     place_id: placeId,
   });
 
@@ -216,16 +229,7 @@ const fetchGooglePlace = ({
       longitude: googleData.result.geometry.location.lng,
       address: googleData.result.formatted_address,
       workhours: googleData.result.opening_hours
-        ? googleData.result.opening_hours.periods.map(
-            (period: any) =>
-              period.open.time.substr(0, 2) +
-              ":" +
-              period.open.time.substr(2, 2) +
-              " - " +
-              period.close.time.substr(0, 2) +
-              ":" +
-              period.close.time.substr(2, 2)
-          )
+        ? googleData.result.opening_hours.weekday_text
         : [],
       review_rating: googleData.result.rating,
       review_count: googleData.result.user_ratings_total,
@@ -234,6 +238,9 @@ const fetchGooglePlace = ({
             .map((photo: any) => photo.photo_reference)
             .slice(0, 4)
         : [],
+      phone: googleData.result.international_phone_number ?? "",
+      website: googleData.result.website ?? "",
+      google_json: googleData.result,
     };
   });
 };
@@ -294,10 +301,12 @@ const saveGoogleImage = ({
 
 const importGooglePlace = async ({
   placeId,
+  refetchId,
   sessionToken,
   refreshSessionToken,
 }: {
   placeId: string;
+  refetchId?: string;
   sessionToken: string;
   refreshSessionToken: () => void;
 }): Promise<string> => {
@@ -309,14 +318,19 @@ const importGooglePlace = async ({
   refreshSessionToken();
 
   // Parallelize download and upload
-  const placeImages = await Promise.all(
-    place.images_references.map((imageReference) =>
-      saveGoogleImage({ placeId: place.id, imageReference })
-    )
-  );
+  let placeImages;
 
-  const { data, error } = await supabase.from("pois").insert([
+  if (!refetchId) {
+    placeImages = await Promise.all(
+      place.images_references.map((imageReference) =>
+        saveGoogleImage({ placeId: place.id, imageReference })
+      )
+    );
+  }
+
+  const { data, error } = await supabase.from("pois").upsert([
     {
+      ...(refetchId ? { id: refetchId } : {}),
       name: place.name,
       latitude: place.latitude,
       longitude: place.longitude,
@@ -326,7 +340,11 @@ const importGooglePlace = async ({
       google_review_rating: place.review_rating,
       google_review_count: place.review_count,
       type: place.type,
-      images: placeImages,
+      website: place.website,
+      phone: place.phone,
+      google_json: place.google_json,
+      refetch_info: false,
+      ...(!refetchId ? { images: placeImages } : {}),
     },
   ]);
 
@@ -476,7 +494,8 @@ export default function ExploreScreen({
       return;
     }
 
-    if (item.to_import) {
+    if (item.to_import || item.to_refetch) {
+      console.log(item);
       if (!item.google_place_id) {
         showMessage({
           message: "Unexpected error, please retry later",
@@ -487,6 +506,7 @@ export default function ExploreScreen({
 
       const poiId = await importGooglePlace({
         placeId: item.google_place_id,
+        refetchId: item.to_refetch,
         sessionToken,
         refreshSessionToken: () => setSessionToken(uuidv4()),
       });
