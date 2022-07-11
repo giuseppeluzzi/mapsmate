@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { ScrollView, Spinner } from "native-base";
 
@@ -8,9 +8,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import UserProfile from "components/UserProfile";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { supabase } from "lib/supabase";
-import { useUser, useUserStats } from "model/User";
+
 import { showMessage } from "react-native-flash-message";
+import { useUserStats } from "model/User";
 
 export default function ProfileTabScreens({
   navigation,

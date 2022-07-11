@@ -18,6 +18,7 @@ import { useStore } from "state/userState";
 import { showMessage } from "react-native-flash-message";
 
 import { useQueryClient } from "react-query";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Platform } from "react-native";
 
 export const Review = ({
@@ -53,8 +54,11 @@ export const Review = ({
 
   return (
     <>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
+        style={{ height: "100%" }}
+        //enableAutomaticScroll={Platform.OS == "ios" ? true : false}
+        extraHeight={75}
       >
         <VStack space={"6"}>
           <HStack justifyContent={"space-between"} flexDirection={"row"}>
@@ -75,7 +79,6 @@ export const Review = ({
               starSize={40}
             ></StarRating>
           </Box>
-
           <TextArea
             placeholder={"Leave a comment"}
             fontWeight={"normal"}
@@ -92,7 +95,6 @@ export const Review = ({
           variant={"primary"}
           m={"12"}
           alignSelf={"center"}
-          w={"1/3"}
           size={"sm"}
           onPress={async () => {
             if (text.length == 0 || rating == 0) {
@@ -125,7 +127,7 @@ export const Review = ({
         >
           Submit Review
         </Button>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </>
   );
 };

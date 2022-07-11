@@ -206,13 +206,6 @@ function RootNavigator() {
                 options={{ headerShown: true }}
               />
             }
-            {
-              <Stack.Screen
-                name="Review"
-                component={ReviewScreen}
-                options={{ headerShown: false }}
-              />
-            }
           </Stack.Group>
         </>
       )}

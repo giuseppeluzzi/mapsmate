@@ -9,6 +9,7 @@ import {
   Text,
   Avatar,
   Button,
+  KeyboardAvoidingView,
 } from "native-base";
 
 import Swiper from "react-native-swiper";
@@ -31,6 +32,7 @@ import {
 
 import { Review } from "./Review";
 import { useQuery } from "react-query";
+import { useStore } from "state/userState";
 
 type ReviewItem = {
   id: string;
@@ -137,12 +139,10 @@ const usePoi = ({ poiID }: { poiID: string }) => {
 
 export const POIDetails = ({ poiId }: { poiId: string }) => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-
+  const user = useStore();
   const [visible, setIsVisible] = useState<boolean>(false);
   const [currentSelectedImage, setCurrentSelectedImage] = useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
-  //const [reviews, setReviews] = useState<ReviewItem[]>([]);
-  //const [POIDetails, setPOIDetails] = useState<POIDetails>();
 
   const { data: reviews } = useReview({
     place_id: poiId,
@@ -313,7 +313,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
               <BottomSheetModal
                 ref={bottomSheetModalRef}
                 index={1}
-                snapPoints={["50%", "50%"]}
+                snapPoints={["60%", "60%"]}
                 backdropComponent={(backdropProps) => (
                   <BottomSheetBackdrop
                     {...backdropProps}
