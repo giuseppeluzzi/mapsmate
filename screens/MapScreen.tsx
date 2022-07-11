@@ -5,7 +5,7 @@ import * as Location from "expo-location";
 import MapView, { Callout, Marker } from "react-native-maps";
 
 import { RootTabScreenProps } from "../types";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Circle, Path, Text as SVGText, TSpan } from "react-native-svg";
 
 import { useCurrentLocationStore } from "../state/currentLocationState";
 import { useQuery } from "react-query";
@@ -21,11 +21,13 @@ import BottomSheet, {
 import { POIDetails } from "components/POIDetails";
 import { Portal, PortalHost } from "@gorhom/portal";
 import { ScrollView, View } from "native-base";
+import { placesTypes } from "constants/PlacesTypes";
 
 type Pin = {
   poiId: string;
   title: string;
   description: string;
+  type: string;
   coords: {
     latitude: number;
     longitude: number;
@@ -50,6 +52,7 @@ const useMapPins = ({ userId }: { userId: string }) => {
       poiId: place.id,
       title: place.name,
       description: "",
+      type: place.type,
       coords: {
         latitude: place.latitude,
         longitude: place.longitude,
@@ -171,17 +174,21 @@ export default function MapScreen({
                 });*/
               }}
             >
-              <Svg viewBox="0 0 512 512" width={45} height={45}>
+              <Svg viewBox="0 0 45 45" width="50" height="50">
                 <Path
-                  fill="#ffb21e"
-                  d="M256 0C156.698 0 76 80.7 76 180c0 33.6 9.302 66.301 27.001 94.501l140.797 230.414c2.402 3.9 6.002 6.301 10.203 6.901 5.698.899 12.001-1.5 15.3-7.2l141.2-232.516C427.299 244.501 436 212.401 436 180 436 80.7 355.302 0 256 0zm0 270c-50.398 0-90-40.8-90-90 0-49.501 40.499-90 90-90s90 40.499 90 90c0 48.9-39.001 90-90 90z"
-                  data-original="#fd003a"
+                  fill="#FFB21E"
+                  d="M22.5 0C13.772 0 6.68 7.093 6.68 15.82c0 2.953.817 5.828 2.373 8.306l12.375 20.251c.21.343.527.554.896.607.501.079 1.055-.132 1.345-.633l12.41-20.436c1.477-2.426 2.241-5.247 2.241-8.095C38.32 7.093 31.228 0 22.5 0zm0 23.73c-4.43 0-7.91-3.585-7.91-7.91 0-4.35 3.56-7.91 7.91-7.91s7.91 3.56 7.91 7.91c0 4.298-3.428 7.91-7.91 7.91z"
                 />
                 <Path
-                  fill="#e69906"
-                  d="M256 0v90c49.501 0 90 40.499 90 90 0 48.9-39.001 90-90 90v241.991c5.119.119 10.383-2.335 13.3-7.375L410.5 272.1c16.799-27.599 25.5-59.699 25.5-92.1C436 80.7 355.302 0 256 0z"
-                  data-original="#e50027"
+                  fill="#E69906"
+                  d="M22.5 0v7.91c4.35 0 7.91 3.56 7.91 7.91 0 4.298-3.428 7.91-7.91 7.91V45c.45.01.913-.206 1.169-.649l12.41-20.436c1.477-2.426 2.241-5.247 2.241-8.095C38.32 7.093 31.228 0 22.5 0z"
                 />
+                <Circle cx="22.5" cy="15.75" r="10" fill="#fff" />
+                <SVGText fontSize="11" letterSpacing="0em">
+                  <TSpan x="15" y="20">
+                    {placesTypes[item.type].icon}
+                  </TSpan>
+                </SVGText>
               </Svg>
             </Marker>
           ))}
