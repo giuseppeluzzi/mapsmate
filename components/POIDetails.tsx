@@ -10,6 +10,7 @@ import {
   Avatar,
   Button,
   KeyboardAvoidingView,
+  Icon,
 } from "native-base";
 
 import Swiper from "react-native-swiper";
@@ -33,6 +34,7 @@ import {
 import { Review } from "./Review";
 import { useQuery } from "react-query";
 import { useStore } from "state/userState";
+import Svg, { Path } from "react-native-svg";
 
 type ReviewItem = {
   id: string;
@@ -45,12 +47,17 @@ type ReviewItem = {
   username: string;
 };
 
-type POIDetails = {
+type POI = {
   place_id: string;
   name: string;
   latitude: number;
   longitude: number;
   address: string;
+  phone: string;
+  website: string;
+  google_review_rating: number;
+  google_review_count: number;
+  thefork_id: string;
 };
 
 function timeSince(date: Date) {
@@ -113,7 +120,7 @@ const useReview = ({ place_id }: { place_id: string }) => {
 };
 
 const usePoi = ({ poiID }: { poiID: string }) => {
-  return useQuery<POIDetails | null>(["poi", poiID], async () => {
+  return useQuery<POI | null>(["poi", poiID], async () => {
     const { data, error } = await supabase
       .from("pois")
       .select()
@@ -133,6 +140,11 @@ const usePoi = ({ poiID }: { poiID: string }) => {
       latitude: data[0].latitude,
       longitude: data[0].longitude,
       address: data[0].address,
+      phone: data[0].phone,
+      website: data[0].website,
+      google_review_rating: data[0].google_review_rating,
+      google_review_count: data[0].google_review_count,
+      thefork_id: data[0].thefork_id,
     };
   });
 };
@@ -227,7 +239,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
             </Swiper>
           )}
         </HStack>
-        {poi != null && poi && (
+        {poi && (
           <>
             <Box paddingX={"4"} mt={4} mb={4}>
               <Text fontWeight={"bold"} fontSize={"20"}>
@@ -235,17 +247,41 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
               </Text>
               <Text>{poi.address}</Text>
             </Box>
-            <View style={styles.container}>
+            <View
+              bg={"white"}
+              justifyContent={"center"}
+              alignItems={"center"}
+              px={4}
+            >
               <MapView
+                style={{
+                  width: "100%",
+                  height: 150,
+                  borderRadius: 10,
+                }}
                 provider={"google"}
                 scrollEnabled={false}
-                style={styles.map}
                 initialRegion={{
                   latitude: poi.latitude,
                   longitude: poi.longitude,
                   latitudeDelta: 0.002,
                   longitudeDelta: 0.002,
                 }}
+                showsCompass={true}
+                showsBuildings={false}
+                showsPointsOfInterest={false}
+                showsUserLocation={true}
+                showsIndoors={false}
+                customMapStyle={[
+                  {
+                    featureType: "poi",
+                    stylers: [
+                      {
+                        visibility: "off",
+                      },
+                    ],
+                  },
+                ]}
               >
                 <Marker
                   coordinate={{
@@ -258,7 +294,46 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
             </View>
           </>
         )}
-        <Text p={"4"} fontWeight={"bold"} fontSize={"20"}>
+        {poi && (
+          <VStack
+            py={4}
+            px={4}
+            divider={<Box height={"1px"} bg={"gray.200"} />}
+          >
+            {poi.phone && (
+              <HStack space={3} py={3} px={3} alignItems={"center"}>
+                <Icon fill="gray" viewBox="0 0 20 20" width={20} height={20}>
+                  <Path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </Icon>
+                <Text>{poi.phone}</Text>
+              </HStack>
+            )}
+            {poi.website && (
+              <HStack space={3} py={3} px={3} alignItems={"center"}>
+                <Icon width={20} height={20} fill="gray" viewBox="0 0 20 20">
+                  <Path
+                    fillRule="evenodd"
+                    d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z"
+                    clipRule="evenodd"
+                  />
+                </Icon>
+                <Text>{poi.website}</Text>
+              </HStack>
+            )}
+            {poi.google_review_rating && poi.google_review_count && (
+              <HStack space={3} py={3} px={3} alignItems={"center"}>
+                <Icon width={20} height={20} fill="gray" viewBox="0 0 20 20">
+                  <Path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                </Icon>
+                <Text>
+                  {poi.google_review_rating} on Google Maps with{" "}
+                  {poi.google_review_count}+ reviews!
+                </Text>
+              </HStack>
+            )}
+          </VStack>
+        )}
+        <Text px={4} pt={4} pb={2} fontWeight={"bold"} fontSize={"20"}>
           Reviews
         </Text>
         {userReview && (
@@ -268,7 +343,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
               paddingX={"4"}
               bgColor={"red"}
               space={4}
-              pb={"5"}
+              pb={2}
               borderBottomWidth={1}
               borderBottomColor={"gray.200"}
             >
@@ -416,16 +491,3 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  map: {
-    width: "90%",
-    height: 150,
-  },
-});
