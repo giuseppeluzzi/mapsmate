@@ -180,14 +180,6 @@ const margeAndRemoveDuplicatedPlaces = ({
     (item) => item.google_place_id
   );
 
-  console.log([
-    ...serverPlaces,
-    ...googlePlaces.filter((googleItem) => {
-      if (!googleItem.google_place_id) return false;
-      return !serverPlacesGoogleIds.includes(googleItem.google_place_id);
-    }),
-  ]);
-
   return [
     ...serverPlaces,
     ...googlePlaces.filter((googleItem) => {
@@ -495,7 +487,6 @@ export default function ExploreScreen({
     }
 
     if (item.to_import || item.to_refetch) {
-      console.log(item);
       if (!item.google_place_id) {
         showMessage({
           message: "Unexpected error, please retry later",
