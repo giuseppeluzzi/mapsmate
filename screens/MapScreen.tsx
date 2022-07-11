@@ -20,7 +20,7 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { POIDetails } from "components/POIDetails";
 import { Portal, PortalHost } from "@gorhom/portal";
-import { View } from "native-base";
+import { ScrollView, View } from "native-base";
 
 type Pin = {
   poiId: string;
@@ -230,13 +230,13 @@ export default function MapScreen({
                 overflow: "hidden",
               }}
             >
-              <BottomSheetScrollView
+              <ScrollView
                 ref={poiBottomSheetScrollViewRef}
                 bounces={false}
                 scrollEnabled={currentBottomSheetStatus > 1}
               >
                 <POIDetails poiId={selectedPoi} key={selectedPoi} />
-              </BottomSheetScrollView>
+              </ScrollView>
             </BottomSheetView>
           )}
         </BottomSheet>
