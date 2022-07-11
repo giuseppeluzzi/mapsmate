@@ -34,6 +34,7 @@ import StarRating from "react-native-star-rating";
 import { Platform, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
 
 type ReviewItem = {
   id: string;
@@ -132,14 +133,8 @@ const fetchPois = ({ key }: { key: string }): Promise<POIDetails> => {
   });
 };
 
-export const POIDetails = ({
-  poiId,
-  navigation,
-}: {
-  poiId: string;
-  navigation: NativeStackNavigationProp<RootStackParamList, "POI">;
-}) => {
-  const theme = useTheme();
+export const POIDetails = ({ poiId }: { poiId: string }) => {
+  const navigation = useNavigation();
 
   const [visible, setIsVisible] = useState<boolean>(false);
   const [currentSelectedImage, setCurrentSelectedImage] = useState<number>(0);
@@ -313,12 +308,9 @@ export const POIDetails = ({
         w={"1/3"}
         size={"sm"}
         onPress={() => {
-          console.log(navigation);
-          if (navigation) {
-            navigation.navigate("Review", {
-              place_id: poiId,
-            });
-          }
+          navigation.navigate("Review", {
+            place_id: poiId,
+          });
         }}
       >
         Add Review
