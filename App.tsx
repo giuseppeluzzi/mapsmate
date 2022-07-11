@@ -297,7 +297,7 @@ export default function App() {
             <PortalProvider>
               <View style={{ flex: 1 }}>
                 <Navigation colorScheme={colorScheme} />
-                <StatusBar />
+                <StatusBar style={"dark"} />
                 <SafeAreaInsetsContext.Consumer>
                   {(insets) => (
                     <FlashMessage
