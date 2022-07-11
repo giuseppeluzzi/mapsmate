@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 
 import * as Location from "expo-location";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Callout, Marker } from "react-native-maps";
 
 import { RootTabScreenProps } from "../types";
 import Svg, { Path } from "react-native-svg";
@@ -171,6 +171,7 @@ export default function MapScreen({
                 });*/
               }}
             >
+              <Callout></Callout>
               <Svg viewBox="0 0 512 512" width={45} height={45}>
                 <Path
                   fill="#ffb21e"
