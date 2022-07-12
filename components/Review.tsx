@@ -15,7 +15,7 @@ import StarRating from "react-native-star-rating";
 import { useEffect, useState } from "react";
 import { supabase } from "lib/supabase";
 import { useStore } from "state/userState";
-import { showMessage } from "react-native-flash-message";
+import FlashMessage, { showMessage } from "react-native-flash-message";
 
 import { useQueryClient } from "react-query";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -24,26 +24,22 @@ import { Platform } from "react-native";
 export const Review = ({
   place_id,
   onClose,
+  onCloseAlert,
+  initalRating,
+  initalText,
+  review_id,
 }: {
   place_id: string;
   onClose: () => void;
+  onCloseAlert: () => void;
+  initalRating?: number;
+  initalText?: string;
+  review_id?: string;
 }) => {
   const queryClient = useQueryClient();
   const { user } = useStore();
-  const [rating, setRating] = useState<number>(0);
-  const [userId, setUserId] = useState<string>();
-  const [text, setText] = useState<string>("");
-
-  useEffect(() => {
-    supabase
-      .from("profiles")
-      .select("id")
-      .eq("id", user!.id)
-      .then((result) => {
-        if (!result.data || !result.data[0]) return;
-        setUserId(result.data[0].id);
-      });
-  }, []);
+  const [rating, setRating] = useState<number>(initalRating ?? 0);
+  const [text, setText] = useState<string>(initalText ?? "");
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries(["review", place_id], {
@@ -85,10 +81,10 @@ export const Review = ({
             m={"4"}
             size={"md"}
             h={150}
+            value={text}
             onChangeText={(text) => setText(text)}
-          >
-            {text}
-          </TextArea>
+            autoCompleteType={"off"}
+          />
         </VStack>
 
         <Button
@@ -111,18 +107,36 @@ export const Review = ({
               }
               return;
             }
-            await supabase.from("reviews").insert([
-              {
-                place_id: place_id,
-                user_id: userId!,
-                text: text,
-                rate: rating,
-                created_at: new Date(),
-              },
-            ]);
 
+            if (review_id != "") {
+              await supabase
+                .from("reviews")
+                .update({ text: text, rate: rating })
+                .eq("id", review_id);
+
+              showMessage({
+                message: "Review modified successfully!",
+                type: "success",
+              });
+            } else {
+              await supabase.from("reviews").insert([
+                {
+                  place_id: place_id,
+                  user_id: user?.id,
+                  text: text,
+                  rate: rating,
+                  created_at: new Date(),
+                },
+              ]);
+
+              showMessage({
+                message: "Review submitted!",
+                type: "success",
+              });
+            }
             invalidateQueries();
             onClose();
+            onCloseAlert();
           }}
         >
           Submit Review

@@ -11,6 +11,9 @@ import {
   Button,
   KeyboardAvoidingView,
   Icon,
+  Actionsheet,
+  useDisclose,
+  AlertDialog,
 } from "native-base";
 
 import Swiper from "react-native-swiper";
@@ -32,7 +35,7 @@ import {
 } from "@gorhom/bottom-sheet";
 
 import { Review } from "./Review";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useStore } from "state/userState";
 import Svg, { Path } from "react-native-svg";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -158,6 +161,20 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
   const [images, setImages] = useState<string[]>([]);
   let userReview: ReviewItem | null;
   let otherReview: ReviewItem[] | null;
+
+  const { isOpen, onOpen, onClose } = useDisclose();
+  const [openAlert, setOpenAlert] = React.useState(false);
+  const cancelRef = React.useRef(null);
+  const queryClient = useQueryClient();
+
+  const onCloseAlert = () => setOpenAlert(false);
+
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries(["review", poiId], {
+      refetchActive: true,
+      refetchInactive: true,
+    });
+  };
 
   const { data: reviews } = useReview({
     place_id: poiId,
@@ -353,30 +370,96 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
         </Text>
         {userReview && (
           <>
-            <VStack
-              mb={"5"}
-              paddingX={"4"}
-              bgColor={"red"}
-              space={4}
-              pb={2}
-              borderBottomWidth={1}
-              borderBottomColor={"gray.200"}
-            >
+            <VStack paddingX={"4"} bgColor={"red"} space={4} pb={"5"}>
               <Text>Your review</Text>
+
               <Box
                 p={"5"}
                 borderColor={"gray.300"}
                 borderWidth={1}
                 borderRadius={"md"}
-                alignItems={"flex-start"}
                 bgColor={"white"}
                 key={userReview.id}
               >
-                <Box mb={"3"} flexDirection={"row"}>
+                <Box mb={"3"} flexDirection={"row"} alignItems={"center"}>
                   <Avatar size={"md"}>{userReview.user_emoji}</Avatar>
-                  <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
+                  <Text p={"3"} fontWeight={"semibold"}>
                     {userReview.username}
                   </Text>
+                  <Button
+                    variant={"primary"}
+                    h={10}
+                    w={10}
+                    paddingX={0}
+                    paddingY={0}
+                    rounded={16}
+                    onPress={onOpen}
+                    position={"absolute"}
+                    right={"0"}
+                  >
+                    ...
+                  </Button>
+
+                  <Actionsheet isOpen={isOpen} onClose={onClose} disableOverlay>
+                    <Actionsheet.Content>
+                      <Actionsheet.Item
+                        onPressOut={onClose}
+                        onPress={bottomSheetModalRef.current?.present}
+                        borderRadius={"lg"}
+                      >
+                        Edit
+                      </Actionsheet.Item>
+
+                      <Actionsheet.Item
+                        borderRadius={"lg"}
+                        onPress={() => setOpenAlert(!openAlert)}
+                      >
+                        <Text color={"red.400"}>Delete</Text>
+                      </Actionsheet.Item>
+                      <AlertDialog
+                        leastDestructiveRef={cancelRef}
+                        isOpen={openAlert}
+                        onClose={onCloseAlert}
+                      >
+                        <AlertDialog.Content>
+                          <AlertDialog.CloseButton />
+                          <AlertDialog.Header bgColor={"#FFCA62"}>
+                            Delete Review
+                          </AlertDialog.Header>
+                          <AlertDialog.Body>
+                            Are you sure you want to delete your review?
+                          </AlertDialog.Body>
+                          <AlertDialog.Footer>
+                            <Button.Group space={2}>
+                              <Button
+                                variant="unstyled"
+                                colorScheme="coolGray"
+                                onPress={onCloseAlert}
+                                ref={cancelRef}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                variant={"outline"}
+                                bgColor={"red.500"}
+                                onPress={async () => {
+                                  await supabase
+                                    .from("reviews")
+                                    .delete()
+                                    .eq("id", userReview?.id);
+
+                                  onCloseAlert();
+                                  invalidateQueries();
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </Button.Group>
+                          </AlertDialog.Footer>
+                        </AlertDialog.Content>
+                      </AlertDialog>
+                    </Actionsheet.Content>
+                  </Actionsheet>
                 </Box>
                 <Box mb={"3"} flexDirection={"row"}>
                   <StarRating
@@ -394,6 +477,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
                 </Box>
                 <Text alignItems={"baseline"}>{userReview.text}</Text>
               </Box>
+              <Box height={"1px"} bg={"gray.200"} />
             </VStack>
           </>
         )}
@@ -410,7 +494,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
                   bgColor={"white"}
                   key={review.id}
                 >
-                  <Box mb={"3"} flexDirection={"row"}>
+                  <Box mb={"3"} flexDirection={"row"} alignItems={"center"}>
                     <Avatar size={"md"}>{review.user_emoji}</Avatar>
                     <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
                       {review.username}
@@ -449,6 +533,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
               size={"sm"}
               onPress={() => {
                 bottomSheetModalRef.current?.present();
+                onCloseAlert();
               }}
             >
               Add Review
@@ -465,6 +550,7 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
                 size={"sm"}
                 onPress={() => {
                   bottomSheetModalRef.current?.present();
+                  onCloseAlert();
                 }}
               >
                 Add Review
@@ -492,10 +578,16 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
                     <Review
                       onClose={() => {
                         bottomSheetModalRef.current?.close();
+                        onClose();
+                        invalidateQueries();
                       }}
                       place_id={poi.place_id}
                       key={poi.place_id}
-                    ></Review>
+                      initalRating={userReview ? userReview.rating : 0}
+                      initalText={userReview ? userReview.text : ""}
+                      review_id={userReview ? userReview.id : ""}
+                      onCloseAlert={onCloseAlert}
+                    />
                   </View>
                 </BottomSheetView>
               </BottomSheetModal>
