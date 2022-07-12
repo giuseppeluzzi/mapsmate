@@ -39,6 +39,7 @@ import { useQuery, useQueryClient } from "react-query";
 import { useStore } from "state/userState";
 import Svg, { Path } from "react-native-svg";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
 
 type ReviewItem = {
   id: string;
@@ -154,6 +155,8 @@ const usePoi = ({ poiID }: { poiID: string }) => {
 };
 
 export const POIDetails = ({ poiId }: { poiId: string }) => {
+  const navigation = useNavigation();
+
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { user } = useStore();
   const [visible, setIsVisible] = useState<boolean>(false);
@@ -352,7 +355,9 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
             {poi.thefork_id && (
               <TouchableOpacity
                 onPress={() => {
-                  console.log("icao");
+                  navigation.navigate("TheForkBookScreen", {
+                    theFork_id: poi.thefork_id,
+                  });
                 }}
               >
                 <HStack space={3} py={3} px={3} alignItems={"center"}>

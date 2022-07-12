@@ -39,6 +39,7 @@ import ExploreScreen from "screens/ExploreScreen";
 import SettingsScreen from "screens/SettingsScreen";
 import UserScreen from "screens/UserScreen";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
+import TheForkBookScreen from "screens/TheForkBookScreen";
 
 export default function Navigation({
   colorScheme,
@@ -177,34 +178,26 @@ function RootNavigator() {
               },
             }}
           >
-            {/*
-            <Stack.Screen name="Modal" component={ModalScreen} />
-            */}
             <Stack.Screen
               name="Settings"
               options={{ headerShown: false }}
               component={SettingsScreen}
             />
-            {/*<Stack.Screen
-              name="CreateGroupModal"
-              component={CreateGroupModal}
-              />
-              <Stack.Screen
-              name="AddPartecipantModal"
-              component={AddPartecipantModal}
-            />*/}
             <Stack.Screen
               name="User"
               component={UserScreen}
               options={{ title: "" }}
             />
-            {
-              <Stack.Screen
-                name="POI"
-                component={POIScreen}
-                options={{ headerShown: true }}
-              />
-            }
+            <Stack.Screen
+              name="POI"
+              component={POIScreen}
+              options={{ headerShown: true }}
+            />
+            <Stack.Screen
+              name="TheForkBookScreen"
+              component={TheForkBookScreen}
+              options={{ headerShown: true, title: "Book now" }}
+            />
           </Stack.Group>
         </>
       )}

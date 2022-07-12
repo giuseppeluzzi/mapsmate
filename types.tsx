@@ -33,6 +33,9 @@ export type RootStackParamList = {
   Review: {
     place_id: string;
   };
+  TheForkBookScreen: {
+    theFork_id: string;
+  };
 
   /*CreateGroupModal: {
     partecipants?: GroupPartecipant[];
