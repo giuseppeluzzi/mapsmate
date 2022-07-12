@@ -89,6 +89,7 @@
     "@types/react-native": "^0.69.3",
     "@types/react-native-maps": "^0.24.2",
     "@types/react-query": "^1.2.9",
+    "@types/typescript": "^2.0.0",
     "@types/uuid": "^8.3.4",
     "babel-plugin-module-resolver": "^4.1.0",
     "eslint-plugin-react-hooks": "^4.3.0",
