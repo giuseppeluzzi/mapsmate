@@ -126,8 +126,8 @@ export default function UserScreen({
   };
 
   return (
-    statsData != undefined && (
-      <>
+    <>
+      <Box>
         <ScrollView>
           <Box>
             <UserProfile
@@ -140,7 +140,7 @@ export default function UserScreen({
             />
           </Box>
         </ScrollView>
-      </>
-    )
+      </Box>
+    </>
   );
 }

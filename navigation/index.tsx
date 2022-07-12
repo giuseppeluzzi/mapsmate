@@ -38,7 +38,6 @@ import MapScreen from "screens/MapScreen";
 import ExploreScreen from "screens/ExploreScreen";
 import SettingsScreen from "screens/SettingsScreen";
 import UserScreen from "screens/UserScreen";
-import ReviewScreen from "screens/ReviewScreen";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 export default function Navigation({
