@@ -36,6 +36,9 @@ import * as mime from "mime";
 import { TouchableOpacity } from "react-native";
 import { useStore } from "state/userState";
 
+// @ts-ignore
+import { compareTwoStrings } from "string-similarity";
+
 type SearchSection = {
   title: string;
   data: SearchItem[];
@@ -291,6 +294,45 @@ const saveGoogleImage = ({
   });
 };
 
+const importTheForkPlace = async ({ name }: { name: string }) => {
+  const options = {
+    method: "POST",
+    url: "https://www.thefork.it/api/graphql",
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:103.0) Gecko/20100101 Firefox/103.0",
+      Accept: "*/*",
+      "Accept-Language": "it-IT",
+      "content-type": "application/json",
+      "x-thefork-product-name": "core-front-browser",
+      "x-window-id": "window-l6n2Tz3bL7QfwmiQM-s_n",
+      "x-browser-id": "browser-Y40yhfJRvE0TX6hQpqgIx",
+      "apollographql-client-name": "core-front-browser",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+    },
+    data: [
+      {
+        operationName: "getLegacyWhatSuggestions",
+        variables: {
+          query: {
+            text: name,
+            coordinates: { latitude: 45.4642035, longitude: 9.189981999999986 },
+            types: ["RESTAURANT"],
+            pagination: null,
+          },
+        },
+        query:
+          "query getLegacyWhatSuggestions($query: SearchAutocompleteQuery) {\n  autocomplete(query: $query) {\n    __typename\n    ... on SearchAutocompleteResult {\n      id\n      type\n      name {\n        text\n        highlight {\n          length\n          offset\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    ... on SearchAutocompleteRestaurant {\n      zipcode: zipCode\n      origin\n      city: cityName\n      country: countryName\n      name {\n        text\n        highlight {\n          length\n          offset\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    ... on SearchAutocompleteSaleTypeTag {\n      name {\n        text\n        highlight {\n          length\n          offset\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    ... on SearchAutocompleteRestaurantTag {\n      categoryId\n      name {\n        text\n        highlight {\n          length\n          offset\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n  }\n}\n",
+      },
+    ],
+  };
+
+  return axios.request(options);
+};
+
 const importGooglePlace = async ({
   placeId,
   refetchId,
@@ -308,6 +350,26 @@ const importGooglePlace = async ({
   });
 
   refreshSessionToken();
+
+  const theForkPlace = await importTheForkPlace({ name: place.name });
+  let theForkId = null;
+
+  if (
+    theForkPlace.data &&
+    theForkPlace.data[0] &&
+    theForkPlace.data[0].data &&
+    theForkPlace.data[0].data.autocomplete &&
+    theForkPlace.data[0].data.autocomplete.length > 0
+  ) {
+    let theForkItem = theForkPlace.data[0].data.autocomplete[0];
+
+    const similarity = compareTwoStrings(
+      theForkItem.name.text.toLowerCase(),
+      place.name.toLowerCase()
+    );
+
+    if (similarity > 0.9) theForkId = theForkItem.id;
+  }
 
   // Parallelize download and upload
   let placeImages;
@@ -336,6 +398,7 @@ const importGooglePlace = async ({
       phone: place.phone,
       google_json: place.google_json,
       refetch_info: false,
+      ...(theForkId ? { thefork_id: theForkId } : {}),
       ...(!refetchId ? { images: placeImages } : {}),
     },
   ]);

@@ -72,6 +72,7 @@
     "react-native-web": "0.17.1",
     "react-query": "^3.39.1",
     "rn-emoji-keyboard": "^0.7.1",
+    "string-similarity": "^4.0.4",
     "swr": "^1.2.2",
     "tailwind-rn": "^3.0.1",
     "unfetch": "^4.2.0",
