@@ -242,7 +242,15 @@ export default function MapScreen({
                 bounces={false}
                 scrollEnabled={currentBottomSheetStatus > 1}
               >
-                <POIDetails poiId={selectedPoi} key={selectedPoi} />
+                <POIDetails
+                  poiId={selectedPoi}
+                  key={selectedPoi}
+                  onBookPress={(poi) => {
+                    navigation.navigate("TheForkBookScreen", {
+                      theFork_id: poi.thefork_id,
+                    });
+                  }}
+                />
               </ScrollView>
             </BottomSheetView>
           )}

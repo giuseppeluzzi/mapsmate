@@ -9,7 +9,6 @@ import {
   Text,
   Avatar,
   Button,
-  KeyboardAvoidingView,
   Icon,
   Actionsheet,
   useDisclose,
@@ -25,7 +24,6 @@ import { supabase } from "../lib/supabase";
 import { useEffect, useRef, useState } from "react";
 //@ts-ignore
 import StarRating from "react-native-star-rating";
-import { StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import {
   BottomSheetBackdrop,
@@ -37,9 +35,8 @@ import {
 import { Review } from "./Review";
 import { useQuery, useQueryClient } from "react-query";
 import { useStore } from "state/userState";
-import Svg, { Path } from "react-native-svg";
+import { Path } from "react-native-svg";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useNavigation } from "@react-navigation/native";
 
 type ReviewItem = {
   id: string;
@@ -156,13 +153,13 @@ const usePoi = ({ poiID }: { poiID: string }) => {
 
 export const POIDetails = ({
   poiId,
+  onBookPress,
   onPlaceLoad,
 }: {
   poiId: string;
+  onBookPress?: (poi: POI) => void;
   onPlaceLoad?: (poi: POI) => void;
 }) => {
-  const navigation = useNavigation();
-
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { user } = useStore();
   const [visible, setIsVisible] = useState<boolean>(false);
@@ -203,7 +200,7 @@ export const POIDetails = ({
 
   useEffect(() => {
     if (!poi) return;
-    if (! onPlaceLoad) return;
+    if (!onPlaceLoad) return;
 
     onPlaceLoad(poi);
   }, [poi]);
@@ -365,14 +362,8 @@ export const POIDetails = ({
                 </Text>
               </HStack>
             )}
-            {poi.thefork_id && (
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("TheForkBookScreen", {
-                    theFork_id: poi.thefork_id,
-                  });
-                }}
-              >
+            {onBookPress && poi.thefork_id && (
+              <TouchableOpacity onPress={() => onBookPress(poi)}>
                 <HStack space={3} py={3} px={3} alignItems={"center"}>
                   <Icon width={20} height={20} fill="gray" viewBox="0 0 20 20">
                     <Path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />

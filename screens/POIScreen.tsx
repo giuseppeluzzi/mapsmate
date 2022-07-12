@@ -16,6 +16,11 @@ export default function POIScreen({
             title: place.name,
           });
         }}
+        onBookPress={(poi) => {
+          navigation.navigate("TheForkBookScreen", {
+            theFork_id: poi.thefork_id,
+          });
+        }}
       />
     </ScrollView>
   );
