@@ -9,7 +9,14 @@ export default function POIScreen({
 }: RootStackScreenProps<"POI">) {
   return (
     <ScrollView>
-      <POIDetails poiId={route.params.id} />
+      <POIDetails
+        poiId={route.params.id}
+        onPlaceLoad={(place) => {
+          navigation.setOptions({
+            title: place.name,
+          });
+        }}
+      />
     </ScrollView>
   );
 }

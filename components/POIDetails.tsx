@@ -154,7 +154,13 @@ const usePoi = ({ poiID }: { poiID: string }) => {
   });
 };
 
-export const POIDetails = ({ poiId }: { poiId: string }) => {
+export const POIDetails = ({
+  poiId,
+  onPlaceLoad,
+}: {
+  poiId: string;
+  onPlaceLoad?: (poi: POI) => void;
+}) => {
   const navigation = useNavigation();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -191,9 +197,16 @@ export const POIDetails = ({ poiId }: { poiId: string }) => {
     otherReview = [];
   }
 
-  const { data: poi } = usePoi({
+  const { data: poi, isSuccess } = usePoi({
     poiID: poiId,
   });
+
+  useEffect(() => {
+    if (!poi) return;
+    if (! onPlaceLoad) return;
+
+    onPlaceLoad(poi);
+  }, [poi]);
 
   useEffect(() => {
     supabase
