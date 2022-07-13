@@ -13,6 +13,8 @@ import {
   Actionsheet,
   useDisclose,
   AlertDialog,
+  Spinner,
+  ScrollView,
 } from "native-base";
 
 import Swiper from "react-native-swiper";
@@ -35,8 +37,12 @@ import {
 import { Review } from "./Review";
 import { useQuery, useQueryClient } from "react-query";
 import { useStore } from "state/userState";
-import { Path } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import axios from "axios";
+import { useCurrentLocationStore } from "state/currentLocationState";
+import { KEYS } from "constants/Keys";
+import { Linking } from "react-native";
 
 type ReviewItem = {
   id: string;
@@ -57,9 +63,17 @@ type POI = {
   address: string;
   phone: string;
   website: string;
+  google_place_id: string;
   google_review_rating: number;
   google_review_count: number;
   thefork_id: string;
+};
+
+type Directions = {
+  driving: number | null;
+  walking: number | null;
+  bicycling: number | null;
+  transit: number | null;
 };
 
 function timeSince(date: Date) {
@@ -144,11 +158,50 @@ const usePoi = ({ poiID }: { poiID: string }) => {
       address: data[0].address,
       phone: data[0].phone,
       website: data[0].website,
+      google_place_id: data[0].google_place_id,
       google_review_rating: data[0].google_review_rating,
       google_review_count: data[0].google_review_count,
       thefork_id: data[0].thefork_id,
     };
   });
+};
+
+const fetchDirections = ({
+  poi,
+  start,
+  mode,
+}: {
+  poi: POI;
+  start: {
+    latitude: number;
+    longitude: number;
+  };
+  mode: "driving" | "walking" | "bicycling" | "transit";
+}): Promise<number | null> => {
+  const directionsParams = new URLSearchParams({
+    key: KEYS.GOOGLE_MAPS_KEY,
+    language: "it",
+    origin: start.latitude + "," + start.longitude,
+    destination: "place_id:" + poi.google_place_id,
+    mode,
+  });
+
+  return axios({
+    method: "get",
+    url:
+      "https://maps.googleapis.com/maps/api/directions/json?" +
+      directionsParams.toString(),
+  })
+    .then(({ data }) => {
+      if (!data) return null;
+      if (data.routes.length === 0) return null;
+      if (data.routes[0].legs.length === 0) return null;
+
+      return Math.ceil(data.routes[0].legs[0].duration.value / 60);
+    })
+    .catch((error) => {
+      return null;
+    });
 };
 
 export const POIDetails = ({
@@ -160,11 +213,22 @@ export const POIDetails = ({
   onBookPress?: (poi: POI) => void;
   onPlaceLoad?: (poi: POI) => void;
 }) => {
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const reviewBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const directionsBottomSheetModalRef = useRef<BottomSheetModal>(null);
+
   const { user } = useStore();
+  const { currentLocation } = useCurrentLocationStore();
+
   const [visible, setIsVisible] = useState<boolean>(false);
   const [currentSelectedImage, setCurrentSelectedImage] = useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
+  const [directions, setDirections] = useState<Directions>({
+    driving: null,
+    walking: null,
+    bicycling: null,
+    transit: null,
+  });
+
   let userReview: ReviewItem | null;
   let otherReview: ReviewItem[] | null;
 
@@ -331,6 +395,65 @@ export const POIDetails = ({
             px={4}
             divider={<Box height={"1px"} bg={"gray.200"} />}
           >
+            {poi.address && (
+              <TouchableOpacity
+                onPress={() => {
+                  directionsBottomSheetModalRef.current?.present();
+                  Promise.all([
+                    fetchDirections({
+                      poi: poi,
+                      start: {
+                        latitude: currentLocation.latitude,
+                        longitude: currentLocation.longitude,
+                      },
+                      mode: "walking",
+                    }),
+                    fetchDirections({
+                      poi: poi,
+                      start: {
+                        latitude: currentLocation.latitude,
+                        longitude: currentLocation.longitude,
+                      },
+                      mode: "bicycling",
+                    }),
+                    fetchDirections({
+                      poi: poi,
+                      start: {
+                        latitude: currentLocation.latitude,
+                        longitude: currentLocation.longitude,
+                      },
+                      mode: "transit",
+                    }),
+                    fetchDirections({
+                      poi: poi,
+                      start: {
+                        latitude: currentLocation.latitude,
+                        longitude: currentLocation.longitude,
+                      },
+                      mode: "driving",
+                    }),
+                  ]).then((values) => {
+                    setDirections({
+                      walking: values[0],
+                      bicycling: values[1],
+                      transit: values[2],
+                      driving: values[3],
+                    });
+                  });
+                }}
+              >
+                <HStack space={3} py={3} px={3} alignItems={"center"}>
+                  <Icon fill="gray" viewBox="0 0 20 20" width={20} height={20}>
+                    <Path
+                      fillRule="evenodd"
+                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                      clipRule="evenodd"
+                    />
+                  </Icon>
+                  <Text>{poi.address}</Text>
+                </HStack>
+              </TouchableOpacity>
+            )}
             {poi.phone && (
               <HStack space={3} py={3} px={3} alignItems={"center"}>
                 <Icon fill="gray" viewBox="0 0 20 20" width={20} height={20}>
@@ -413,7 +536,7 @@ export const POIDetails = ({
                     <Actionsheet.Content>
                       <Actionsheet.Item
                         onPressOut={onClose}
-                        onPress={bottomSheetModalRef.current?.present}
+                        onPress={reviewBottomSheetModalRef.current?.present}
                         borderRadius={"lg"}
                       >
                         Edit
@@ -541,7 +664,7 @@ export const POIDetails = ({
               w={"1/3"}
               size={"sm"}
               onPress={() => {
-                bottomSheetModalRef.current?.present();
+                reviewBottomSheetModalRef.current?.present();
                 onCloseAlert();
               }}
             >
@@ -558,7 +681,7 @@ export const POIDetails = ({
                 w={"1/3"}
                 size={"sm"}
                 onPress={() => {
-                  bottomSheetModalRef.current?.present();
+                  reviewBottomSheetModalRef.current?.present();
                   onCloseAlert();
                 }}
               >
@@ -572,7 +695,7 @@ export const POIDetails = ({
           <>
             <View>
               <BottomSheetModal
-                ref={bottomSheetModalRef}
+                ref={reviewBottomSheetModalRef}
                 index={1}
                 snapPoints={["60%", "60%"]}
                 backdropComponent={(backdropProps) => (
@@ -586,19 +709,138 @@ export const POIDetails = ({
                   <View>
                     <Review
                       onClose={() => {
-                        bottomSheetModalRef.current?.close();
+                        reviewBottomSheetModalRef.current?.close();
                         onClose();
                         invalidateQueries();
                       }}
                       place_id={poi.place_id}
                       key={poi.place_id}
-                      initalRating={userReview ? userReview.rating : 0}
-                      initalText={userReview ? userReview.text : ""}
+                      initialRating={userReview ? userReview.rating : 0}
+                      initialText={userReview ? userReview.text : ""}
                       review_id={userReview ? userReview.id : ""}
                       onCloseAlert={onCloseAlert}
                     />
                   </View>
                 </BottomSheetView>
+              </BottomSheetModal>
+              <BottomSheetModal
+                ref={directionsBottomSheetModalRef}
+                index={1}
+                snapPoints={["60%", "60%"]}
+                backdropComponent={(backdropProps) => (
+                  <BottomSheetBackdrop
+                    {...backdropProps}
+                    enableTouchThrough={true}
+                  />
+                )}
+              >
+                <ScrollView>
+                  {!directions && <Spinner size={"lg"} mt={3} />}
+                  {directions && (
+                    <VStack px={4} space={3}>
+                      {directions.walking && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            Linking.openURL(
+                              `https://www.google.com/maps/dir/?api=1&destination=${poi.latitude},${poi.longitude}&destination_place_id=${poi.google_place_id}&travelmode=walking`
+                            )
+                          }
+                        >
+                          <HStack
+                            bg={"green.500"}
+                            rounded={"sm"}
+                            py={3}
+                            px={4}
+                            justifyContent={"space-between"}
+                            alignItems={"center"}
+                          >
+                            <Text color={"white"} bold>
+                              Walk
+                            </Text>
+                            <Text color={"white"} fontSize={"lg"}>
+                              {directions.walking}min
+                            </Text>
+                          </HStack>
+                        </TouchableOpacity>
+                      )}
+                      {directions.bicycling && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            Linking.openURL(
+                              `https://www.google.com/maps/dir/?api=1&destination=${poi.latitude},${poi.longitude}&destination_place_id=${poi.google_place_id}&travelmode=bicycling`
+                            )
+                          }
+                        >
+                          <HStack
+                            bg={"blue.500"}
+                            rounded={"sm"}
+                            py={3}
+                            px={4}
+                            justifyContent={"space-between"}
+                            alignItems={"center"}
+                          >
+                            <Text color={"white"} bold>
+                              Bicycle
+                            </Text>
+                            <Text color={"white"} fontSize={"lg"}>
+                              {directions.bicycling}min
+                            </Text>
+                          </HStack>
+                        </TouchableOpacity>
+                      )}
+                      {directions.transit && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            Linking.openURL(
+                              `https://www.google.com/maps/dir/?api=1&destination=${poi.latitude},${poi.longitude}&destination_place_id=${poi.google_place_id}&travelmode=transit`
+                            )
+                          }
+                        >
+                          <HStack
+                            bg={"orange.500"}
+                            rounded={"sm"}
+                            py={3}
+                            px={4}
+                            justifyContent={"space-between"}
+                            alignItems={"center"}
+                          >
+                            <Text color={"white"} bold>
+                              Transit
+                            </Text>
+                            <Text color={"white"} fontSize={"lg"}>
+                              {directions.transit}min
+                            </Text>
+                          </HStack>
+                        </TouchableOpacity>
+                      )}
+                      {directions.driving && (
+                        <TouchableOpacity
+                          onPress={() =>
+                            Linking.openURL(
+                              `https://www.google.com/maps/dir/?api=1&destination=${poi.latitude},${poi.longitude}&destination_place_id=${poi.google_place_id}&travelmode=driving`
+                            )
+                          }
+                        >
+                          <HStack
+                            bg={"red.500"}
+                            rounded={"sm"}
+                            py={3}
+                            px={4}
+                            justifyContent={"space-between"}
+                            alignItems={"center"}
+                          >
+                            <Text color={"white"} bold>
+                              Car
+                            </Text>
+                            <Text color={"white"} fontSize={"lg"}>
+                              {directions.driving}min
+                            </Text>
+                          </HStack>
+                        </TouchableOpacity>
+                      )}
+                    </VStack>
+                  )}
+                </ScrollView>
               </BottomSheetModal>
             </View>
           </>

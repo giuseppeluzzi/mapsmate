@@ -25,21 +25,21 @@ export const Review = ({
   place_id,
   onClose,
   onCloseAlert,
-  initalRating,
-  initalText,
+  initialRating,
+  initialText,
   review_id,
 }: {
   place_id: string;
   onClose: () => void;
   onCloseAlert: () => void;
-  initalRating?: number;
-  initalText?: string;
+  initialRating?: number;
+  initialText?: string;
   review_id?: string;
 }) => {
   const queryClient = useQueryClient();
   const { user } = useStore();
-  const [rating, setRating] = useState<number>(initalRating ?? 0);
-  const [text, setText] = useState<string>(initalText ?? "");
+  const [rating, setRating] = useState<number>(initialRating ?? 0);
+  const [text, setText] = useState<string>(initialText ?? "");
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries(["review", place_id], {
