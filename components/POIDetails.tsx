@@ -67,6 +67,7 @@ type POI = {
   google_review_rating: number;
   google_review_count: number;
   thefork_id: string;
+  workhours: string[];
 };
 
 type Directions = {
@@ -162,6 +163,7 @@ const usePoi = ({ poiID }: { poiID: string }) => {
       google_review_rating: data[0].google_review_rating,
       google_review_count: data[0].google_review_count,
       thefork_id: data[0].thefork_id,
+      workhours: data[0].workhours,
     };
   });
 };
@@ -219,6 +221,7 @@ export const POIDetails = ({
   const { user } = useStore();
   const { currentLocation } = useCurrentLocationStore();
 
+  const [isWorkhoursVisible, setIsWorkhoursVisible] = useState<boolean>(false);
   const [visible, setIsVisible] = useState<boolean>(false);
   const [currentSelectedImage, setCurrentSelectedImage] = useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
@@ -454,7 +457,7 @@ export const POIDetails = ({
                 </HStack>
               </TouchableOpacity>
             )}
-            {poi.phone && (
+            {!!poi.phone && poi.phone.length > 0 && (
               <HStack space={3} py={3} px={3} alignItems={"center"}>
                 <Icon fill="gray" viewBox="0 0 20 20" width={20} height={20}>
                   <Path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
@@ -462,17 +465,46 @@ export const POIDetails = ({
                 <Text>{poi.phone}</Text>
               </HStack>
             )}
-            {poi.website && (
+            {!!poi.website && poi.website.length > 0 && (
               <HStack space={3} py={3} px={3} alignItems={"center"}>
-                <Icon width={20} height={20} fill="gray" viewBox="0 0 20 20">
-                  <Path
-                    fillRule="evenodd"
-                    d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z"
-                    clipRule="evenodd"
-                  />
+                <Icon fill="gray" viewBox="0 0 20 20" width={20} height={20}>
+                  <Path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                 </Icon>
-                <Text>{poi.website}</Text>
+                <Text>{poi.website ?? ""}</Text>
               </HStack>
+            )}
+            {poi.workhours && (
+              <TouchableOpacity
+                onPress={() => setIsWorkhoursVisible(!isWorkhoursVisible)}
+              >
+                <HStack space={3} py={3} px={3} alignItems={"flex-start"}>
+                  <Icon width={20} height={20} fill="gray" viewBox="0 0 20 20">
+                    <Path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                      clipRule="evenodd"
+                    />
+                  </Icon>
+                  {!isWorkhoursVisible && (
+                    <Text>
+                      {
+                        poi.workhours[
+                          new Date().getDay() === 0
+                            ? 6
+                            : new Date().getDay() - 1
+                        ]
+                      }
+                    </Text>
+                  )}
+                  {isWorkhoursVisible && (
+                    <VStack>
+                      {poi.workhours.map((day, dayIdx) => (
+                        <Text key={dayIdx}>{day}</Text>
+                      ))}
+                    </VStack>
+                  )}
+                </HStack>
+              </TouchableOpacity>
             )}
             {poi.google_review_rating && poi.google_review_count && (
               <HStack space={3} py={3} px={3} alignItems={"center"}>
@@ -580,6 +612,7 @@ export const POIDetails = ({
                                     .delete()
                                     .eq("id", userReview?.id);
 
+                                  reviewBottomSheetModalRef.current?.close();
                                   onCloseAlert();
                                   invalidateQueries();
                                 }}
