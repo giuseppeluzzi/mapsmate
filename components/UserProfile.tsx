@@ -39,6 +39,7 @@ export default function UserProfile({
       >
         {settingsButton && onSettingsPress && (
           <Button
+            testID="settingsButton"
             position={"absolute"}
             top={4}
             right={4}
@@ -92,6 +93,7 @@ export default function UserProfile({
         <HStack flexWrap={"wrap"} space={3}>
           {followButton && onFollowPress && (
             <Button
+              testID="followButton"
               variant={"primary"}
               borderWidth={2}
               borderColor={"transparent"}
@@ -106,6 +108,7 @@ export default function UserProfile({
           )}
           {unfollowButton && onUnfollowPress && (
             <Button
+              testID="unfollowButton"
               variant={"white"}
               borderWidth={2}
               borderColor={"gray.200"}

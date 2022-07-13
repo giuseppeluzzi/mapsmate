@@ -279,7 +279,13 @@ export default function App() {
   } else {
     return (
       <QueryClientProvider client={queryClient}>
-        <NativeBaseProvider theme={theme}>
+        <NativeBaseProvider
+          theme={theme}
+          initialWindowMetrics={{
+            frame: { x: 0, y: 0, width: 0, height: 0 },
+            insets: { top: 0, left: 0, right: 0, bottom: 0 },
+          }}
+        >
           <SafeAreaProvider>
             <PortalProvider>
               <View style={{ flex: 1 }}>
