@@ -22,6 +22,7 @@ import { POIDetails } from "components/POIDetails";
 import { Portal, PortalHost } from "@gorhom/portal";
 import { ScrollView, View } from "native-base";
 import { placesTypes } from "constants/PlacesTypes";
+import { POIWrapper } from "components/POIWrapper";
 
 type Pin = {
   poiId: string;
@@ -242,7 +243,7 @@ export default function MapScreen({
                 bounces={false}
                 scrollEnabled={currentBottomSheetStatus > 1}
               >
-                <POIDetails
+                <POIWrapper
                   poiId={selectedPoi}
                   key={selectedPoi}
                   onBookPress={(poi) => {

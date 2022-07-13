@@ -1,7 +1,7 @@
 import React from "react";
-import { POIDetails } from "components/POIDetails";
 import { RootStackScreenProps } from "types";
 import { ScrollView } from "native-base";
+import { POIWrapper } from "components/POIWrapper";
 
 export default function POIScreen({
   navigation,
@@ -9,7 +9,7 @@ export default function POIScreen({
 }: RootStackScreenProps<"POI">) {
   return (
     <ScrollView>
-      <POIDetails
+      <POIWrapper
         poiId={route.params.id}
         onPlaceLoad={(place) => {
           navigation.setOptions({

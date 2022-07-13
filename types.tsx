@@ -76,3 +76,36 @@ export type UserStats = {
   followersCount: number;
   followingCount: number;
 };
+
+export type ReviewItem = {
+  id: string;
+  place_id: string;
+  user_id: string;
+  text: string;
+  rating: number;
+  date: Date;
+  user_emoji: string;
+  username: string;
+};
+
+export type POI = {
+  place_id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  phone: string;
+  website: string;
+  google_place_id: string;
+  google_review_rating: number;
+  google_review_count: number;
+  thefork_id: string;
+  workhours: string[];
+};
+
+export type Directions = {
+  driving: number | null;
+  walking: number | null;
+  bicycling: number | null;
+  transit: number | null;
+};

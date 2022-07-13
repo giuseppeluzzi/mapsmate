@@ -43,39 +43,7 @@ import axios from "axios";
 import { useCurrentLocationStore } from "state/currentLocationState";
 import { KEYS } from "constants/Keys";
 import { Linking } from "react-native";
-
-type ReviewItem = {
-  id: string;
-  place_id: string;
-  user_id: string;
-  text: string;
-  rating: number;
-  date: Date;
-  user_emoji: string;
-  username: string;
-};
-
-type POI = {
-  place_id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  address: string;
-  phone: string;
-  website: string;
-  google_place_id: string;
-  google_review_rating: number;
-  google_review_count: number;
-  thefork_id: string;
-  workhours: string[];
-};
-
-type Directions = {
-  driving: number | null;
-  walking: number | null;
-  bicycling: number | null;
-  transit: number | null;
-};
+import { Directions, POI, ReviewItem } from "types";
 
 function timeSince(date: Date) {
   var seconds = Math.floor(
@@ -105,68 +73,6 @@ function timeSince(date: Date) {
   }
   return Math.floor(seconds) + " seconds ago";
 }
-
-const useReview = ({ place_id }: { place_id: string }) => {
-  return useQuery<ReviewItem[]>(["review", place_id], async () => {
-    const { data, error } = await supabase
-      .from("reviews")
-      .select(" *, profiles(*)")
-      .eq("place_id", place_id);
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (!data || data.length === 0) {
-      return [];
-    }
-
-    return data.map((review): ReviewItem => {
-      return {
-        id: review.id,
-        place_id: review.place_id,
-        user_id: review.user_id,
-        text: review.text,
-        rating: review.rate,
-        user_emoji: review.profiles.emoji,
-        username: review.profiles.username,
-        date: review.created_at,
-      };
-    });
-  });
-};
-
-const usePoi = ({ poiID }: { poiID: string }) => {
-  return useQuery<POI | null>(["poi", poiID], async () => {
-    const { data, error } = await supabase
-      .from("pois")
-      .select()
-      .eq("id", poiID);
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (!data || data.length === 0) {
-      return null;
-    }
-
-    return {
-      place_id: data[0].id,
-      name: data[0].name,
-      latitude: data[0].latitude,
-      longitude: data[0].longitude,
-      address: data[0].address,
-      phone: data[0].phone,
-      website: data[0].website,
-      google_place_id: data[0].google_place_id,
-      google_review_rating: data[0].google_review_rating,
-      google_review_count: data[0].google_review_count,
-      thefork_id: data[0].thefork_id,
-      workhours: data[0].workhours,
-    };
-  });
-};
 
 const fetchDirections = ({
   poi,
@@ -207,13 +113,13 @@ const fetchDirections = ({
 };
 
 export const POIDetails = ({
-  poiId,
+  poi,
+  reviews,
   onBookPress,
-  onPlaceLoad,
 }: {
-  poiId: string;
+  poi: POI;
+  reviews: ReviewItem[];
   onBookPress?: (poi: POI) => void;
-  onPlaceLoad?: (poi: POI) => void;
 }) => {
   const reviewBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const directionsBottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -243,15 +149,11 @@ export const POIDetails = ({
   const onCloseAlert = () => setOpenAlert(false);
 
   const invalidateQueries = () => {
-    queryClient.invalidateQueries(["review", poiId], {
+    queryClient.invalidateQueries(["review", poi.place_id], {
       refetchActive: true,
       refetchInactive: true,
     });
   };
-
-  const { data: reviews } = useReview({
-    place_id: poiId,
-  });
 
   if (reviews) {
     userReview = reviews?.filter((review) => review.user_id == user?.id)[0];
@@ -261,22 +163,11 @@ export const POIDetails = ({
     otherReview = [];
   }
 
-  const { data: poi, isSuccess } = usePoi({
-    poiID: poiId,
-  });
-
-  useEffect(() => {
-    if (!poi) return;
-    if (!onPlaceLoad) return;
-
-    onPlaceLoad(poi);
-  }, [poi]);
-
   useEffect(() => {
     supabase
       .from("pois")
       .select("*")
-      .eq("id", poiId)
+      .eq("id", poi.place_id)
       .then((result) => {
         if (!result.data || !result.data[0]) return;
         setImages(
