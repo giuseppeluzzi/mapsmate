@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { makeRedirectUri, startAsync } from "expo-auth-session";
 import { showMessage } from "react-native-flash-message";
+import { User } from "types";
+import { useQuery } from "react-query";
 
 const supabaseUrl = "https://qfjavyudshdwnuoedalk.supabase.co";
 const supabaseAnonKey =
@@ -12,53 +14,24 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   detectSessionInUrl: false,
 });
 
-export const onFacebookLogin = () => {
-  const proxyRedirectUri = makeRedirectUri({
-    useProxy: true,
-  });
-  const redirectUri = makeRedirectUri({
-    path: "/",
-    useProxy: false,
-  });
+export const loadUserProfile = (id: string): Promise<User | null> => {
+  return new Promise((resolve, reject) => {
+    supabase
+      .from("profiles")
+      .select()
+      .eq("id", id)
+      .then((result) => {
+        if (result.error) return reject(result.error);
+        if (!result.data || result.data.length === 0) return resolve(null);
 
-  startAsync({
-    authUrl:
-      "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=" +
-      proxyRedirectUri,
-    returnUrl: redirectUri,
-  }).then(async (result) => {
-    if (!result) return;
-
-    if (result.type === "error" && result.error) {
-      showMessage({
-        message: result.error?.message,
-        type: "danger",
-      });
-
-      return;
-    }
-
-    if (result.type === "success" && result.params) {
-      const { session, error } = await supabase.auth.signIn({
-        refreshToken: result.params.refresh_token,
-      });
-
-      if (error) {
-        showMessage({
-          message: "Unexpected error, please try again",
-          type: "danger",
+        return resolve({
+          id: result.data[0].id,
+          name: result.data[0].name,
+          username: result.data[0].username,
+          email: result.data[0].email,
+          emoji: result.data[0].emoji,
         });
-      }
-
-      if (session && session.refresh_token) {
-        AsyncStorage.setItem("auth/refresh_token", session.refresh_token);
-      }
-    } else {
-      showMessage({
-        message: "Unexpected error, please try again",
-        type: "danger",
       });
-    }
   });
 };
 
@@ -112,4 +85,57 @@ export const initializeUserProfile = (
           });
       }
     });
+};
+
+export const onFacebookLogin = () => {
+  const proxyRedirectUri = makeRedirectUri({
+    useProxy: true,
+  });
+  const redirectUri = makeRedirectUri({
+    path: "/",
+    useProxy: false,
+  });
+
+  startAsync({
+    authUrl:
+      "https://qfjavyudshdwnuoedalk.supabase.co/auth/v1/authorize?provider=facebook&redirect_to=" +
+      proxyRedirectUri,
+    returnUrl: redirectUri,
+  }).then(async (result) => {
+    if (!result) return;
+
+    if (result.type === "error" && result.error) {
+      showMessage({
+        message: result.error?.message,
+        type: "danger",
+      });
+
+      return;
+    }
+
+    if (result.type === "success" && result.params) {
+      const { session, error } = await supabase.auth.signIn({
+        refreshToken: result.params.refresh_token,
+      });
+
+      if (error) {
+        showMessage({
+          message: "Unexpected error, please try again",
+          type: "danger",
+        });
+      }
+
+      if (session && session.refresh_token && session.user) {
+        AsyncStorage.setItem("auth/refresh_token", session.refresh_token);
+
+        // TODO:
+        // initializeUserProfile(session.user.id);
+      }
+    } else {
+      showMessage({
+        message: "Unexpected error, please try again",
+        type: "danger",
+      });
+    }
+  });
 };

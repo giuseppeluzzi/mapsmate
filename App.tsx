@@ -9,7 +9,7 @@ import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 
-import { supabase } from "./lib/supabase";
+import { loadUserProfile, supabase } from "./lib/supabase";
 import { useStore } from "./state/userState";
 
 import FlashMessage from "react-native-flash-message";
@@ -51,23 +51,9 @@ export default function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session && session.user && event !== "SIGNED_IN") {
-          supabase
-            .from("profiles")
-            .select()
-            .eq("id", session.user.id)
-            .then((result) => {
-              if (result.error) return setUser(null);
-              if (!result.data || result.data.length === 0)
-                return setUser(null);
-
-              setUser({
-                id: result.data[0].id,
-                name: result.data[0].name,
-                username: result.data[0].username,
-                email: result.data[0].email,
-                emoji: result.data[0].emoji,
-              });
-            });
+          loadUserProfile(session.user.id).then((user) => {
+            setUser(user);
+          });
         } else if (event == "SIGNED_OUT") {
           setUser(null);
         }
@@ -80,6 +66,7 @@ export default function App() {
         const { session, error } = await supabase.auth.signIn({
           refreshToken: value,
         });
+
         if (error) {
           AsyncStorage.removeItem("auth/refresh_token");
           setAuthCheckCompleted(true);
