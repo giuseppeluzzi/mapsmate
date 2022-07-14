@@ -30,6 +30,7 @@ export const loadUserProfile = (id: string): Promise<User | null> => {
           username: result.data[0].username,
           email: result.data[0].email,
           emoji: result.data[0].emoji,
+          biography: result.data[0].biography,
         });
       });
   });
@@ -39,7 +40,8 @@ export const initializeUserProfile = (
   id: string,
   name: string,
   username: string,
-  email: string
+  email: string,
+  biography: string
 ) => {
   const emojis = [
     "🤪",
@@ -78,6 +80,7 @@ export const initializeUserProfile = (
               username: username,
               email: email,
               emoji: emojis[Math.floor(Math.random() * (emojis.length + 1))],
+              biography: "",
             },
           ])
           .then((data) => {

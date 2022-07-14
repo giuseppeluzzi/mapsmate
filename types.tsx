@@ -70,6 +70,7 @@ export type User = {
   username: string;
   email: string;
   emoji: string;
+  biography: string | "";
 };
 
 export type UserStats = {

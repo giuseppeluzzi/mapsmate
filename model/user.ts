@@ -23,6 +23,7 @@ export const useUser = ({ userId }: { userId: string }) => {
       username: data[0].username,
       email: data[0].email,
       emoji: data[0].emoji,
+      biography: data[0].biography
     };
   });
 };

@@ -8,6 +8,7 @@ import {
   Icon,
   ScrollView,
   Text,
+  TextArea,
   VStack,
 } from "native-base";
 import { Path } from "react-native-svg";
@@ -101,6 +102,18 @@ export default function UserProfile({
               <Text>following</Text>
             </VStack>
           </HStack>
+          {user.biography && (
+            <HStack>
+              <Text
+                p="1"
+                borderRadius="sm"
+                borderColor="gray.200"
+                borderWidth="1"
+              >
+                {user.biography}
+              </Text>
+            </HStack>
+          )}
           <HStack flexWrap={"wrap"} space={3}>
             {followButton && onFollowPress && (
               <Button

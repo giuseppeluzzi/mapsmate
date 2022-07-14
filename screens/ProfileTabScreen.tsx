@@ -34,34 +34,34 @@ export default function ProfileTabScreens({
   if (isLoading || !userStats) return <Spinner size={"lg"} mt={3} />;
   return (
     <SafeAreaView>
+      <UserProfile
+        user={user}
+        stats={userStats}
+        settingsButton={true}
+        onSettingsPress={() => {
+          navigation.navigate("Settings");
+        }}
+      />
       <ScrollView>
-        <UserProfile
-          user={user}
-          stats={userStats}
-          settingsButton={true}
-          onSettingsPress={() => {
-            navigation.navigate("Settings");
-          }}
-        />
+        <Button
+          marginRight={"6"}
+          marginTop={"80"}
+          alignSelf={"flex-end"}
+          h={10}
+          w={10}
+          variant={"primary"}
+          size={"sm"}
+          onPress={() => supabase.auth.signOut()}
+        >
+          <Icon viewBox="0 0 24 24" fill="none" stroke-width="6">
+            <Path
+              stroke="black"
+              strokeLinejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </Icon>
+        </Button>
       </ScrollView>
-      <Button
-        marginRight={"6"}
-        marginTop={"96"}
-        alignSelf={"flex-end"}
-        h={10}
-        w={10}
-        variant={"primary"}
-        size={"sm"}
-        onPress={() => supabase.auth.signOut()}
-      >
-        <Icon viewBox="0 0 24 24" fill="none" stroke-width="6">
-          <Path
-            stroke="black"
-            strokeLinejoin="round"
-            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-          />
-        </Icon>
-      </Button>
     </SafeAreaView>
   );
 }
