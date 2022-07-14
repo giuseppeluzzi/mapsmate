@@ -23,10 +23,6 @@ import EmojiPicker, { EmojiKeyboard } from "rn-emoji-keyboard";
 
 import { RootStackParamList, RootTabScreenProps } from "../types";
 import { Path } from "react-native-svg";
-import { positionStyle } from "react-native-flash-message";
-import { TextInput, TouchableOpacity } from "react-native";
-import tailwind from "tailwind-rn";
-import { background } from "native-base/lib/typescript/theme/styled-system";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import useIsTablet from "hooks/useIsTablet";
 
