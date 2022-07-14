@@ -488,9 +488,12 @@ export const POIDetails = ({
               >
                 <Box mb={"3"} flexDirection={"row"} alignItems={"center"}>
                   <Avatar size={"md"}>{userReview.user_emoji}</Avatar>
-                  <Text p={"3"} fontWeight={"semibold"}>
-                    {userReview.username}
-                  </Text>
+                  <VStack>
+                    <Text px={"3"} fontWeight={"semibold"}>
+                      {userReview.user_name}
+                    </Text>
+                    <Text px={"3"}>{userReview.username}</Text>
+                  </VStack>
                   <Button
                     variant={"primary"}
                     h={10}
@@ -502,7 +505,9 @@ export const POIDetails = ({
                     position={"absolute"}
                     right={"0"}
                   >
-                    ...
+                    <Icon fill="#black" viewBox="0 0 20 20">
+                      <Path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </Icon>
                   </Button>
 
                   <Actionsheet isOpen={isOpen} onClose={onClose} disableOverlay>
@@ -609,9 +614,12 @@ export const POIDetails = ({
                 >
                   <Box mb={"3"} flexDirection={"row"} alignItems={"center"}>
                     <Avatar size={"md"}>{review.user_emoji}</Avatar>
-                    <Text p={"3"} alignSelf={"center"} fontWeight={"semibold"}>
-                      {review.username}
-                    </Text>
+                    <VStack>
+                      <Text p={"3"} fontWeight={"semibold"}>
+                        {review.user_name}
+                      </Text>
+                      <Text p={"3"}>{review.username}</Text>
+                    </VStack>
                   </Box>
                   <Box mb={"3"} flexDirection={"row"}>
                     <StarRating

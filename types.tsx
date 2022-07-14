@@ -87,6 +87,7 @@ export type ReviewItem = {
   rating: number;
   date: Date;
   user_emoji: string;
+  user_name: string;
   username: string;
 };
 
