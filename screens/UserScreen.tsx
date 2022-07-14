@@ -103,6 +103,10 @@ export default function UserScreen({
       refetchActive: true,
       refetchInactive: true,
     });
+    queryClient.invalidateQueries(["userMapPins", user.id], {
+      refetchActive: true,
+      refetchInactive: true,
+    });
   };
 
   const followUser = async () => {

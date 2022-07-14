@@ -25,6 +25,7 @@ export const useReview = ({ place_id }: { place_id: string }) => {
         text: review.text,
         rating: review.rate,
         user_emoji: review.profiles.emoji,
+        user_name: review.profiles.name,
         username: review.profiles.username,
         date: review.created_at,
       };
