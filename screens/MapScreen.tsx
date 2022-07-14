@@ -130,7 +130,6 @@ export default function MapScreen({
     <>
       <MapView
         ref={mapRef}
-        provider={"google"}
         showsCompass={true}
         showsBuildings={false}
         showsPointsOfInterest={false}

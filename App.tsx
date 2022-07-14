@@ -167,6 +167,19 @@ export default function App() {
 
             return styleObject;
           },
+          ghost: (props: any) => {
+            const styleObject = {
+              bg: "transparent",
+              _hover: {
+                bg: "primary.500",
+              },
+              _pressed: {
+                bg: "primary.500",
+              },
+            };
+
+            return styleObject;
+          },
           white: (props: any) => {
             const styleObject = {
               bg: "white",
@@ -232,6 +245,7 @@ export default function App() {
         defaultProps: {
           borderWidth: 0,
           bg: "white",
+          fontSize: "md",
         },
       },
     },

@@ -40,8 +40,7 @@ export const initializeUserProfile = (
   id: string,
   name: string,
   username: string,
-  email: string,
-  biography: string
+  email: string
 ) => {
   const emojis = [
     "🤪",

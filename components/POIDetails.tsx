@@ -234,7 +234,7 @@ export const POIDetails = ({
               <Text fontWeight={"bold"} fontSize={"20"}>
                 {poi.name}
               </Text>
-              <Text>{poi.address}</Text>
+              <Text testID={"poiAddress"}>{poi.address}</Text>
             </Box>
             <View
               bg={"white"}
@@ -248,7 +248,6 @@ export const POIDetails = ({
                   height: 150,
                   borderRadius: 10,
                 }}
-                provider={"google"}
                 scrollEnabled={false}
                 initialRegion={{
                   latitude: poi.latitude,

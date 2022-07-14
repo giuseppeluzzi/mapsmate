@@ -33,7 +33,7 @@ const wrapper = ({ children }) => {
 // Settings
 
 it("it shows info", () => {
-  const { queryByText, toJSON } = render(
+  const { queryByText, queryByTestId } = render(
     <POIDetails
       poi={{
         place_id: "test-id-1",
@@ -62,7 +62,7 @@ it("it shows info", () => {
   );
 
   expect(queryByText("NomeTest")).toBeTruthy();
-  // expect(queryByText("via Test 123")).toBeTruthy();
+  expect(queryByTestId("poiAddress")).toBeTruthy();
   expect(queryByText("+39123456789")).toBeTruthy();
   expect(queryByText("www.sitotest.com")).toBeTruthy();
   /* expect(queryByText("lunedì: 10-11")).toBeTruthy();
