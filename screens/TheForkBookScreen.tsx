@@ -12,7 +12,6 @@ export default function TheForkBookScreen({
       source={{
         uri: `https://module.lafourchette.com/it_IT/module/${route.params.theFork_id}-f8d81`,
       }}
-      onNavigationStateChange={(event) => console.log(event)}
     />
   );
 }
