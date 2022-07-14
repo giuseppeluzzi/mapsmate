@@ -34,12 +34,14 @@ export default function UserProfile({
   onUnfollowPress?: () => void;
   onSettingsPress?: () => void;
 }) {
+  console.log(user);
   return (
     <>
       <ScrollView>
         <VStack
           position={"relative"}
-          py={6}
+          pt={6}
+          pb={6}
           px={4}
           space={6}
           alignItems={"center"}
@@ -102,16 +104,15 @@ export default function UserProfile({
             </VStack>
           </HStack>
           {user.biography && (
-            <HStack>
-              <Text
-                p="1"
-                borderRadius="sm"
-                borderColor="gray.200"
-                borderWidth="1"
-              >
-                {user.biography}
-              </Text>
-            </HStack>
+            <Text
+              px={4}
+              borderRadius="sm"
+              borderColor="gray.200"
+              borderWidth="0"
+              textAlign="center"
+            >
+              {user.biography}
+            </Text>
           )}
           <HStack flexWrap={"wrap"} space={3}>
             {followButton && onFollowPress && (

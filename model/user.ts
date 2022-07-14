@@ -17,13 +17,15 @@ export const useUser = ({ userId }: { userId: string }) => {
       return null;
     }
 
+    console.log(data[0]);
+
     return {
       id: data[0].id,
       name: data[0].name,
       username: data[0].username,
       email: data[0].email,
       emoji: data[0].emoji,
-      biography: data[0].biography
+      biography: data[0].biography,
     };
   });
 };

@@ -40,7 +40,7 @@ const queryClient = new QueryClient({
   },
 });
 
-ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+// ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
