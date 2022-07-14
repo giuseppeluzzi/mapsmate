@@ -40,6 +40,7 @@ import SettingsScreen from "screens/SettingsScreen";
 import UserScreen from "screens/UserScreen";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 import TheForkBookScreen from "screens/TheForkBookScreen";
+import useIsTablet from "hooks/useIsTablet";
 
 export default function Navigation({
   colorScheme,
@@ -180,7 +181,7 @@ function RootNavigator() {
           >
             <Stack.Screen
               name="Settings"
-              options={{ headerShown: false }}
+              options={{ headerShown: true, title: "Settings" }}
               component={SettingsScreen}
             />
             <Stack.Screen
@@ -213,6 +214,7 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
 function HomeBottomTabNavigator() {
   const theme = useTheme();
+  const { isTablet } = useIsTablet();
 
   return (
     <BottomTab.Navigator
@@ -277,7 +279,8 @@ function HomeBottomTabNavigator() {
               bg={focused ? "primary.400" : "transparent"}
               borderRadius={"full"}
               p={1.5}
-              marginBottom={focused ? 0 : -4}
+              marginBottom={focused || isTablet ? 0 : -4}
+              marginRight={isTablet ? 8 : 0}
             >
               <Svg fill="none" height={32} width={32}>
                 <Path
@@ -303,7 +306,8 @@ function HomeBottomTabNavigator() {
               bg={focused ? "primary.400" : "transparent"}
               borderRadius={"full"}
               p={1.5}
-              marginBottom={focused ? 0 : -4}
+              marginBottom={focused || isTablet ? 0 : -4}
+              marginRight={isTablet ? 8 : 0}
             >
               <Svg fill="none" height={32} width={32}>
                 <Path
@@ -336,7 +340,8 @@ function HomeBottomTabNavigator() {
               bg={focused ? "primary.400" : "transparent"}
               borderRadius={"full"}
               p={1.5}
-              marginBottom={focused ? 0 : -4}
+              marginBottom={focused || isTablet ? 0 : -4}
+              marginRight={isTablet ? 8 : 0}
             >
               <Svg fill="none" height={32} width={32}>
                 <Path

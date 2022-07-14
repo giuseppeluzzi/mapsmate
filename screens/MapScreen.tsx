@@ -23,6 +23,8 @@ import { Portal, PortalHost } from "@gorhom/portal";
 import { ScrollView, View } from "native-base";
 import { placesTypes } from "constants/PlacesTypes";
 import { POIWrapper } from "components/POIWrapper";
+import useIsTablet from "hooks/useIsTablet";
+import { Dimensions } from "react-native";
 
 type Pin = {
   poiId: string;
@@ -65,6 +67,8 @@ const useMapPins = ({ userId }: { userId: string }) => {
 export default function MapScreen({
   navigation,
 }: RootTabScreenProps<"MapTab">) {
+  const { isTablet } = useIsTablet();
+
   const poiBottomSheetRef = useRef<BottomSheet>(null);
   const poiBottomSheetScrollViewRef = useRef<ScrollView>(null);
 
@@ -196,11 +200,25 @@ export default function MapScreen({
       </MapView>
       <Portal>
         <BottomSheet
+          detached={isTablet}
           ref={poiBottomSheetRef}
           index={-1}
           enableContentPanningGesture={true}
           enablePanDownToClose={true}
-          snapPoints={["40%", "41%", "90%"]}
+          snapPoints={isTablet ? ["90%", "90%", "90%"] : ["40%", "41%", "90%"]}
+          style={
+            isTablet
+              ? {
+                  maxWidth: 500,
+                  marginLeft: 40,
+                  marginTop: -20,
+                  maxHeight: Dimensions.get("window").height * 0.8,
+                  overflow: "hidden",
+                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 10,
+                }
+              : {}
+          }
           handleComponent={(handleProps) => (
             <BottomSheetHandle
               {...handleProps}
@@ -233,6 +251,7 @@ export default function MapScreen({
           {selectedPoi.length > 0 && (
             <BottomSheetView
               style={{
+                paddingTop: isTablet ? 100 : 0,
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10,
                 overflow: "hidden",

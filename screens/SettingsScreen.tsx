@@ -28,10 +28,12 @@ import { TextInput, TouchableOpacity } from "react-native";
 import tailwind from "tailwind-rn";
 import { background } from "native-base/lib/typescript/theme/styled-system";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import useIsTablet from "hooks/useIsTablet";
 
 export default function ExploreScreen({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "Settings">) {
+  const { isTablet } = useIsTablet();
   const { user } = useStore();
 
   const [username, setUsername] = useState<string>();
@@ -82,9 +84,9 @@ export default function ExploreScreen({
 
   return (
     <SafeAreaView>
-      <ScrollView>
-        <Box marginTop={20}>
-          <Avatar alignSelf={"center"} mt={"4"} size="2xl" bg="gray.900">
+      <ScrollView px={4}>
+        <Box>
+          <Avatar alignSelf={"center"} mt={"4"} size="2xl" bg="gray.200">
             {userEmoji}
           </Avatar>
           <IconButton
@@ -108,7 +110,19 @@ export default function ExploreScreen({
               enableSearchBar
               categoryPosition="top"
               enableRecentlyUsed
+              searchBarStyles={isTablet ? { marginBottom: 5 } : {}}
+              containerStyles={
+                isTablet
+                  ? {
+                      maxWidth: 500,
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      paddingBottom: 10,
+                    }
+                  : {}
+              }
             />
+
             <Icon size={"md"} viewBox="0 0 24 24">
               <Path
                 fill-rule="evenodd"
@@ -123,33 +137,46 @@ export default function ExploreScreen({
           <Text bold fontSize={16}></Text>
         </Box>
         <VStack space={5} p={1} paddingBottom={24}>
-          <Input
-            onChangeText={(text) => setUsername(text)}
-            placeholder="Change your username"
-            value={username}
-          ></Input>
-          <Input
-            h={"16"}
-            onChangeText={(text) => setName(text)}
-            placeholder="Change your name"
-            value={name}
-          ></Input>
-          <Input
-            h={"16"}
-            onChangeText={(text) => setMail(text)}
-            placeholder="Change your email"
-            value={email}
-          ></Input>
-          <TextArea
-            h={"32"}
-            onChangeText={(text) => setBiography(text)}
-            placeholder="Change your biography"
-            value={biography}
-          ></TextArea>
+          <VStack space={2}>
+            <Text>Username</Text>
+            <Input
+              placeholder="Type here your username"
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+            />
+          </VStack>
+          <VStack space={2}>
+            <Text>Name</Text>
+            <Input
+              placeholder="Type here your name"
+              value={name}
+              onChangeText={(text) => setName(text)}
+            />
+          </VStack>
+          <VStack space={2}>
+            <Text>Email</Text>
+            <Input
+              placeholder="Type here your email"
+              value={email}
+              onChangeText={(text) => setMail(text)}
+            />
+          </VStack>
+          <VStack space={2}>
+            <Text>Biography</Text>
+            <TextArea
+              h={"32"}
+              autoCompleteType={"off"}
+              borderWidth={0}
+              bg={"white"}
+              placeholder="Type here your biography"
+              value={biography}
+              onChangeText={(text) => setBiography(text)}
+            />
+          </VStack>
         </VStack>
 
         <Box>
-          <Button onPress={update} w={"1/3"} alignSelf={"center"}>
+          <Button onPress={update} alignSelf={"center"}>
             Save
           </Button>
         </Box>
