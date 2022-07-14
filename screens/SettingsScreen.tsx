@@ -1,4 +1,4 @@
-import { supabase } from "lib/supabase";
+import { loadUserProfile, supabase } from "lib/supabase";
 import {
   Avatar,
   Box,
@@ -40,6 +40,8 @@ export default function ExploreScreen({
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  const { setUser } = useStore();
+
   useEffect(() => {
     supabase
       .from("profiles")
@@ -75,6 +77,9 @@ export default function ExploreScreen({
       })
       .match({ id: user?.id });
 
+    loadUserProfile(user!.id).then((user) => {
+      setUser(user);
+    });
     navigation.goBack();
   };
 
