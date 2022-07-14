@@ -24,7 +24,7 @@ import { ScrollView, View } from "native-base";
 import { placesTypes } from "constants/PlacesTypes";
 import { POIWrapper } from "components/POIWrapper";
 import useIsTablet from "hooks/useIsTablet";
-import { Dimensions } from "react-native";
+import { Dimensions, Platform } from "react-native";
 
 type Pin = {
   poiId: string;
@@ -101,6 +101,7 @@ export default function MapScreen({
           latitude: latitude,
           longitude: longitude,
         },
+        altitude: 7000,
         zoom: 14,
       });
     }
@@ -152,7 +153,7 @@ export default function MapScreen({
             currentLocation.longitude
           );
         }}
-        customMapStyle={[
+        customMapStyle={Platform.OS !== "ios" ? [
           {
             featureType: "poi",
             stylers: [
@@ -161,7 +162,7 @@ export default function MapScreen({
               },
             ],
           },
-        ]}
+        ] : []}
       >
         {data &&
           data.map((item, index) => (
