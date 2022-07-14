@@ -14,7 +14,6 @@ import {
   useDisclose,
   AlertDialog,
   Spinner,
-  ScrollView,
 } from "native-base";
 
 import Swiper from "react-native-swiper";
@@ -38,7 +37,11 @@ import { Review } from "./Review";
 import { useQuery, useQueryClient } from "react-query";
 import { useStore } from "state/userState";
 import Svg, { Circle, Path } from "react-native-svg";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  NativeViewGestureHandler,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native-gesture-handler";
 import axios from "axios";
 import { useCurrentLocationStore } from "state/currentLocationState";
 import { KEYS } from "constants/Keys";
@@ -425,7 +428,13 @@ export const POIDetails = ({
         </Text>
         {userReview && (
           <>
-            <VStack paddingX={"4"} bgColor={"red"} space={4} pb={"5"}>
+            <VStack
+              testID={"userReviewField"}
+              paddingX={"4"}
+              bgColor={"red"}
+              space={4}
+              pb={"5"}
+            >
               <Text>Your review</Text>
 
               <Box
@@ -539,7 +548,13 @@ export const POIDetails = ({
           </>
         )}
         {otherReview && (
-          <VStack mb={"16"} paddingX={"4"} bgColor={"red"} space={4}>
+          <VStack
+            testID={"otherReviewsField"}
+            mb={"16"}
+            paddingX={"4"}
+            bgColor={"red"}
+            space={4}
+          >
             {otherReview.map((review) => {
               return (
                 <Box
@@ -600,6 +615,7 @@ export const POIDetails = ({
           !userReview && (
             <>
               <Button
+                testID="addReviewButton"
                 variant={"primary"}
                 m={"12"}
                 alignSelf={"center"}
@@ -616,7 +632,7 @@ export const POIDetails = ({
           )
         )}
 
-        {poi != null && (
+        {poi != null && poi && (
           <>
             <View>
               <BottomSheetModal
