@@ -4,6 +4,7 @@ import { Avatar, Box, Button, HStack, Icon, Text, VStack } from "native-base";
 import { Path } from "react-native-svg";
 
 import { User, UserStats } from "types";
+import { supabase } from "lib/supabase";
 
 export default function UserProfile({
   user,
@@ -123,6 +124,14 @@ export default function UserProfile({
           )}
         </HStack>
       </VStack>
+      <Button
+        onPress={() => supabase.auth.signOut()}
+        position={"absolute"}
+        alignSelf={"center"}
+        bottom={"0"}
+        w={"10"}
+        size={"sm"}
+      ></Button>
     </>
   );
 }

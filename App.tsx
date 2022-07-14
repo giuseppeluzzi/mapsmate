@@ -27,6 +27,7 @@ import { PortalProvider } from "@gorhom/portal";
 
 import { LogBox, Platform, View } from "react-native";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 LogBox.ignoreLogs(["Setting a timer"]);
 LogBox.ignoreLogs(["NativeBase:"]);
@@ -38,6 +39,8 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
 
 export default function App() {
   const isLoadingComplete = useCachedResources();

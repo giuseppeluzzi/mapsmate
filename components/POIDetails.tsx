@@ -505,6 +505,7 @@ export const POIDetails = ({
 
                                   reviewBottomSheetModalRef.current?.close();
                                   onCloseAlert();
+                                  onClose();
                                   invalidateQueries();
                                 }}
                               >
@@ -615,7 +616,7 @@ export const POIDetails = ({
           )
         )}
 
-        {poi != null && poi && (
+        {poi != null && (
           <>
             <View>
               <BottomSheetModal

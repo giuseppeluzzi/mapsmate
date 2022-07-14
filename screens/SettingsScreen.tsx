@@ -79,7 +79,7 @@ export default function ExploreScreen({
       })
       .match({ id: user?.id });
 
-    navigation.navigate("Profile");
+    navigation.goBack();
   };
 
   return (
