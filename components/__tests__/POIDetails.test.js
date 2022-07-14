@@ -19,7 +19,7 @@ const place = {
   google_place_id: "google-test-id-1",
   google_review_rating: 4,
   google_review_count: 100,
-  thefork_id: "",
+  thefork_id: "273255",
   workhours: [
     "lunedì: 10-11",
     "martedì: 10-11",
@@ -123,6 +123,73 @@ it('it shows add review button', ()=>{
   expect(queryByTestId('addReviewButton')).toBeTruthy()
 })
 
+it('it allows to book on the fork', ()=>{
+  const {queryByTestId, toJSON} = render (
+    <POIDetails reviews={reviews} poi={place} onBookPress={true}
+    />, {wrapper});
+
+    expect(queryByTestId('TheForkButton')).toBeTruthy()
+  })
+
+it('it does not allow to book on the fork', ()=>{
+  const {queryByTestId, toJSON} = render (
+    <POIDetails reviews={reviews} poi={{
+      place_id: "test-id-1",
+      name: "NomeTest",
+      latitude: 1.0,
+      longitude: 2.0,
+      address: "via Test 123",
+      phone: "+39123456789",
+      website: "www.sitotest.com",
+      google_place_id: "google-test-id-1",
+      google_review_rating: 4,
+      google_review_count: 100,
+      thefork_id: "",
+      workhours: [
+        "lunedì: 10-11",
+        "martedì: 10-11",
+        "mercoledì: 10-11",
+        "giovedì: 10-11",
+        "venerdì: 10-11",
+        "sabato: 10-11",
+        "domenica: 10-11",
+      ],
+    }} onBookPress={true}
+    />, {wrapper});
+
+    expect(queryByTestId('TheForkButton')).toBeFalsy()
+  })
+
+it('it allow to book on the fork', ()=>{
+  const {queryByTestId, toJSON} = render (
+    <POIDetails onBookPress={true} reviews={reviews} poi={({
+        place_id: "test-id-1",
+        name: "NomeTest",
+        latitude: 1.0,
+        longitude: 2.0,
+        address: "via Test 123",
+        phone: "+39123456789",
+        website: "www.sitotest.com",
+        google_place_id: "google-test-id-1",
+        google_review_rating: 4,
+        google_review_count: 100,
+        thefork_id: "test-the-fork-id",
+        workhours: [
+          "lunedì: 10-11",
+          "martedì: 10-11",
+          "mercoledì: 10-11",
+          "giovedì: 10-11",
+          "venerdì: 10-11",
+          "sabato: 10-11",
+          "domenica: 10-11",
+      ]})
+    }
+    />, {wrapper})
+
+    expect(queryByTestId('TheForkButton')).toBeTruthy()
+  })
+
+ 
 it("it shows info", () => {
   const { queryByText, queryByTestId } = render(
     <POIDetails
@@ -141,5 +208,6 @@ it("it shows info", () => {
   expect(queryByText("giovedì: 10-11")).toBeTruthy();
   expect(queryByText("venerdì: 10-11")).toBeTruthy();
   expect(queryByText("sabato: 10-11")).toBeTruthy();
-  expect(queryByText("domenica: 10-11")).toBeTruthy(); */
-});
+  expect(queryByText("domenica: 10-11")).toBeTruthy(); 
+  */
+})

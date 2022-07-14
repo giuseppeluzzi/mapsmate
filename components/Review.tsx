@@ -76,6 +76,7 @@ export const Review = ({
             ></StarRating>
           </Box>
           <TextArea
+            testID={"reviewText"}
             placeholder={"Leave a comment"}
             fontWeight={"normal"}
             m={"4"}
