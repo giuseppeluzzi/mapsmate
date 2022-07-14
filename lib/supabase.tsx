@@ -64,7 +64,7 @@ export const initializeUserProfile = (
     "🍓",
   ];
 
-  supabase
+  return supabase
     .from("profiles")
     .select("id")
     .eq("id", id)

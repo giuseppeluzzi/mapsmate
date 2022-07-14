@@ -66,7 +66,7 @@ export default function WelcomeScreen({
     }
 
     if (user) {
-      initializeUserProfile(user.id, name, username, mail);
+      await initializeUserProfile(user.id, name, username, mail);
       loadUserProfile(user.id).then((user) => {
         setUser(user);
       });
