@@ -1,14 +1,14 @@
-import * as React from "react";
+import React from "react";
 import UserProfile from "components/UserProfile";
 import { Box, ScrollView, Spinner } from "native-base";
 
 import { supabase } from "lib/supabase";
 import { showMessage } from "react-native-flash-message";
 import { useQuery, useQueryClient } from "react-query";
-import { RootStackScreenProps, User, UserStats } from "types";
+import { RootStackScreenProps } from "types";
 import { useStore } from "state/userState";
 import { useEffect } from "react";
-import { useUser, useUserStats } from "model/User";
+import { useUser, useUserStats } from "model/user";
 
 const useUserIsFollowing = ({
   userId,

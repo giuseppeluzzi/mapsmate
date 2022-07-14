@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { Button, Icon, ScrollView, Spinner } from "native-base";
 
@@ -10,9 +10,9 @@ import UserProfile from "components/UserProfile";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { showMessage } from "react-native-flash-message";
-import { useUserStats } from "model/User";
 import { supabase } from "lib/supabase";
 import { Path } from "react-native-svg";
+import { useUserStats } from "model/user";
 
 export default function ProfileTabScreens({
   navigation,

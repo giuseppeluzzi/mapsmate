@@ -14,7 +14,6 @@ import {
 import { Path } from "react-native-svg";
 
 import { User, UserStats } from "types";
-import { supabase } from "lib/supabase";
 
 export default function UserProfile({
   user,
