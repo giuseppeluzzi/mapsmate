@@ -196,6 +196,7 @@ export const POIDetails = ({
           />
           {images.length > 0 && (
             <Swiper
+              loadMinimal={true}
               paginationStyle={{}}
               dotStyle={{
                 backgroundColor: "white",
