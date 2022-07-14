@@ -34,7 +34,6 @@ export default function UserProfile({
   onUnfollowPress?: () => void;
   onSettingsPress?: () => void;
 }) {
-  console.log(user);
   return (
     <>
       <ScrollView>

@@ -17,8 +17,6 @@ export const useUser = ({ userId }: { userId: string }) => {
       return null;
     }
 
-    console.log(data[0]);
-
     return {
       id: data[0].id,
       name: data[0].name,
