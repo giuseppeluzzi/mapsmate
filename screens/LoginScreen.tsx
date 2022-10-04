@@ -133,7 +133,7 @@ export default function WelcomeScreen({
             Login
           </Button>
 
-          <VStack space={3}>
+          {/* <VStack space={3}>
             <Text textAlign={"center"}>or login with your social account</Text>
 
             <Button
@@ -157,7 +157,7 @@ export default function WelcomeScreen({
                 </Text>
               </HStack>
             </Button>
-          </VStack>
+          </VStack> */}
         </VStack>
       </ScrollView>
     </SafeAreaView>

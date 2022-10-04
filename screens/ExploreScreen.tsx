@@ -645,7 +645,11 @@ export default function ExploreScreen({
           }
           InputRightElement={
             search.length > 0 && (
-              <TouchableOpacity onPress={() => setSearch("")}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSearch("");
+                }}
+              >
                 <Icon size={6} viewBox="0 0 20 20" mr={4} fill="#393939">
                   <Path
                     fillRule="evenodd"

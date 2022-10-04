@@ -188,31 +188,35 @@ export default function WelcomeScreen({
             Join mapsmate!
           </Button>
 
-          <VStack space={3}>
-            <Text textAlign={"center"}>or login with your social account</Text>
+          {/*
+            <VStack space={3}>
+              <Text textAlign={"center"}>
+                or login with your social account
+              </Text>
 
-            <Button
-              bg={"blue.700"}
-              alignSelf={"center"}
-              px={12}
-              py={3}
-              rounded={16}
-              onPress={onFacebookLogin}
-            >
-              <HStack space={3} alignItems={"center"}>
-                <Svg
-                  viewBox="0 0 30 30"
-                  fill="currentColor"
-                  style={tailwind("h-8 w-8 text-white mr-3")}
-                >
-                  <Path d="M15 3C8.373 3 3 8.373 3 15s5.373 12 12 12 12-5.373 12-12S21.627 3 15 3zm4.181 8h-1.729C16.376 11 16 11.568 16 12.718V14h3.154l-.428 3H16v7.95a10.057 10.057 0 0 1-3-.151V17h-3v-3h3v-1.611C13 9.339 14.486 8 17.021 8c1.214 0 1.856.09 2.16.131V11z" />
-                </Svg>
-                <Text fontSize={"lg"} color={"white"}>
-                  Facebook
-                </Text>
-              </HStack>
-            </Button>
-          </VStack>
+              <Button
+                bg={"blue.700"}
+                alignSelf={"center"}
+                px={12}
+                py={3}
+                rounded={16}
+                onPress={onFacebookLogin}
+              >
+                <HStack space={3} alignItems={"center"}>
+                  <Svg
+                    viewBox="0 0 30 30"
+                    fill="currentColor"
+                    style={tailwind("h-8 w-8 text-white mr-3")}
+                  >
+                    <Path d="M15 3C8.373 3 3 8.373 3 15s5.373 12 12 12 12-5.373 12-12S21.627 3 15 3zm4.181 8h-1.729C16.376 11 16 11.568 16 12.718V14h3.154l-.428 3H16v7.95a10.057 10.057 0 0 1-3-.151V17h-3v-3h3v-1.611C13 9.339 14.486 8 17.021 8c1.214 0 1.856.09 2.16.131V11z" />
+                  </Svg>
+                  <Text fontSize={"lg"} color={"white"}>
+                    Facebook
+                  </Text>
+                </HStack>
+              </Button>
+            </VStack>
+          */}
         </VStack>
       </ScrollView>
     </SafeAreaView>
