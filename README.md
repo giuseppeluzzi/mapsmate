@@ -1,6 +1,6 @@
 ![mapsmate](/docs/assets/logo.png "mapsmate")
 
-MapsMate is an application with the aim to create a community among friends who keep track of the places they have been around the world, collecting their reviews about them.
+mapsmate is an application with the aim to create a community among friends who keep track of the places they have been around the world, collecting their reviews about them.
 
 Through the app it is possible to retrieve directions, phone number, workhours and website of the places and it also allows to book via the integration with TheFork™!
 
